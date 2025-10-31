@@ -49,7 +49,7 @@ Le texte doit être écrit pour être lu à voix haute, avec des pauses naturell
 export async function generateAudio(
   apiKey: string,
   text: string,
-  voiceId: string = 'EXAVITQu4vr4xnSDxMaL' // Voix par défaut Sarah
+  voiceId: string = 'xsNzdCmWJpYoa80FaXJi' // Voix personnalisée
 ): Promise<string> {
   const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
     method: 'POST',
