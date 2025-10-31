@@ -28,9 +28,9 @@ function App() {
   const [responses, setResponses] = useState<UserResponse[]>([]);
   const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
 
-  // API Keys - À configurer par l'utilisateur
-  const [anthropicApiKey, setAnthropicApiKey] = useState<string>('');
-  const [elevenlabsApiKey, setElevenlabsApiKey] = useState<string>('');
+  // API Keys - Configurées via variables d'environnement
+  const anthropicApiKey = import.meta.env.VITE_ANTHROPIC_API_KEY || '';
+  const elevenlabsApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || '';
 
   useEffect(() => {
     // Charger l'utilisateur depuis le stockage
@@ -39,12 +39,6 @@ function App() {
       setUser(savedUser);
       setScreen('date');
     }
-
-    // Charger les clés API depuis le localStorage
-    const savedAnthropicKey = localStorage.getItem('halterra_anthropic_key');
-    const savedElevenlabsKey = localStorage.getItem('halterra_elevenlabs_key');
-    if (savedAnthropicKey) setAnthropicApiKey(savedAnthropicKey);
-    if (savedElevenlabsKey) setElevenlabsApiKey(savedElevenlabsKey);
   }, []);
 
   const handleLandingStart = () => {
@@ -109,40 +103,6 @@ function App() {
     setSelectedSession(null);
   };
 
-  // Composant pour la configuration des API keys
-  const renderApiKeyPrompt = () => {
-    if (!anthropicApiKey && screen === 'meditation') {
-      return (
-        <div className="api-key-prompt">
-          <h3>Configuration requise</h3>
-          <p>Veuillez entrer votre clé API Anthropic pour générer les méditations :</p>
-          <input
-            type="password"
-            placeholder="sk-ant-..."
-            value={anthropicApiKey}
-            onChange={(e) => {
-              setAnthropicApiKey(e.target.value);
-              localStorage.setItem('halterra_anthropic_key', e.target.value);
-            }}
-          />
-          <p className="api-hint">
-            Optionnel : Clé API ElevenLabs pour la narration audio
-          </p>
-          <input
-            type="password"
-            placeholder="Clé ElevenLabs (optionnel)"
-            value={elevenlabsApiKey}
-            onChange={(e) => {
-              setElevenlabsApiKey(e.target.value);
-              localStorage.setItem('halterra_elevenlabs_key', e.target.value);
-            }}
-          />
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <div className="app">
       {screen === 'landing' && <Landing onStart={handleLandingStart} />}
@@ -171,19 +131,14 @@ function App() {
       )}
 
       {screen === 'meditation' && user && selectedMood && (
-        <>
-          {renderApiKeyPrompt()}
-          {anthropicApiKey && (
-            <Meditation
-              mood={selectedMood}
-              userName={user.name}
-              responses={responses}
-              anthropicApiKey={anthropicApiKey}
-              elevenlabsApiKey={elevenlabsApiKey}
-              onComplete={handleMeditationComplete}
-            />
-          )}
-        </>
+        <Meditation
+          mood={selectedMood}
+          userName={user.name}
+          responses={responses}
+          anthropicApiKey={anthropicApiKey}
+          elevenlabsApiKey={elevenlabsApiKey}
+          onComplete={handleMeditationComplete}
+        />
       )}
 
       {screen === 'history' && (
