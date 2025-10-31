@@ -1,0 +1,33 @@
+{
+  "name": "Halterra - Méditation Zen",
+  "short_name": "Halterra",
+  "description": "Application de méditation personnalisée pour entrepreneurs",
+  "start_url": "/Halterra/",
+  "display": "standalone",
+  "background_color": "#F2E9E4",
+  "theme_color": "#F2E9E4",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/Halterra/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/Halterra/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/Halterra/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "lifestyle", "productivity"],
+  "lang": "fr",
+  "dir": "ltr"
+}
