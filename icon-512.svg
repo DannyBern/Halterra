@@ -1,6 +1,19 @@
 <svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
   <rect width="512" height="512" fill="#F2E9E4"/>
-  <circle cx="256" cy="256" r="64" fill="#C9ADA7"/>
-  <ellipse cx="153.6" cy="256" rx="73.14285714285714" ry="128" fill="rgba(142, 154, 175, 0.8)" transform="rotate(-90 153.6 256)"/><ellipse cx="224.3566597760054" cy="353.3881872686237" rx="73.14285714285714" ry="128" fill="rgba(142, 154, 175, 0.8)" transform="rotate(-18 224.3566597760054 353.3881872686237)"/><ellipse cx="338.84334022399463" cy="316.18920983474925" rx="73.14285714285714" ry="128" fill="rgba(142, 154, 175, 0.8)" transform="rotate(54 338.84334022399463 316.18920983474925)"/><ellipse cx="338.84334022399463" cy="195.81079016525075" rx="73.14285714285714" ry="128" fill="rgba(142, 154, 175, 0.8)" transform="rotate(126 338.84334022399463 195.81079016525075)"/><ellipse cx="224.35665977600536" cy="158.6118127313763" rx="73.14285714285714" ry="128" fill="rgba(142, 154, 175, 0.8)" transform="rotate(198 224.35665977600536 158.6118127313763)"/>
-  <text x="256" y="419.84" font-family="serif" font-size="46.54545454545455" font-weight="300" fill="#2C3E50" text-anchor="middle">Halterra</text>
+
+  <g transform="translate(256, 280.064) scale(1)">
+    <circle cx="0" cy="-50" r="120" fill="none" stroke="#8E9AAF" stroke-width="6" opacity="0.5"/>
+    <circle cx="0" cy="-50" r="100" fill="none" stroke="#8E9AAF" stroke-width="5" opacity="0.4"/>
+    <g transform="translate(0, -50)">
+      <ellipse cx="0" cy="-45" rx="24" ry="28" fill="#6B8FA3"/>
+      <ellipse cx="0" cy="-8" rx="30" ry="38" fill="#6B8FA3"/>
+      <path d="M -30,-8 Q -50,0 -58,17 L -50,25 Q -42,8 -25,4 Z" fill="#6B8FA3"/>
+      <path d="M 30,-8 Q 50,0 58,17 L 50,25 Q 42,8 25,4 Z" fill="#6B8FA3"/>
+      <ellipse cx="-35" cy="30" rx="38" ry="17" fill="#6B8FA3"/>
+      <ellipse cx="35" cy="30" rx="38" ry="17" fill="#6B8FA3"/>
+      <ellipse cx="0" cy="35" rx="42" ry="10" fill="#8E9AAF" opacity="0.6"/>
+    </g>
+  </g>
+
+  <text x="256" y="430.08" font-family="serif" font-size="44.13793103448276" font-weight="300" fill="#2C3E50" text-anchor="middle">Halterra</text>
 </svg>

@@ -1,0 +1,36 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background transparent for flexibility -->
+
+  <!-- Meditation person silhouette with aura -->
+  <g transform="translate(256, 280)">
+    <!-- Outer aura circle -->
+    <circle cx="0" cy="-50" r="140" fill="none" stroke="#8E9AAF" stroke-width="8" opacity="0.5"/>
+
+    <!-- Inner aura circle -->
+    <circle cx="0" cy="-50" r="120" fill="none" stroke="#8E9AAF" stroke-width="6" opacity="0.4"/>
+
+    <!-- Person in meditation -->
+    <g transform="translate(0, -50)">
+      <!-- Head -->
+      <ellipse cx="0" cy="-50" rx="28" ry="32" fill="#6B8FA3"/>
+
+      <!-- Torso -->
+      <ellipse cx="0" cy="-10" rx="35" ry="45" fill="#6B8FA3"/>
+
+      <!-- Arms in meditation pose -->
+      <!-- Left arm -->
+      <path d="M -35,-10 Q -60,0 -70,20 L -60,30 Q -50,10 -30,5 Z" fill="#6B8FA3"/>
+      <!-- Right arm -->
+      <path d="M 35,-10 Q 60,0 70,20 L 60,30 Q 50,10 30,5 Z" fill="#6B8FA3"/>
+
+      <!-- Legs in lotus position -->
+      <!-- Left leg -->
+      <ellipse cx="-40" cy="35" rx="45" ry="20" fill="#6B8FA3"/>
+      <!-- Right leg -->
+      <ellipse cx="40" cy="35" rx="45" ry="20" fill="#6B8FA3"/>
+
+      <!-- Center connection (meditation cushion) -->
+      <ellipse cx="0" cy="40" rx="50" ry="12" fill="#8E9AAF" opacity="0.6"/>
+    </g>
+  </g>
+</svg>
