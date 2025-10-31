@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import SplashScreen from './components/SplashScreen';
 import Landing from './components/Landing';
 import Onboarding from './components/Onboarding';
 import DateDisplay from './components/DateDisplay';
@@ -12,6 +13,7 @@ import { storage } from './utils/storage';
 import './App.css';
 
 type AppScreen =
+  | 'splash'
   | 'landing'
   | 'onboarding'
   | 'date'
@@ -22,7 +24,7 @@ type AppScreen =
   | 'session-view';
 
 function App() {
-  const [screen, setScreen] = useState<AppScreen>('landing');
+  const [screen, setScreen] = useState<AppScreen>('splash');
   const [user, setUser] = useState<User | null>(null);
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const [responses, setResponses] = useState<UserResponse[]>([]);
@@ -105,6 +107,8 @@ function App() {
 
   return (
     <div className="app">
+      {screen === 'splash' && <SplashScreen onComplete={() => setScreen('landing')} />}
+
       {screen === 'landing' && <Landing onStart={handleLandingStart} />}
 
       {screen === 'onboarding' && <Onboarding onComplete={handleOnboardingComplete} />}

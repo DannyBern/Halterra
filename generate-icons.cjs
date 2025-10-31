@@ -1,37 +1,62 @@
-// Script to create meditation icon
 const fs = require('fs');
+const path = require('path');
 
-// Create meditation icon
-const createIcon = (size) => {
-  const scale = size / 512;
-  const svg = `<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
-  <rect width="${size}" height="${size}" fill="#F2E9E4"/>
+const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
 
-  <g transform="translate(${size/2}, ${size*0.547}) scale(${scale})">
-    <circle cx="0" cy="-50" r="120" fill="none" stroke="#8E9AAF" stroke-width="6" opacity="0.5"/>
-    <circle cx="0" cy="-50" r="100" fill="none" stroke="#8E9AAF" stroke-width="5" opacity="0.4"/>
-    <g transform="translate(0, -50)">
-      <ellipse cx="0" cy="-45" rx="24" ry="28" fill="#6B8FA3"/>
-      <ellipse cx="0" cy="-8" rx="30" ry="38" fill="#6B8FA3"/>
-      <path d="M -30,-8 Q -50,0 -58,17 L -50,25 Q -42,8 -25,4 Z" fill="#6B8FA3"/>
-      <path d="M 30,-8 Q 50,0 58,17 L 50,25 Q 42,8 25,4 Z" fill="#6B8FA3"/>
-      <ellipse cx="-35" cy="30" rx="38" ry="17" fill="#6B8FA3"/>
-      <ellipse cx="35" cy="30" rx="38" ry="17" fill="#6B8FA3"/>
-      <ellipse cx="0" cy="35" rx="42" ry="10" fill="#8E9AAF" opacity="0.6"/>
-    </g>
-  </g>
+console.log('Generation des icones PWA pour Halterra...\n');
 
-  <text x="${size/2}" y="${size*0.84}" font-family="serif" font-size="${size/11.6}" font-weight="300" fill="#2C3E50" text-anchor="middle">Halterra</text>
-</svg>`;
-  return svg;
-};
+const iconsDir = path.join(__dirname, 'public', 'icons');
+if (!fs.existsSync(iconsDir)) {
+  fs.mkdirSync(iconsDir, { recursive: true });
+}
 
-// Generate icons
-const sizes = [192, 512];
+const logoPath = path.join(__dirname, 'public', 'logo.svg');
+const logoContent = fs.readFileSync(logoPath, 'utf8');
+
+console.log('Logo SVG trouve');
+console.log('Dossier icons cree: ' + iconsDir + '\n');
+
+console.log('Tailles d\'icones necessaires:');
 sizes.forEach(size => {
-  const svg = createIcon(size);
-  fs.writeFileSync(`public/icon-${size}.svg`, svg);
-  console.log(`Created icon-${size}.svg`);
+  console.log('   - icon-' + size + 'x' + size + '.png');
 });
 
-console.log('\n✅ Icons generated! Use create-icons.html to convert to PNG if needed.');
+const maskableSVG = logoContent.replace(
+  '<svg',
+  '<svg style="background: linear-gradient(135deg, #0A0E1A 0%, #1C2333 100%); padding: 10%"'
+);
+
+fs.writeFileSync(path.join(iconsDir, 'icon-maskable.svg'), maskableSVG);
+console.log('\nicon-maskable.svg cree\n');
+
+const manifest = {
+  name: 'Halterra',
+  short_name: 'Halterra',
+  description: 'Votre moment de pause quotidien',
+  start_url: '/Halterra/',
+  display: 'standalone',
+  background_color: '#0A0E1A',
+  theme_color: '#667eea',
+  orientation: 'portrait',
+  icons: [
+    ...sizes.map(size => ({
+      src: '/Halterra/logo.svg',
+      sizes: size + 'x' + size,
+      type: 'image/svg+xml',
+      purpose: 'any'
+    })),
+    {
+      src: '/Halterra/icons/icon-maskable.svg',
+      sizes: '512x512',
+      type: 'image/svg+xml',
+      purpose: 'maskable'
+    }
+  ]
+};
+
+fs.writeFileSync(
+  path.join(__dirname, 'public', 'manifest.json'),
+  JSON.stringify(manifest, null, 2)
+);
+
+console.log('manifest.json cree!');

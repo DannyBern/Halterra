@@ -1,4 +1,4 @@
-<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+<svg style="background: linear-gradient(135deg, #0A0E1A 0%, #1C2333 100%); padding: 10%" width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <!-- Gradient definitions for premium look -->
   <defs>
     <!-- Radial gradient for aura glow -->
