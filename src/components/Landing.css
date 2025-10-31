@@ -30,6 +30,14 @@
   margin-bottom: 2rem;
 }
 
+.meditation-logo {
+  width: 180px;
+  height: 180px;
+  display: inline-block;
+  animation: breathe 4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+}
+
 .lotus-icon {
   font-size: 4rem;
   display: inline-block;

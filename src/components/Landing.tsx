@@ -19,7 +19,7 @@ export default function Landing({ onStart }: LandingProps) {
     <div className={`landing ${isAnimating ? 'fade-out' : ''}`}>
       <div className="landing-content fade-in">
         <div className="landing-logo">
-          <div className="lotus-icon">🪷</div>
+          <img src="/Halterra/logo.svg" alt="Halterra" className="meditation-logo" />
         </div>
 
         <h1 className="landing-title">Halterra</h1>
