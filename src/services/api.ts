@@ -1,7 +1,7 @@
 import type { Mood, UserResponse } from '../types';
 
 // URL du backend Vercel sécurisé
-const BACKEND_URL = 'https://halterra-backend-pyx8bpzkv-dannys-projects-ff6db2ea.vercel.app';
+const BACKEND_URL = 'https://halterra-backend-hrq2cizoj-dannys-projects-ff6db2ea.vercel.app';
 
 export async function generateMeditation(
   _apiKey: string, // Paramètre conservé pour compatibilité mais non utilisé
