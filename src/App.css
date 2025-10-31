@@ -1,0 +1,89 @@
+.app {
+  min-height: 100vh;
+  position: relative;
+}
+
+/* History Link */
+.history-link {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: var(--color-white);
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.history-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* API Key Prompt */
+.api-key-prompt {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--color-white);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.api-key-prompt h3 {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.api-key-prompt p {
+  font-size: 1rem;
+  color: var(--color-text-light);
+  margin-bottom: 1rem;
+}
+
+.api-key-prompt input {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  transition: var(--transition);
+}
+
+.api-key-prompt input:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(142, 154, 175, 0.1);
+}
+
+.api-hint {
+  font-size: 0.9rem !important;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .history-link {
+    top: 1rem;
+    right: 1rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .api-key-prompt {
+    margin: 1rem;
+    width: calc(100% - 2rem);
+    max-width: none;
+  }
+}

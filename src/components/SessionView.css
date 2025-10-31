@@ -1,0 +1,62 @@
+.session-view {
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.session-view-header {
+  max-width: 800px;
+  margin: 0 auto 3rem;
+}
+
+.session-info {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.session-mood-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.session-mood-badge .mood-icon {
+  font-size: 1.5rem;
+}
+
+.session-mood-badge .mood-name {
+  font-size: 1rem;
+}
+
+.session-date {
+  font-size: 1.1rem;
+  color: var(--color-text-light);
+  font-family: var(--font-serif);
+}
+
+.session-view-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.session-title {
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--color-primary);
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+@media (max-width: 768px) {
+  .session-view {
+    padding: 1.5rem;
+  }
+
+  .session-title {
+    font-size: 1.6rem;
+    margin-bottom: 2rem;
+  }
+}

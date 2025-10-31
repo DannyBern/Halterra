@@ -1,0 +1,159 @@
+.history {
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.history-header {
+  max-width: 900px;
+  margin: 0 auto 3rem;
+}
+
+.back-button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  color: var(--color-primary);
+  background: var(--color-white);
+  border-radius: 50px;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.back-button:hover {
+  transform: translateX(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.history-title {
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.history-subtitle {
+  font-size: 1.1rem;
+  color: var(--color-text-light);
+  text-align: center;
+}
+
+.history-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 1.1rem;
+  color: var(--color-text-light);
+  line-height: 1.8;
+}
+
+/* Sessions List */
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.date-group {
+  animation: slideIn 0.5s ease-out;
+}
+
+.date-header {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.sessions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.session-card {
+  background: var(--color-white);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 4px solid;
+  text-align: left;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+
+.session-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.session-mood {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.session-icon {
+  font-size: 1.8rem;
+}
+
+.session-mood-name {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+.session-preview {
+  font-size: 0.95rem;
+  color: var(--color-text-light);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.session-audio-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  color: var(--color-secondary);
+  background: rgba(142, 154, 175, 0.1);
+  border-radius: 20px;
+}
+
+@media (max-width: 768px) {
+  .history {
+    padding: 1.5rem;
+  }
+
+  .history-title {
+    font-size: 2rem;
+  }
+
+  .history-subtitle {
+    font-size: 1rem;
+  }
+
+  .sessions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .date-header {
+    font-size: 1.3rem;
+  }
+}

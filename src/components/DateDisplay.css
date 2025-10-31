@@ -1,0 +1,114 @@
+.date-display {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.date-content {
+  text-align: center;
+  max-width: 700px;
+}
+
+.date-ornament {
+  font-size: 2rem;
+  color: var(--color-accent);
+  margin-bottom: 2rem;
+  animation: breathe 3s ease-in-out infinite;
+}
+
+.date-greeting {
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--color-primary);
+  margin-bottom: 3rem;
+}
+
+.date-main {
+  position: relative;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.date-main::before,
+.date-main::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-accent),
+    transparent
+  );
+}
+
+.date-main::before {
+  top: 0;
+}
+
+.date-main::after {
+  bottom: 0;
+}
+
+.date-text {
+  font-size: 2rem;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  color: var(--color-primary);
+  letter-spacing: 0.02em;
+}
+
+.date-subtitle {
+  font-size: 1.1rem;
+  color: var(--color-text-light);
+  margin-bottom: 3rem;
+  line-height: 1.8;
+}
+
+.date-button {
+  padding: 1.2rem 3rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--color-white);
+  background: var(--color-primary);
+  border-radius: 50px;
+  box-shadow: 0 4px 20px rgba(44, 62, 80, 0.3);
+  transition: all 0.4s ease;
+}
+
+.date-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(44, 62, 80, 0.4);
+}
+
+.date-ornament-bottom {
+  font-size: 2rem;
+  color: var(--color-accent);
+  margin-top: 3rem;
+  animation: breathe 3s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+@media (max-width: 768px) {
+  .date-greeting {
+    font-size: 1.6rem;
+  }
+
+  .date-text {
+    font-size: 1.5rem;
+  }
+
+  .date-subtitle {
+    font-size: 1rem;
+  }
+
+  .date-button {
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+  }
+}
