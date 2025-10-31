@@ -26,9 +26,17 @@ body {
   color: var(--color-text);
   background: linear-gradient(135deg, #F2E9E4 0%, #E8DDD8 100%);
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overscroll-behavior-y: none;
+}
+
+html {
+  height: -webkit-fill-available;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -115,4 +123,67 @@ input, textarea {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px; /* Prevent zoom on input focus on iOS */
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  /* Better button touch targets (min 44x44px for mobile) */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Hide scrollbar on mobile for cleaner look */
+  ::-webkit-scrollbar {
+    width: 0;
+    display: none;
+  }
+}
+
+/* Pixel 8 Pro specific optimizations (1344 x 2992) */
+@media (min-width: 360px) and (max-width: 450px) and (min-height: 700px) {
+  :root {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+
+  p {
+    font-size: clamp(1rem, 4vw, 1.1rem);
+  }
+}
+
+/* Touch-friendly active states */
+@media (hover: none) {
+  button:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+/* Prevent pull-to-refresh on mobile */
+body {
+  overscroll-behavior-y: contain;
+}
+
+/* Safe area for notch devices */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
 }

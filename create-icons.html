@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Créer Icônes Halterra</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin: 20px 0;
+            display: block;
+        }
+        button {
+            background: #2C3E50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #1a252f;
+        }
+        h1 {
+            color: #2C3E50;
+            font-weight: 300;
+        }
+        .instructions {
+            background: #F2E9E4;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🪷 Générateur d'Icônes Halterra</h1>
+
+        <div class="instructions">
+            <strong>Instructions :</strong>
+            <ol>
+                <li>Cliquez sur "Générer les icônes"</li>
+                <li>Téléchargez chaque icône en cliquant sur les boutons</li>
+                <li>Placez les fichiers dans le dossier <code>public/</code></li>
+            </ol>
+        </div>
+
+        <button onclick="generateIcons()">Générer les Icônes</button>
+
+        <div id="icons-container"></div>
+    </div>
+
+    <script>
+        function generateIcons() {
+            const container = document.getElementById('icons-container');
+            container.innerHTML = '';
+
+            const sizes = [192, 512];
+
+            sizes.forEach(size => {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+
+                // Background
+                ctx.fillStyle = '#F2E9E4';
+                ctx.fillRect(0, 0, size, size);
+
+                // Center circle
+                ctx.fillStyle = '#C9ADA7';
+                ctx.beginPath();
+                ctx.arc(size/2, size/2, size/8, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Outer petals
+                ctx.fillStyle = 'rgba(142, 154, 175, 0.8)';
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * 72 - 90) * Math.PI / 180;
+                    ctx.save();
+                    ctx.translate(size/2, size/2);
+                    ctx.rotate(angle);
+                    ctx.beginPath();
+                    ctx.ellipse(0, -size/5, size/7, size/4, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Inner petals
+                ctx.fillStyle = 'rgba(201, 173, 167, 0.9)';
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * 72 - 90) * Math.PI / 180;
+                    ctx.save();
+                    ctx.translate(size/2, size/2);
+                    ctx.rotate(angle);
+                    ctx.beginPath();
+                    ctx.ellipse(0, -size/7, size/10, size/6, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // App name (only on larger icon)
+                if (size >= 512) {
+                    ctx.fillStyle = '#2C3E50';
+                    ctx.font = `${size/11}px serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('Halterra', size/2, size * 0.82);
+                }
+
+                // Display
+                const title = document.createElement('h3');
+                title.textContent = `Icône ${size}x${size}`;
+                container.appendChild(title);
+                container.appendChild(canvas);
+
+                // Download button
+                const btn = document.createElement('button');
+                btn.textContent = `Télécharger icon-${size}.png`;
+                btn.onclick = () => {
+                    const link = document.createElement('a');
+                    link.download = `icon-${size}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                };
+                container.appendChild(btn);
+            });
+        }
+    </script>
+</body>
+</html>
