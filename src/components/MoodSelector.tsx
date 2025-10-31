@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Mood } from '../types';
 import { moods } from '../data/moods';
+import MoodIcon from './MoodIcon';
 import './MoodSelector.css';
 
 interface MoodSelectorProps {
@@ -41,7 +42,7 @@ export default function MoodSelector({ userName, onMoodSelect }: MoodSelectorPro
               }}
             >
               <div className="mood-icon" style={{ color: mood.color }}>
-                {mood.icon}
+                <MoodIcon moodId={mood.id} size={64} />
               </div>
               <h3 className="mood-name">{mood.name}</h3>
               <p className="mood-description">{mood.description}</p>

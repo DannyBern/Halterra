@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Mood, UserResponse } from '../types';
 import { questionnaires } from '../data/moods';
+import MoodIcon from './MoodIcon';
 import './Questionnaire.css';
 
 interface QuestionnaireProps {
@@ -76,7 +77,9 @@ export default function Questionnaire({ mood, userName, onComplete }: Questionna
     <div className="questionnaire">
       <div className="questionnaire-header">
         <div className="mood-badge" style={{ backgroundColor: `${mood.color}15`, color: mood.color }}>
-          <span className="mood-badge-icon">{mood.icon}</span>
+          <span className="mood-badge-icon">
+            <MoodIcon moodId={mood.id} size={28} />
+          </span>
           <span className="mood-badge-text">{mood.name}</span>
         </div>
 
