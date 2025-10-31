@@ -34,14 +34,18 @@ function App() {
   const anthropicApiKey = import.meta.env.VITE_ANTHROPIC_API_KEY || '';
   const elevenlabsApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || '';
 
+  const [hasSeenSplash, setHasSeenSplash] = useState(false);
+
   useEffect(() => {
-    // Charger l'utilisateur depuis le stockage
-    const savedUser = storage.getUser();
-    if (savedUser) {
-      setUser(savedUser);
-      setScreen('date');
+    // Charger l'utilisateur depuis le stockage seulement après le splash
+    if (hasSeenSplash) {
+      const savedUser = storage.getUser();
+      if (savedUser) {
+        setUser(savedUser);
+        setScreen('date');
+      }
     }
-  }, []);
+  }, [hasSeenSplash]);
 
   const handleLandingStart = () => {
     setScreen('onboarding');
@@ -107,7 +111,10 @@ function App() {
 
   return (
     <div className="app">
-      {screen === 'splash' && <SplashScreen onComplete={() => setScreen('landing')} />}
+      {screen === 'splash' && <SplashScreen onComplete={() => {
+        setHasSeenSplash(true);
+        setScreen('landing');
+      }} />}
 
       {screen === 'landing' && <Landing onStart={handleLandingStart} />}
 
