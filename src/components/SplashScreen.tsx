@@ -41,8 +41,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           </div>
         </div>
 
-        {/* Nom de l'app */}
-        <h1 className="splash-title">HALTERRA</h1>
+        {/* Tagline sous le logo */}
         <p className="splash-tagline">Votre moment de pause quotidien</p>
       </div>
 
