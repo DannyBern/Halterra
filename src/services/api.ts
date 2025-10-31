@@ -1,7 +1,7 @@
 import type { Mood, UserResponse } from '../types';
 
 // URL du backend Vercel sécurisé
-const BACKEND_URL = 'https://halterra-backend-hrq2cizoj-dannys-projects-ff6db2ea.vercel.app';
+const BACKEND_URL = 'https://halterra-backend-qgtecd8n8-dannys-projects-ff6db2ea.vercel.app';
 
 export async function generateMeditation(
   _apiKey: string, // Paramètre conservé pour compatibilité mais non utilisé
@@ -53,13 +53,6 @@ export async function generateAudio(
 
   const data = await response.json();
 
-  // Convertir le base64 en blob et créer une URL objet
-  const audioData = atob(data.audio);
-  const audioArray = new Uint8Array(audioData.length);
-  for (let i = 0; i < audioData.length; i++) {
-    audioArray[i] = audioData.charCodeAt(i);
-  }
-  const audioBlob = new Blob([audioArray], { type: 'audio/mpeg' });
-
-  return URL.createObjectURL(audioBlob);
+  // Retourner directement le base64 comme data URL
+  return `data:audio/mpeg;base64,${data.audio}`;
 }

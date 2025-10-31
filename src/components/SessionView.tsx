@@ -63,15 +63,42 @@ export default function SessionView({ session, onBack }: SessionViewProps) {
         {session.audioUrl && (
           <div className="audio-player">
             <button
-              className="play-button"
+              className={`play-button-sophisticated ${isPlaying ? 'playing' : ''}`}
               onClick={handlePlay}
-              style={{ backgroundColor: mood?.color || 'var(--color-primary)' }}
+              style={{
+                '--button-color': mood?.color || 'var(--color-primary)',
+                '--button-color-light': `${mood?.color || 'var(--color-primary)'}15`
+              } as React.CSSProperties}
             >
-              <span className="play-icon">{isPlaying ? '⏸' : '▶'}</span>
+              <div className="play-button-bg"></div>
+              <div className="play-button-pulse"></div>
+              <span className="play-icon">
+                {isPlaying ? (
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="6" y="4" width="4" height="16" rx="1"/>
+                    <rect x="14" y="4" width="4" height="16" rx="1"/>
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                )}
+              </span>
             </button>
-            <p className="audio-hint">
-              {isPlaying ? 'En cours de lecture...' : 'Cliquez pour écouter'}
-            </p>
+            <div className="audio-hint">
+              {isPlaying ? (
+                <>
+                  <span className="audio-status playing">En lecture</span>
+                  <span className="audio-waves">
+                    <span className="wave"></span>
+                    <span className="wave"></span>
+                    <span className="wave"></span>
+                  </span>
+                </>
+              ) : (
+                <span className="audio-status">Appuyez pour réecouter</span>
+              )}
+            </div>
             <audio
               ref={audioRef}
               src={session.audioUrl}

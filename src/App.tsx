@@ -65,7 +65,7 @@ function App() {
     setScreen('meditation');
   };
 
-  const handleMeditationComplete = (meditationText: string, audioUrl?: string) => {
+  const handleMeditationComplete = (meditationText: string, audioBase64?: string) => {
     if (!user || !selectedMood) return;
 
     const session: MeditationSession = {
@@ -75,7 +75,7 @@ function App() {
       mood: selectedMood.id,
       responses,
       meditationText,
-      audioUrl,
+      audioUrl: audioBase64, // Stocker le base64 au lieu du blob URL
       timestamp: Date.now()
     };
 

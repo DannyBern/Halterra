@@ -1,3 +1,6 @@
+/* Importer les styles du lecteur audio depuis Meditation.css */
+@import './Meditation.css';
+
 .session-view {
   min-height: 100vh;
   padding: 2rem;

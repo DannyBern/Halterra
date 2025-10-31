@@ -1,596 +1,930 @@
 import type { Mood, MoodQuestionnaire } from '../types';
 
 export const moods: Mood[] = [
+  // CATÉGORIE A : ÉTATS D'EXPANSION (Énergie en ouverture/croissance)
   {
-    id: 'energized',
-    name: 'Énergisé',
-    description: 'Prêt à conquérir la journée',
-    icon: '⚡',
-    color: '#FFD700'
+    id: 'aligned',
+    name: 'Aligné / En flow',
+    description: 'En harmonie avec soi-même, énergie fluide',
+    icon: '🌊',
+    color: '#4ECDC4'
   },
+  {
+    id: 'motivated',
+    name: 'Motivé / Inspiré',
+    description: 'Élan vital, désir d\'avancer',
+    icon: '🔥',
+    color: '#FF6B6B'
+  },
+
+  // CATÉGORIE B : ÉTATS DE CONTRACTION (Énergie en défense/retrait)
   {
     id: 'anxious',
-    name: 'Anxieux',
-    description: 'Préoccupé par les défis',
-    icon: '🌊',
-    color: '#4A90E2'
-  },
-  {
-    id: 'inspired',
-    name: 'Inspiré',
-    description: 'Créatif et plein d\'idées',
-    icon: '✨',
-    color: '#9B59B6'
-  },
-  {
-    id: 'tired',
-    name: 'Fatigué',
-    description: 'Besoin d\'un boost d\'énergie',
-    icon: '🌙',
-    color: '#7F8C8D'
-  },
-  {
-    id: 'determined',
-    name: 'Déterminé',
-    description: 'Focalisé sur vos objectifs',
-    icon: '🎯',
-    color: '#E74C3C'
-  },
-  {
-    id: 'uncertain',
-    name: 'Incertain',
-    description: 'Questionnements et doutes',
-    icon: '🧭',
+    name: 'Anxieux / Inquiet',
+    description: 'En alerte, anticipation négative',
+    icon: '😰',
     color: '#95A5A6'
   },
   {
-    id: 'grateful',
-    name: 'Reconnaissant',
-    description: 'Sentiment de gratitude',
-    icon: '🙏',
-    color: '#27AE60'
+    id: 'exhausted',
+    name: 'Épuisé / Vidé',
+    description: 'Réservoirs vides, besoin de repos',
+    icon: '😴',
+    color: '#7F8C8D'
+  },
+  {
+    id: 'sad',
+    name: 'Triste / Découragé',
+    description: 'Perte, chagrin, sentiment de défaite',
+    icon: '😢',
+    color: '#3498DB'
+  },
+  {
+    id: 'frustrated',
+    name: 'Frustré / En colère',
+    description: 'Blocage, énergie combative',
+    icon: '😤',
+    color: '#E74C3C'
+  },
+
+  // CATÉGORIE C : ÉTATS D'INCERTITUDE (Entre deux états)
+  {
+    id: 'lost',
+    name: 'Perdu / Confus',
+    description: 'Désorientation, perte de repères',
+    icon: '🧭',
+    color: '#BDC3C7'
+  },
+  {
+    id: 'alone',
+    name: 'Seul / Isolé',
+    description: 'Manque de connexion',
+    icon: '🏝️',
+    color: '#34495E'
   },
   {
     id: 'overwhelmed',
-    name: 'Débordé',
-    description: 'Trop de choses à gérer',
+    name: 'Submergé / Sous pression',
+    description: 'Surcharge, trop de sollicitations',
     icon: '🌀',
     color: '#E67E22'
+  },
+  {
+    id: 'calm',
+    name: 'Calme / Serein',
+    description: 'Paix intérieure, équanimité',
+    icon: '🕊️',
+    color: '#27AE60'
   }
 ];
 
 export const questionnaires: MoodQuestionnaire[] = [
+  // ALIGNÉ / EN FLOW
   {
-    moodId: 'energized',
+    moodId: 'aligned',
     questions: [
       {
-        id: 'e1',
-        text: 'Quelle est la source principale de cette énergie ce matin ?',
+        id: 'aligned1',
+        text: 'Comment sens-tu ton corps ce matin ?',
         options: [
-          'Un projet excitant qui m\'attend',
-          'Une bonne nuit de sommeil',
-          'Des résultats positifs récents',
-          'Mon état naturel du matin',
-          'Autre raison...'
+          'Vivant, fluide, habité - je sens l\'énergie circuler',
+          'Bien, présent, disponible',
+          'Correct, neutre',
+          'Tendu, contracté par endroits',
+          'Lourd, absent, déconnecté'
         ]
       },
       {
-        id: 'e2',
-        text: 'Comment souhaitez-vous canaliser cette énergie aujourd\'hui ?',
+        id: 'aligned2',
+        text: 'Es-tu en contact avec ce qui est vraiment important pour toi aujourd\'hui ?',
         options: [
-          'Sur des tâches créatives et innovantes',
-          'Pour avancer sur des objectifs stratégiques',
-          'Dans les interactions avec mon équipe',
-          'Sur des défis techniques complexes',
-          'Autre intention...'
+          'Oui, très clair, j\'ai une boussole intérieure forte',
+          'Oui, je sens mes priorités',
+          'Partiellement, c\'est un peu flou',
+          'Non, je suis dispersé',
+          'Complètement perdu, aucune clarté'
         ]
       },
       {
-        id: 'e3',
-        text: 'Quel est votre plus grand défi pour maintenir cette énergie ?',
+        id: 'aligned3',
+        text: 'Quel est ton rapport à l\'inconnu aujourd\'hui ?',
         options: [
-          'Les distractions et interruptions',
-          'La gestion du temps',
-          'Les tâches administratives ennuyeuses',
-          'L\'épuisement en fin de journée',
-          'Autre défi...'
+          'Curiosité, ouverture - l\'inconnu est une invitation',
+          'Confiance tranquille',
+          'Hésitation légère',
+          'Appréhension, besoin de tout contrôler',
+          'Peur paralysante'
         ]
       },
       {
-        id: 'e4',
-        text: 'Quelle réalisation aimeriez-vous accomplir avec cette énergie ?',
+        id: 'aligned4',
+        text: 'Te sens-tu libre d\'être toi-même ce matin ?',
         options: [
-          'Finaliser un projet important',
-          'Créer quelque chose de nouveau',
-          'Résoudre un problème persistant',
-          'Inspirer et motiver mon équipe',
-          'Autre réalisation...'
+          'Totalement libre, authentique, sans masque',
+          'Assez libre, à l\'aise avec qui je suis',
+          'Libre par moments seulement',
+          'Contraint, en train de jouer un rôle',
+          'Enfermé, incapable d\'être moi-même'
         ]
       },
       {
-        id: 'e5',
-        text: 'Comment voulez-vous vous sentir en fin de journée ?',
+        id: 'aligned5',
+        text: 'Comment perçois-tu tes défis aujourd\'hui ?',
         options: [
-          'Accompli et satisfait',
-          'Énergisé et inspiré',
-          'Calme et en paix',
-          'Fier de mes progrès',
-          'Autre sentiment...'
+          'Comme des invitations à grandir, stimulants',
+          'Comme des choses normales que je peux gérer',
+          'Ni excitants ni menaçants',
+          'Comme des obstacles lourds',
+          'Comme des menaces écrasantes'
+        ]
+      },
+      {
+        id: 'aligned6',
+        text: 'Ressens-tu de la gratitude pour quelque chose ce matin ?',
+        options: [
+          'Oui, gratitude profonde, émerveillement',
+          'Oui, reconnaissance tranquille',
+          'Un peu, c\'est subtil',
+          'Difficilement, je me concentre sur ce qui manque',
+          'Aucune gratitude, seulement du manque'
+        ]
+      },
+      {
+        id: 'aligned7',
+        text: 'De quoi as-tu besoin pour honorer qui tu es aujourd\'hui ?',
+        options: [
+          'De rien de particulier, je sens que j\'ai ce qu\'il faut',
+          'D\'un moment de pause pour me reconnecter',
+          'De clarté sur mes priorités',
+          'De courage pour être moi-même',
+          'De permission pour exister'
         ]
       }
     ]
   },
+
+  // MOTIVÉ / INSPIRÉ
+  {
+    moodId: 'motivated',
+    questions: [
+      {
+        id: 'motivated1',
+        text: 'Qu\'est-ce qui vibre en toi ce matin ?',
+        options: [
+          'Un feu clair, une direction évidente',
+          'Un élan agréable, une envie',
+          'Une petite étincelle discrète',
+          'Rien de particulier, du vide',
+          'Du chaos, trop de choses en même temps'
+        ]
+      },
+      {
+        id: 'motivated2',
+        text: 'Comment est ton énergie physique ?',
+        options: [
+          'Abondante, disponible, prête à l\'action',
+          'Bonne, suffisante',
+          'Moyenne, ni haute ni basse',
+          'Faible, fatiguée',
+          'Épuisée, rien dans le réservoir'
+        ]
+      },
+      {
+        id: 'motivated3',
+        text: 'Te sens-tu attiré vers quelque chose aujourd\'hui ?',
+        options: [
+          'Oui, fortement - je sais où aller',
+          'Oui, quelque chose m\'appelle doucement',
+          'Peut-être, c\'est incertain',
+          'Non, je dois me forcer',
+          'Non, tout me repousse'
+        ]
+      },
+      {
+        id: 'motivated4',
+        text: 'Comment perçois-tu ton pouvoir d\'action ?',
+        options: [
+          'Je me sens capable, puissant, agissant',
+          'Je peux agir et faire une différence',
+          'Je peux agir un peu',
+          'Je me sens limité, petit',
+          'Impuissant, aucun pouvoir'
+        ]
+      },
+      {
+        id: 'motivated5',
+        text: 'Quelle est ta relation avec le temps aujourd\'hui ?',
+        options: [
+          'Le temps est mon allié, je l\'habite',
+          'Le temps coule bien',
+          'Le temps est neutre',
+          'Le temps me presse, je cours',
+          'Le temps m\'écrase, je le subis'
+        ]
+      },
+      {
+        id: 'motivated6',
+        text: 'Ressens-tu de la joie anticipée ?',
+        options: [
+          'Oui, j\'ai hâte de vivre ma journée',
+          'Oui, légère excitation',
+          'Neutre, ni hâte ni appréhension',
+          'Non, j\'appréhende plutôt',
+          'Non, je redoute la journée'
+        ]
+      },
+      {
+        id: 'motivated7',
+        text: 'Si tu pouvais faire UN choix libre aujourd\'hui, qu\'est-ce qui émerge ?',
+        options: [
+          'Une évidence claire, je sais',
+          'Quelque chose apparaît assez facilement',
+          'Plusieurs options, confusion',
+          'Rien n\'émerge',
+          'Trop de choses se bousculent, paralysie'
+        ]
+      }
+    ]
+  },
+
+  // ANXIEUX / INQUIET
   {
     moodId: 'anxious',
     questions: [
       {
-        id: 'a1',
-        text: 'Quelle est la principale source de cette anxiété ?',
+        id: 'anxious1',
+        text: 'Où est ton mental ce matin ?',
         options: [
-          'Une deadline importante qui approche',
-          'Des décisions difficiles à prendre',
-          'Des incertitudes financières',
-          'Des relations professionnelles tendues',
-          'Autre source...'
+          'Ici, maintenant, ancré dans le présent',
+          'Plutôt présent avec quelques pensées',
+          'Entre présent et futur',
+          'Projeté dans le futur, anticipations',
+          'Complètement dans la tête, tourner en boucle'
         ]
       },
       {
-        id: 'a2',
-        text: 'Comment cette anxiété se manifeste-t-elle physiquement ?',
+        id: 'anxious2',
+        text: 'Comment respires-tu en ce moment ?',
         options: [
-          'Tension dans le corps',
-          'Pensées qui tournent en boucle',
-          'Difficulté à me concentrer',
-          'Sensation d\'oppression',
-          'Autre manifestation...'
+          'Respiration profonde, fluide, ventrale',
+          'Respiration calme, normale',
+          'Respiration superficielle',
+          'Respiration courte, haute, thoracique',
+          'Respiration bloquée, retenue'
         ]
       },
       {
-        id: 'a3',
-        text: 'Qu\'est-ce qui pourrait vous aider à apaiser cette anxiété ?',
+        id: 'anxious3',
+        text: 'Qu\'est-ce qui demande ton attention avec urgence ?',
         options: [
-          'Décomposer mes défis en petites étapes',
-          'Parler à quelqu\'un de confiance',
-          'Me rappeler mes réussites passées',
-          'Prendre du recul et respirer',
-          'Autre solution...'
+          'Rien d\'urgent - tout peut attendre',
+          'Une ou deux choses claires',
+          'Plusieurs choses qui s\'accumulent',
+          'Trop de choses - tout semble urgent',
+          'Tout s\'écroule - urgence partout'
         ]
       },
       {
-        id: 'a4',
-        text: 'Quelle est votre plus grande peur aujourd\'hui ?',
+        id: 'anxious4',
+        text: 'Y a-t-il une peur présente en toi maintenant ?',
         options: [
-          'Ne pas être à la hauteur',
-          'Décevoir les autres',
-          'Perdre le contrôle',
-          'Échouer dans mes objectifs',
-          'Autre peur...'
+          'Non, aucune peur',
+          'Une inquiétude légère et gérable',
+          'Oui, une peur modérée que j\'identifie',
+          'Oui, plusieurs peurs qui m\'envahissent',
+          'Oui, une terreur diffuse que je ne comprends pas'
         ]
       },
       {
-        id: 'a5',
-        text: 'De quoi avez-vous besoin pour avancer malgré l\'anxiété ?',
+        id: 'anxious5',
+        text: 'Peux-tu sentir un endroit de sécurité dans ton corps ?',
         options: [
-          'Plus de confiance en moi',
-          'Un plan d\'action clair',
-          'Du soutien de mon entourage',
-          'Accepter l\'incertitude',
-          'Autre besoin...'
+          'Oui, tout mon corps se sent sûr',
+          'Oui, certaines parties se sentent stables',
+          'Difficilement, tout est tendu',
+          'Non, aucun endroit sûr',
+          'Mon corps est un lieu d\'alerte totale'
         ]
       },
       {
-        id: 'a6',
-        text: 'Comment pouvez-vous transformer cette anxiété en action ?',
+        id: 'anxious6',
+        text: 'Comment est ta confiance en ta capacité à naviguer l\'inconnu ?',
         options: [
-          'La voir comme un signal d\'importance',
-          'L\'utiliser comme motivation',
-          'La canaliser dans la préparation',
-          'L\'accepter et avancer quand même',
-          'Autre approche...'
+          'Forte - je me fais confiance',
+          'Présente - je peux faire face',
+          'Fragile - ça dépend',
+          'Faible - je doute beaucoup',
+          'Absente - je ne peux pas gérer'
+        ]
+      },
+      {
+        id: 'anxious7',
+        text: 'Si ton inquiétude pouvait parler, que dirait-elle ?',
+        options: [
+          'Elle ne parle pas, elle est silencieuse',
+          '"Fais attention" - conseil doux',
+          '"Attention danger" - avertissement',
+          '"Tu vas échouer" - catastrophisme',
+          '"C\'est fini, tu es perdu" - terreur'
+        ]
+      },
+      {
+        id: 'anxious8',
+        text: 'De quoi aurais-tu besoin pour t\'apaiser maintenant ?',
+        options: [
+          'De rien, je suis déjà apaisé',
+          'D\'une respiration consciente',
+          'De sentir mes pieds sur le sol',
+          'D\'être rassuré que je ne suis pas en danger',
+          'D\'arrêter de sentir complètement'
         ]
       }
     ]
   },
+
+  // ÉPUISÉ / VIDÉ
   {
-    moodId: 'inspired',
+    moodId: 'exhausted',
     questions: [
       {
-        id: 'i1',
-        text: 'D\'où vient cette inspiration ce matin ?',
+        id: 'exhausted1',
+        text: 'Comment te sens-tu dans tes os ce matin ?',
         options: [
-          'Une idée qui m\'est venue',
-          'Une conversation stimulante',
-          'Quelque chose que j\'ai lu ou vu',
-          'Une vision claire de l\'avenir',
-          'Autre source...'
+          'Reposé, régénéré, force vitale',
+          'Bien reposé, énergie disponible',
+          'Correct mais pas totalement rechargé',
+          'Fatigué dans mes os',
+          'Épuisé jusqu\'à la moelle, vidé'
         ]
       },
       {
-        id: 'i2',
-        text: 'Dans quel domaine souhaitez-vous exprimer cette créativité ?',
+        id: 'exhausted2',
+        text: 'Quelle est ta relation avec le repos ?',
         options: [
-          'Développement de nouveaux produits',
-          'Stratégie et vision d\'entreprise',
-          'Résolution créative de problèmes',
-          'Innovation dans les processus',
-          'Autre domaine...'
+          'Le repos me nourrit, je l\'honore',
+          'Je m\'autorise du repos quand j\'en ai besoin',
+          'Je prends du repos mais avec culpabilité',
+          'Le repos est un luxe que je ne peux pas me permettre',
+          'Je ne sais même plus comment me reposer'
         ]
       },
       {
-        id: 'i3',
-        text: 'Qu\'est-ce qui pourrait bloquer cette inspiration ?',
+        id: 'exhausted3',
+        text: 'Depuis combien de temps te sens-tu ainsi ?',
         options: [
-          'Les tâches opérationnelles urgentes',
-          'Le perfectionnisme',
-          'La peur du jugement',
-          'Le manque de temps dédié',
-          'Autre obstacle...'
+          'Je ne me sens pas épuisé',
+          'C\'est nouveau, depuis quelques jours',
+          'Depuis quelques semaines',
+          'Depuis des mois',
+          'Depuis si longtemps que j\'ai oublié l\'avant'
         ]
       },
       {
-        id: 'i4',
-        text: 'Comment voulez-vous capturer et développer vos idées ?',
+        id: 'exhausted4',
+        text: 'Qu\'est-ce qui a été drainé en toi ?',
         options: [
-          'Les noter immédiatement',
-          'En discuter avec d\'autres',
-          'Créer un prototype rapide',
-          'Les laisser mûrir tranquillement',
-          'Autre méthode...'
+          'Rien, je me sens plein',
+          'Un peu d\'énergie physique',
+          'Mon énergie émotionnelle et physique',
+          'Mon espoir, mon sens, ma joie',
+          'Mon essence même, ma volonté de continuer'
         ]
       },
       {
-        id: 'i5',
-        text: 'Quelle création aimeriez-vous concrétiser aujourd\'hui ?',
+        id: 'exhausted5',
+        text: 'Peux-tu imaginer te reposer sans culpabilité ?',
         options: [
-          'Une solution innovante à un problème',
-          'Un nouveau concept ou produit',
-          'Une amélioration significative',
-          'Une collaboration créative',
-          'Autre création...'
+          'Oui, facilement - c\'est mon droit',
+          'Oui, avec un peu d\'effort',
+          'Difficilement, la culpabilité arrive vite',
+          'Non, je dois être productif',
+          'Non, le repos me semble impossible'
+        ]
+      },
+      {
+        id: 'exhausted6',
+        text: 'Comment perçois-tu demain ?',
+        options: [
+          'Comme une nouvelle opportunité',
+          'Avec curiosité tranquille',
+          'Avec neutralité',
+          'Comme une montagne à gravir',
+          'Comme une impossibilité, je ne peux plus'
+        ]
+      },
+      {
+        id: 'exhausted7',
+        text: 'Si tu pouvais offrir quelque chose à la partie épuisée de toi, quoi ?',
+        options: [
+          'Je ne suis pas épuisé',
+          'Du repos, du sommeil',
+          'De la compassion, de la douceur',
+          'La permission d\'arrêter',
+          'Une sortie, une fin'
+        ]
+      },
+      {
+        id: 'exhausted8',
+        text: 'Y a-t-il une petite étincelle de vie quelque part en toi ?',
+        options: [
+          'Oui, un feu clair',
+          'Oui, une flamme discrète mais présente',
+          'Une braise très faible',
+          'Je ne sais pas où regarder',
+          'Rien, tout est éteint'
         ]
       }
     ]
   },
+
+  // TRISTE / DÉCOURAGÉ
   {
-    moodId: 'tired',
+    moodId: 'sad',
     questions: [
       {
-        id: 't1',
-        text: 'Quelle est la cause principale de cette fatigue ?',
+        id: 'sad1',
+        text: 'Qu\'est-ce qui pèse sur ton cœur ce matin ?',
         options: [
-          'Manque de sommeil',
-          'Surcharge de travail récente',
-          'Stress accumulé',
-          'Manque de temps pour soi',
-          'Autre cause...'
+          'Rien, mon cœur est léger',
+          'Une légère mélancolie',
+          'Un poids réel mais supportable',
+          'Un poids lourd, oppressant',
+          'Un poids écrasant, insupportable'
         ]
       },
       {
-        id: 't2',
-        text: 'Comment cette fatigue affecte-t-elle votre journée ?',
+        id: 'sad2',
+        text: 'Y a-t-il quelque chose que tu as perdu récemment ?',
         options: [
-          'Difficulté à me concentrer',
-          'Moins de motivation',
-          'Irritabilité accrue',
-          'Décisions plus difficiles',
-          'Autre impact...'
+          'Non, pas de perte',
+          'Une petite chose, mineure',
+          'Quelque chose d\'important',
+          'Plusieurs choses importantes',
+          'Tout ce qui comptait'
         ]
       },
       {
-        id: 't3',
-        text: 'De quoi avez-vous le plus besoin aujourd\'hui ?',
+        id: 'sad3',
+        text: 'Sens-tu que la vie a encore un goût ?',
         options: [
-          'Compassion envers moi-même',
-          'Réduire mes attentes',
-          'Moments de pause réguliers',
-          'Déléguer certaines tâches',
-          'Autre besoin...'
+          'Oui, la vie est savoureuse',
+          'Oui, certaines choses ont du goût',
+          'Un peu, tout est fade',
+          'Non, plus rien n\'a de goût',
+          'La vie est amère'
         ]
       },
       {
-        id: 't4',
-        text: 'Quelle est la priorité absolue de votre journée ?',
+        id: 'sad4',
+        text: 'Peux-tu pleurer si tu en as besoin ?',
         options: [
-          'Une seule tâche vraiment importante',
-          'Maintenir les opérations essentielles',
-          'Prendre soin de moi',
-          'Communiquer avec mon équipe',
-          'Autre priorité...'
+          'Je n\'ai pas besoin de pleurer',
+          'Oui, les larmes coulent librement',
+          'Oui mais difficilement',
+          'Non, les larmes sont bloquées',
+          'Non, je suis sec, vide'
         ]
       },
       {
-        id: 't5',
-        text: 'Comment pouvez-vous vous ressourcer aujourd\'hui ?',
+        id: 'sad5',
+        text: 'Comment perçois-tu ton avenir ?',
         options: [
-          'Des micro-pauses régulières',
-          'Une marche en pleine conscience',
-          'Dire non à certaines sollicitations',
-          'Me coucher plus tôt ce soir',
-          'Autre méthode...'
+          'Lumineux, plein de possibles',
+          'Correct, ça ira',
+          'Incertain, brumeux',
+          'Sombre, difficile',
+          'Inexistant, impossible'
         ]
       },
       {
-        id: 't6',
-        text: 'Qu\'est-ce qui vous donnerait un peu d\'énergie ?',
+        id: 'sad6',
+        text: 'Y a-t-il de la place pour la tendresse envers toi-même ?',
         options: [
-          'Accomplir une petite victoire',
-          'Connexion authentique avec quelqu\'un',
-          'Faire quelque chose que j\'aime',
-          'Me rappeler mon pourquoi',
-          'Autre source...'
+          'Oui, beaucoup de tendresse',
+          'Oui, je peux être doux avec moi',
+          'Un peu, c\'est difficile',
+          'Non, je suis dur avec moi',
+          'Non, je me déteste'
+        ]
+      },
+      {
+        id: 'sad7',
+        text: 'Si ta tristesse pouvait t\'enseigner quelque chose, qu\'est-ce que ce serait ?',
+        options: [
+          'Je ne suis pas triste',
+          'Que je suis humain et sensible',
+          'Que j\'ai besoin de ralentir',
+          'Que j\'ai aimé et perdu',
+          'Que tout est vain'
         ]
       }
     ]
   },
+
+  // FRUSTRÉ / EN COLÈRE
   {
-    moodId: 'determined',
+    moodId: 'frustrated',
     questions: [
       {
-        id: 'd1',
-        text: 'Quel objectif précis vous motive ce matin ?',
+        id: 'frustrated1',
+        text: 'Y a-t-il une chaleur en toi ce matin ?',
         options: [
-          'Un jalon important de mon projet',
-          'Une transformation à opérer',
-          'Un défi personnel à relever',
-          'Une vision à concrétiser',
-          'Autre objectif...'
+          'Non, je suis calme et frais',
+          'Un peu de feu, mais contrôlé',
+          'Oui, une chaleur qui monte',
+          'Oui, un feu qui brûle',
+          'Oui, une rage qui consume'
         ]
       },
       {
-        id: 'd2',
-        text: 'Qu\'est-ce qui alimente cette détermination ?',
+        id: 'frustrated2',
+        text: 'Quelque chose ou quelqu\'un te bloque-t-il ?',
         options: [
-          'Ma vision à long terme',
-          'Un sentiment d\'urgence',
-          'Le désir de prouver quelque chose',
-          'L\'impact que je veux créer',
-          'Autre source...'
+          'Non, la voie est libre',
+          'De petits obstacles gérables',
+          'Oui, quelques barrières frustrantes',
+          'Oui, des blocages importants injustes',
+          'Oui, tout me bloque, c\'est insupportable'
         ]
       },
       {
-        id: 'd3',
-        text: 'Quel obstacle pourrait se dresser sur votre chemin ?',
+        id: 'frustrated3',
+        text: 'Peux-tu nommer ce qui n\'est pas OK pour toi ?',
         options: [
-          'Des imprévus et interruptions',
-          'Mes propres doutes',
-          'Des résistances externes',
-          'La complexité de la tâche',
-          'Autre obstacle...'
+          'Tout est OK',
+          'Oui, facilement - je sais ce qui ne va pas',
+          'Vaguement, c\'est confus',
+          'Non, je sens juste la colère',
+          'Trop de choses - je ne peux pas démêler'
         ]
       },
       {
-        id: 'd4',
-        text: 'Comment resterez-vous flexible dans votre détermination ?',
+        id: 'frustrated4',
+        text: 'Ressens-tu une envie d\'agir, de changer quelque chose ?',
         options: [
-          'En m\'adaptant aux feedbacks',
-          'En gardant l\'esprit ouvert',
-          'En acceptant les détours',
-          'En célébrant les progrès',
-          'Autre approche...'
+          'Non, tout est fluide',
+          'Une envie d\'améliorer des choses',
+          'Une envie forte de corriger',
+          'Une envie de casser, détruire',
+          'Une envie de fuir ou exploser'
         ]
       },
       {
-        id: 'd5',
-        text: 'Que signifierait le succès pour vous aujourd\'hui ?',
+        id: 'frustrated5',
+        text: 'Ta colère protège-t-elle quelque chose d\'important ?',
         options: [
-          'Avancer significativement',
-          'Surmonter un obstacle clé',
-          'Maintenir ma discipline',
-          'Inspirer mon équipe',
-          'Autre définition...'
+          'Je ne suis pas en colère',
+          'Oui, elle protège mes limites',
+          'Oui, elle protège ma dignité',
+          'Oui, elle protège ma survie',
+          'Non, elle détruit tout'
+        ]
+      },
+      {
+        id: 'frustrated6',
+        text: 'Peux-tu être avec ta colère sans la fuir ni l\'exploser ?',
+        options: [
+          'Je ne suis pas en colère',
+          'Oui, je peux l\'accueillir et la sentir',
+          'Difficilement, elle me submerge vite',
+          'Non, je dois la contenir ou exploser',
+          'Non, elle me possède entièrement'
+        ]
+      },
+      {
+        id: 'frustrated7',
+        text: 'Si ta colère avait une demande, quelle serait-elle ?',
+        options: [
+          'Pas de colère, pas de demande',
+          '"Respecte mes limites"',
+          '"Vois-moi, entends-moi"',
+          '"Change maintenant"',
+          '"Détruis tout"'
         ]
       }
     ]
   },
+
+  // PERDU / CONFUS
   {
-    moodId: 'uncertain',
+    moodId: 'lost',
     questions: [
       {
-        id: 'u1',
-        text: 'À propos de quoi vous sentez-vous incertain ?',
+        id: 'lost1',
+        text: 'Connais-tu ta direction ce matin ?',
         options: [
-          'La direction à prendre',
-          'Mes capacités à réussir',
-          'L\'avenir de mon entreprise',
-          'Des choix importants à faire',
-          'Autre incertitude...'
+          'Oui, ma boussole est claire',
+          'Oui, assez clairement',
+          'Vaguement, c\'est brumeux',
+          'Non, je suis dans le brouillard',
+          'Non, et je ne sais plus où chercher'
         ]
       },
       {
-        id: 'u2',
-        text: 'Comment cette incertitude vous affecte-t-elle ?',
+        id: 'lost2',
+        text: 'Reconnais-tu qui tu es en ce moment ?',
         options: [
-          'Paralysie décisionnelle',
-          'Questionnements constants',
-          'Perte de confiance',
-          'Difficulté à avancer',
-          'Autre impact...'
+          'Oui, totalement - je me connais',
+          'Oui, je me reconnais',
+          'Partiellement, je doute',
+          'Non, je ne sais plus qui je suis',
+          'Non, je me sens étranger à moi-même'
         ]
       },
       {
-        id: 'u3',
-        text: 'Qu\'est-ce que vous savez avec certitude ?',
+        id: 'lost3',
+        text: 'Tes questions ont-elles des réponses ou seulement plus de questions ?',
         options: [
-          'Mes valeurs et ce qui compte',
-          'Mes compétences et forces',
-          'Mon engagement envers ma vision',
-          'Les leçons de mon parcours',
-          'Autre certitude...'
+          'J\'ai les réponses dont j\'ai besoin',
+          'Mes questions trouvent des chemins',
+          'Mes questions créent d\'autres questions',
+          'Je suis noyé dans les questions',
+          'Je n\'ai même plus de questions'
         ]
       },
       {
-        id: 'u4',
-        text: 'Quelle première petite action pourriez-vous prendre ?',
+        id: 'lost4',
+        text: 'Peux-tu tolérer de ne pas savoir ?',
         options: [
-          'Rassembler plus d\'informations',
-          'Consulter des personnes de confiance',
-          'Tester une hypothèse',
-          'Clarifier mes priorités',
-          'Autre action...'
+          'Oui, facilement - l\'inconnu est OK',
+          'Oui, avec de l\'inconfort gérable',
+          'Difficilement, ça m\'angoisse',
+          'Non, j\'ai besoin de savoir',
+          'Non, l\'incertitude me détruit'
         ]
       },
       {
-        id: 'u5',
-        text: 'Comment pouvez-vous accepter cette incertitude ?',
+        id: 'lost5',
+        text: 'Quelque chose de familier en toi est-il encore là ?',
         options: [
-          'La voir comme normale et humaine',
-          'Faire confiance au processus',
-          'Avancer malgré le doute',
-          'Apprendre à l\'inconfort',
-          'Autre façon...'
+          'Oui, mon essence est intacte',
+          'Oui, je reconnais des parts de moi',
+          'Un peu, très peu de choses',
+          'Presque rien de familier',
+          'Rien, tout est étranger'
         ]
       },
       {
-        id: 'u6',
-        text: 'De quel type de clarté avez-vous besoin ?',
+        id: 'lost6',
+        text: 'Y a-t-il une part de toi qui sait, même si ta tête ne sait pas ?',
         options: [
-          'Clarté sur mes valeurs',
-          'Clarté sur les options',
-          'Clarté sur les conséquences',
-          'Clarté sur mon intuition',
-          'Autre clarté...'
+          'Oui, mon corps/cœur sait',
+          'Oui, quelque chose en moi sait',
+          'Peut-être, c\'est très subtil',
+          'Non, rien ne sait',
+          'Tout est chaos'
+        ]
+      },
+      {
+        id: 'lost7',
+        text: 'De quoi aurais-tu besoin pour retrouver un repère ?',
+        options: [
+          'Je ne suis pas perdu',
+          'D\'un moment de silence',
+          'De revenir à ce qui est essentiel',
+          'D\'une main tendue',
+          'D\'une cartographie complète'
         ]
       }
     ]
   },
+
+  // SEUL / ISOLÉ
   {
-    moodId: 'grateful',
+    moodId: 'alone',
     questions: [
       {
-        id: 'g1',
-        text: 'Pour quoi êtes-vous le plus reconnaissant ce matin ?',
+        id: 'alone1',
+        text: 'Te sens-tu accompagné en ce moment ?',
         options: [
-          'Les personnes qui me soutiennent',
-          'Les opportunités devant moi',
-          'Mon parcours et mes apprentissages',
-          'Ma santé et mon bien-être',
-          'Autre gratitude...'
+          'Oui, profondément accompagné',
+          'Oui, suffisamment entouré',
+          'Partiellement, un peu seul',
+          'Non, très seul',
+          'Non, complètement isolé'
         ]
       },
       {
-        id: 'g2',
-        text: 'Comment cette gratitude influence-t-elle votre état d\'esprit ?',
+        id: 'alone2',
+        text: 'Y a-t-il quelqu\'un qui te voit vraiment ?',
         options: [
-          'Plus d\'ouverture et de générosité',
-          'Davantage de perspective',
-          'Moins de stress et d\'anxiété',
-          'Plus de motivation positive',
-          'Autre influence...'
+          'Oui, plusieurs personnes me voient',
+          'Oui, quelques personnes',
+          'Peut-être une personne',
+          'Non, personne ne me voit',
+          'Non, et je suis invisible à moi-même aussi'
         ]
       },
       {
-        id: 'g3',
-        text: 'Comment voulez-vous exprimer cette gratitude aujourd\'hui ?',
+        id: 'alone3',
+        text: 'Peux-tu partager ce qui est vrai pour toi avec quelqu\'un ?',
         options: [
-          'Remercier quelqu\'un directement',
-          'Rendre service ou aider',
-          'Créer de la valeur pour les autres',
-          'La garder comme ancrage intérieur',
-          'Autre expression...'
+          'Oui, librement avec plusieurs personnes',
+          'Oui, avec quelqu\'un de confiance',
+          'Difficilement, je me retiens',
+          'Non, c\'est trop dangereux',
+          'Non, et je ne sais même plus ce qui est vrai'
         ]
       },
       {
-        id: 'g4',
-        text: 'Quel apprentissage récent enrichit votre gratitude ?',
+        id: 'alone4',
+        text: 'Appartiens-tu à quelque chose de plus grand que toi ?',
         options: [
-          'Une difficulté surmontée',
-          'Un feedback constructif reçu',
-          'Une nouvelle perspective acquise',
-          'Une relation approfondie',
-          'Autre apprentissage...'
+          'Oui, je fais partie d\'un tout',
+          'Oui, je sens l\'appartenance',
+          'Un peu, c\'est fragile',
+          'Non, je suis à part',
+          'Non, je suis complètement exclu'
         ]
       },
       {
-        id: 'g5',
-        text: 'Comment pouvez-vous cultiver cette gratitude ?',
+        id: 'alone5',
+        text: 'Comment est ta relation avec toi-même en ce moment ?',
         options: [
-          'Prendre des pauses pour apprécier',
-          'Tenir un journal de gratitude',
-          'Partager les aspects positifs',
-          'Méditer sur l\'abondance',
-          'Autre pratique...'
+          'Amicale, douce, présente',
+          'Correcte, neutre',
+          'Distante, froide',
+          'Hostile, critique',
+          'Inexistante, je m\'ai abandonné'
+        ]
+      },
+      {
+        id: 'alone6',
+        text: 'Peux-tu sentir que tu n\'es pas seul même si personne n\'est là ?',
+        options: [
+          'Oui, je sens une présence (en moi, vie, univers)',
+          'Oui, parfois',
+          'Difficilement',
+          'Non, l\'absence d\'autrui est vide',
+          'Non, le vide est total'
+        ]
+      },
+      {
+        id: 'alone7',
+        text: 'De quoi as-tu besoin pour te sentir moins seul ?',
+        options: [
+          'Je ne me sens pas seul',
+          'D\'un moment de connexion authentique',
+          'D\'être écouté sans jugement',
+          'De savoir que quelqu\'un pense à moi',
+          'De quelqu\'un qui reste, peu importe quoi'
         ]
       }
     ]
   },
+
+  // SUBMERGÉ / SOUS PRESSION
   {
     moodId: 'overwhelmed',
     questions: [
       {
-        id: 'o1',
-        text: 'Qu\'est-ce qui contribue le plus à ce sentiment de débordement ?',
+        id: 'overwhelmed1',
+        text: 'Combien de choses portent sur tes épaules ce matin ?',
         options: [
-          'Trop de projets simultanés',
-          'Des attentes trop élevées',
-          'Manque de temps et de ressources',
-          'Responsabilités qui s\'accumulent',
-          'Autre cause...'
+          'Rien de lourd, je suis léger',
+          'Quelques choses gérables',
+          'Une charge importante mais OK',
+          'Trop de choses, je plie',
+          'Un poids écrasant, je m\'effondre'
         ]
       },
       {
-        id: 'o2',
-        text: 'Comment ce débordement se manifeste-t-il ?',
+        id: 'overwhelmed2',
+        text: 'Arrive-tu à respirer complètement ?',
         options: [
-          'Sentiment de panique ou stress',
-          'Difficulté à prioriser',
-          'Procrastination ou paralysie',
-          'Épuisement émotionnel',
-          'Autre manifestation...'
+          'Oui, respiration ample et libre',
+          'Oui, respiration normale',
+          'Respiration restreinte',
+          'Respiration courte, oppressée',
+          'À peine, comme étranglé'
         ]
       },
       {
-        id: 'o3',
-        text: 'Quelle serait votre plus grande libération ?',
+        id: 'overwhelmed3',
+        text: 'Les demandes qui viennent vers toi, les accueilles-tu ou les subis-tu ?',
         options: [
-          'Déléguer ou demander de l\'aide',
-          'Reporter ou annuler certaines choses',
-          'Simplifier et réduire',
-          'Accepter que tout ne sera pas parfait',
-          'Autre libération...'
+          'Je les accueille avec présence',
+          'Je les reçois correctement',
+          'Je les subis un peu',
+          'Je les subis beaucoup, je ne choisis pas',
+          'Je suis submergé, tout m\'agresse'
         ]
       },
       {
-        id: 'o4',
-        text: 'Qu\'est-ce qui est vraiment urgent ET important ?',
+        id: 'overwhelmed4',
+        text: 'Peux-tu sentir tes limites ou sont-elles floues ?',
         options: [
-          'Une ou deux priorités essentielles',
-          'Prendre soin de ma santé mentale',
-          'Communiquer avec les parties prenantes',
-          'Créer de l\'espace pour respirer',
-          'Autre priorité...'
+          'Oui, mes limites sont claires et solides',
+          'Oui, je sais où elles sont',
+          'Elles sont floues, incertaines',
+          'Je ne sais plus où elles sont',
+          'Je n\'ai plus de limites, je suis poreux'
         ]
       },
       {
-        id: 'o5',
-        text: 'Que pouvez-vous lâcher aujourd\'hui ?',
+        id: 'overwhelmed5',
+        text: 'Y a-t-il de l\'espace en toi ou tout est-il plein ?',
         options: [
-          'Le perfectionnisme',
-          'Le besoin de tout contrôler',
-          'Certaines tâches non essentielles',
-          'Les attentes irréalistes',
-          'Autre chose...'
+          'Beaucoup d\'espace, de vide disponible',
+          'Un peu d\'espace',
+          'Très peu d\'espace',
+          'Aucun espace, tout est saturé',
+          'Débordement, explosion'
         ]
       },
       {
-        id: 'o6',
-        text: 'Comment voulez-vous retrouver votre équilibre ?',
+        id: 'overwhelmed6',
+        text: 'Peux-tu dire non à quelque chose aujourd\'hui ?',
         options: [
-          'Établir des limites claires',
-          'Demander du soutien',
-          'Pratiquer l\'auto-compassion',
-          'Créer un plan réaliste',
-          'Autre méthode...'
+          'Oui, facilement et clairement',
+          'Oui, si vraiment nécessaire',
+          'Difficilement, avec culpabilité',
+          'Non, impossible',
+          'Je ne sais même plus ce qu\'est un "non"'
         ]
       },
       {
-        id: 'o7',
-        text: 'Quelle petite victoire vous redonnerait confiance ?',
+        id: 'overwhelmed7',
+        text: 'De quoi aurais-tu besoin pour retrouver de l\'air ?',
         options: [
-          'Compléter une seule tâche importante',
-          'Organiser et clarifier mes priorités',
-          'Prendre un vrai moment de pause',
-          'Avoir une conversation honnête',
-          'Autre victoire...'
+          'Je respire bien',
+          'D\'une pause, maintenant',
+          'De poser des choses, déléguer',
+          'Que tout s\'arrête un instant',
+          'De disparaître complètement'
+        ]
+      }
+    ]
+  },
+
+  // CALME / SEREIN
+  {
+    moodId: 'calm',
+    questions: [
+      {
+        id: 'calm1',
+        text: 'Comment est ton cœur ce matin ?',
+        options: [
+          'Paisible, ouvert, doux',
+          'Calme, tranquille',
+          'Ni paisible ni agité',
+          'Contracté, fermé',
+          'Douloureux, brisé'
+        ]
+      },
+      {
+        id: 'calm2',
+        text: 'Peux-tu sentir le sol sous tes pieds ?',
+        options: [
+          'Oui, complètement ancré, enraciné',
+          'Oui, je sens le sol',
+          'Un peu, légèrement déconnecté',
+          'Non, je flotte',
+          'Non, je suis perdu dans l\'espace'
+        ]
+      },
+      {
+        id: 'calm3',
+        text: 'Y a-t-il quelque chose à prouver aujourd\'hui ?',
+        options: [
+          'Non, rien du tout - je suis suffisant',
+          'Non, je peux juste être',
+          'Un peu, quelques attentes',
+          'Oui, beaucoup à prouver',
+          'Oui, je dois me battre pour exister'
+        ]
+      },
+      {
+        id: 'calm4',
+        text: 'Le silence t\'est-il confortable ?',
+        options: [
+          'Oui, le silence est un refuge',
+          'Oui, le silence est OK',
+          'Neutre, ni agréable ni désagréable',
+          'Non, le silence m\'inquiète',
+          'Non, le silence me terrifie'
+        ]
+      },
+      {
+        id: 'calm5',
+        text: 'Ressens-tu de la gratitude subtile pour l\'ordinaire ?',
+        options: [
+          'Oui, émerveillement pour le simple',
+          'Oui, appréciation tranquille',
+          'Un peu, ça vient par moments',
+          'Non, je ne remarque pas',
+          'Non, tout me semble terne'
+        ]
+      },
+      {
+        id: 'calm6',
+        text: 'De quoi as-tu besoin pour préserver cette qualité ?',
+        options: [
+          'De rien, elle est stable',
+          'De continuer à être présent',
+          'De protéger mon espace',
+          'Je ne suis pas calme',
+          'Je ne sais pas'
         ]
       }
     ]
