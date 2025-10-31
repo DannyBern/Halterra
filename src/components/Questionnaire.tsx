@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mood, Question, UserResponse } from '../types';
+import type { Mood, UserResponse } from '../types';
 import { questionnaires } from '../data/moods';
 import './Questionnaire.css';
 

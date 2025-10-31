@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Mood, UserResponse } from '../types';
+import type { Mood, UserResponse } from '../types';
 import { generateMeditation, generateAudio } from '../services/api';
 import './Meditation.css';
 

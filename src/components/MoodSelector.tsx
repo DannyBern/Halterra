@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mood } from '../types';
+import type { Mood } from '../types';
 import { moods } from '../data/moods';
 import './MoodSelector.css';
 

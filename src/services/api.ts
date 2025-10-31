@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { Mood, UserResponse } from '../types';
+import type { Mood, UserResponse } from '../types';
 
 export async function generateMeditation(
   apiKey: string,

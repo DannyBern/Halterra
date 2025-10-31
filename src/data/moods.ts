@@ -1,4 +1,4 @@
-import { Mood, MoodQuestionnaire } from '../types';
+import type { Mood, MoodQuestionnaire } from '../types';
 
 export const moods: Mood[] = [
   {

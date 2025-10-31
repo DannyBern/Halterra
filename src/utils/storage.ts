@@ -1,4 +1,4 @@
-import { User, MeditationSession } from '../types';
+import type { User, MeditationSession } from '../types';
 
 const USER_KEY = 'halterra_user';
 const SESSIONS_KEY = 'halterra_sessions';

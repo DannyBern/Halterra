@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MeditationSession } from '../types';
+import type { MeditationSession } from '../types';
 import { storage } from '../utils/storage';
 import { moods } from '../data/moods';
 import './History.css';

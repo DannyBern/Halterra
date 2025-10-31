@@ -7,7 +7,7 @@ import Questionnaire from './components/Questionnaire';
 import Meditation from './components/Meditation';
 import History from './components/History';
 import SessionView from './components/SessionView';
-import { User, Mood, UserResponse, MeditationSession } from './types';
+import type { User, Mood, UserResponse, MeditationSession } from './types';
 import { storage } from './utils/storage';
 import './App.css';
 
