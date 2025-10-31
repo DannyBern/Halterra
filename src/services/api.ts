@@ -1,72 +1,49 @@
-import Anthropic from '@anthropic-ai/sdk';
 import type { Mood, UserResponse } from '../types';
 
+// URL du backend Vercel sécurisé
+const BACKEND_URL = 'https://halterra-backend-pyx8bpzkv-dannys-projects-ff6db2ea.vercel.app';
+
 export async function generateMeditation(
-  apiKey: string,
+  _apiKey: string, // Paramètre conservé pour compatibilité mais non utilisé
   userName: string,
   mood: Mood,
   responses: UserResponse[]
 ): Promise<string> {
-  const client = new Anthropic({
-    apiKey: apiKey,
-    dangerouslyAllowBrowser: true // Note: En production, utiliser un backend
+  // Appel au backend Vercel qui gère les clés API de manière sécurisée
+  const response = await fetch(`${BACKEND_URL}/api/meditation`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      userName,
+      mood,
+      responses
+    })
   });
 
-  const responsesText = responses
-    .map((r, i) => `Question ${i + 1}: ${r.answer}`)
-    .join('\n');
+  if (!response.ok) {
+    throw new Error('Erreur lors de la génération de la méditation');
+  }
 
-  const prompt = `Tu es un guide de méditation expert et bienveillant. ${userName} commence sa journée avec un état d'esprit "${mood.name}" (${mood.description}).
-
-Voici les réponses de ${userName} aux questions de réflexion :
-${responsesText}
-
-Crée une méditation guidée personnalisée de 2-3 minutes (environ 300-400 mots) qui :
-1. Accueille et valide son état émotionnel actuel
-2. Offre des réflexions profondes et inspirantes adaptées à son mood
-3. Propose des perspectives positives et actionnables pour sa journée
-4. Utilise un ton apaisant, méditatif et authentique
-5. S'adresse directement à ${userName} en utilisant "tu" ou "vous"
-6. Termine par une intention ou affirmation puissante pour la journée
-
-Le texte doit être écrit pour être lu à voix haute, avec des pauses naturelles. Utilise un français fluide et poétique.`;
-
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 1500,
-    messages: [
-      {
-        role: 'user',
-        content: prompt
-      }
-    ]
-  });
-
-  const textContent = message.content.find(block => block.type === 'text');
-  return textContent && 'text' in textContent ? textContent.text : '';
+  const data = await response.json();
+  return data.meditationText;
 }
 
 export async function generateAudio(
-  apiKey: string,
+  _apiKey: string, // Paramètre conservé pour compatibilité mais non utilisé
   text: string,
-  voiceId: string = 'xsNzdCmWJpYoa80FaXJi' // Voix personnalisée
+  _voiceId: string = 'xsNzdCmWJpYoa80FaXJi' // Voix personnalisée Danny
 ): Promise<string> {
-  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+  // Appel au backend Vercel qui gère les clés API de manière sécurisée
+  // Le backend utilise ElevenLabs v3 avec qualité maximale : 44.1kHz, 128kbps
+  const response = await fetch(`${BACKEND_URL}/api/audio`, {
     method: 'POST',
     headers: {
-      'Accept': 'audio/mpeg',
       'Content-Type': 'application/json',
-      'xi-api-key': apiKey
     },
     body: JSON.stringify({
-      text: text,
-      model_id: 'eleven_multilingual_v2',
-      voice_settings: {
-        stability: 0.5,
-        similarity_boost: 0.75,
-        style: 0.3,
-        use_speaker_boost: true
-      }
+      text
     })
   });
 
@@ -74,6 +51,15 @@ export async function generateAudio(
     throw new Error('Erreur lors de la génération audio');
   }
 
-  const audioBlob = await response.blob();
+  const data = await response.json();
+
+  // Convertir le base64 en blob et créer une URL objet
+  const audioData = atob(data.audio);
+  const audioArray = new Uint8Array(audioData.length);
+  for (let i = 0; i < audioData.length; i++) {
+    audioArray[i] = audioData.charCodeAt(i);
+  }
+  const audioBlob = new Blob([audioArray], { type: 'audio/mpeg' });
+
   return URL.createObjectURL(audioBlob);
 }
