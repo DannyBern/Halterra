@@ -25,7 +25,7 @@ export default function Questionnaire({ mood, userName, onComplete }: Questionna
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   const handleOptionSelect = (option: string) => {
-    const isCustomOption = option.includes('Autre') || option.includes('....');
+    const isCustomOption = option.includes('Autre') || option.includes('....') || option === '✍️ Écrire ma propre réponse';
 
     if (isCustomOption) {
       setShowCustomInput(true);
@@ -133,6 +133,38 @@ export default function Questionnaire({ mood, userName, onComplete }: Questionna
               </div>
             );
           })}
+
+          {/* Option pour écrire une réponse personnalisée */}
+          <div className="option-wrapper">
+            <button
+              className={`option-button custom-response-button ${selectedOption === '✍️ Écrire ma propre réponse' ? 'selected' : ''}`}
+              onClick={() => handleOptionSelect('✍️ Écrire ma propre réponse')}
+              style={{
+                animationDelay: `${currentQuestion?.options.length * 0.1}s`,
+                borderColor: selectedOption === '✍️ Écrire ma propre réponse' ? mood.color : 'transparent'
+              }}
+            >
+              <span className="option-text">✍️ Écrire ma propre réponse</span>
+              <div
+                className="option-indicator"
+                style={{ backgroundColor: mood.color }}
+              ></div>
+            </button>
+
+            {selectedOption === '✍️ Écrire ma propre réponse' && showCustomInput && (
+              <div className="custom-input-wrapper fade-in">
+                <textarea
+                  value={customAnswer}
+                  onChange={(e) => setCustomAnswer(e.target.value)}
+                  placeholder="Écrivez votre réponse ici..."
+                  className="custom-input"
+                  autoFocus
+                  rows={3}
+                  maxLength={200}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         <button

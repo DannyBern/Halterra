@@ -160,6 +160,21 @@
   transform: scale(1.1);
 }
 
+/* Style spécial pour le bouton de réponse personnalisée */
+.custom-response-button {
+  border-style: dashed;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  margin-top: var(--spacing-lg);
+}
+
+.custom-response-button:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+}
+
+.custom-response-button.selected {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+}
+
 .custom-input-wrapper {
   margin-top: var(--spacing-md);
   padding: 0 var(--spacing-md);
