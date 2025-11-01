@@ -10,6 +10,12 @@ export default function BackgroundMusic({ shouldFadeOut, onFadeComplete }: Backg
   const [volume, setVolume] = useState(0.3); // Volume initial à 30% pour ne pas être trop fort
   const fadeIntervalRef = useRef<number | null>(null);
 
+  // Sélectionner aléatoirement l'une des deux musiques au montage
+  const [musicTrack] = useState(() => {
+    const tracks = ['/Halterra/zen-flow.mp3', '/Halterra/zen-flow-2.mp3'];
+    return tracks[Math.floor(Math.random() * tracks.length)];
+  });
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -116,7 +122,7 @@ export default function BackgroundMusic({ shouldFadeOut, onFadeComplete }: Backg
   return (
     <audio
       ref={audioRef}
-      src="/Halterra/zen-flow.mp3"
+      src={musicTrack}
       preload="auto"
     />
   );
