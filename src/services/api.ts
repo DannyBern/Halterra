@@ -8,7 +8,7 @@ export async function generateMeditation(
   userName: string,
   mood: Mood,
   responses: UserResponse[]
-): Promise<string> {
+): Promise<{ displayText: string; audioText: string }> {
   // Appel au backend Vercel qui gère les clés API de manière sécurisée
   const response = await fetch(`${BACKEND_URL}/api/meditation`, {
     method: 'POST',
@@ -27,7 +27,10 @@ export async function generateMeditation(
   }
 
   const data = await response.json();
-  return data.meditationText;
+  return {
+    displayText: data.meditationText,  // Version propre pour l'affichage
+    audioText: data.audioText || data.meditationText  // Version SSML pour audio (fallback si pas présent)
+  };
 }
 
 export async function generateAudio(

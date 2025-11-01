@@ -36,16 +36,16 @@ export default function Meditation({
     try {
       setStatus('generating-text');
 
-      // Générer le texte de méditation
-      const text = await generateMeditation(anthropicApiKey, userName, mood, responses);
-      setMeditationText(text);
+      // Générer le texte de méditation (retourne displayText et audioText)
+      const { displayText, audioText } = await generateMeditation(anthropicApiKey, userName, mood, responses);
+      setMeditationText(displayText);  // Version propre pour l'affichage
 
       // TOUJOURS générer l'audio - le backend Vercel gère les clés API
       setStatus('generating-audio');
 
       try {
-        // Générer l'audio - retourne directement un data URL base64
-        const audioDataUrl = await generateAudio('', text);
+        // Générer l'audio avec la version SSML (audioText) - retourne directement un data URL base64
+        const audioDataUrl = await generateAudio('', audioText);
 
         setAudioBase64(audioDataUrl);
         setAudioUrl(audioDataUrl);
