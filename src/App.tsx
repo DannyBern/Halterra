@@ -8,6 +8,7 @@ import Questionnaire from './components/Questionnaire';
 import Meditation from './components/Meditation';
 import History from './components/History';
 import SessionView from './components/SessionView';
+import BackgroundMusic from './components/BackgroundMusic';
 import type { User, Mood, UserResponse, MeditationSession } from './types';
 import { storage } from './utils/storage';
 import './App.css';
@@ -111,6 +112,11 @@ function App() {
 
   return (
     <div className="app">
+      {/* Musique de fond - fade out pendant la méditation */}
+      <BackgroundMusic
+        shouldFadeOut={screen === 'meditation' || screen === 'session-view'}
+      />
+
       {screen === 'splash' && <SplashScreen onComplete={() => {
         setHasSeenSplash(true);
         setScreen('landing');
