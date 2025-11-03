@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import VideoIntro from './components/VideoIntro';
 import SplashScreen from './components/SplashScreen';
 import Landing from './components/Landing';
 import Onboarding from './components/Onboarding';
@@ -14,6 +15,7 @@ import { storage } from './utils/storage';
 import './App.css';
 
 type AppScreen =
+  | 'video-intro'
   | 'splash'
   | 'landing'
   | 'onboarding'
@@ -25,7 +27,7 @@ type AppScreen =
   | 'session-view';
 
 function App() {
-  const [screen, setScreen] = useState<AppScreen>('splash');
+  const [screen, setScreen] = useState<AppScreen>('video-intro');
   const [user, setUser] = useState<User | null>(null);
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const [responses, setResponses] = useState<UserResponse[]>([]);
@@ -116,6 +118,8 @@ function App() {
       <BackgroundMusic
         shouldFadeOut={screen === 'meditation' || screen === 'session-view'}
       />
+
+      {screen === 'video-intro' && <VideoIntro onComplete={() => setScreen('splash')} />}
 
       {screen === 'splash' && <SplashScreen onComplete={() => {
         setHasSeenSplash(true);
