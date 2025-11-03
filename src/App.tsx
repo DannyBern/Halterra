@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import VideoIntro from './components/VideoIntro';
-import SplashScreen from './components/SplashScreen';
 import Landing from './components/Landing';
 import Onboarding from './components/Onboarding';
 import DateDisplay from './components/DateDisplay';
@@ -16,7 +15,6 @@ import './App.css';
 
 type AppScreen =
   | 'video-intro'
-  | 'splash'
   | 'landing'
   | 'onboarding'
   | 'date'
@@ -37,18 +35,18 @@ function App() {
   const anthropicApiKey = import.meta.env.VITE_ANTHROPIC_API_KEY || '';
   const elevenlabsApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || '';
 
-  const [hasSeenSplash, setHasSeenSplash] = useState(false);
+  const [hasSeenIntro, setHasSeenIntro] = useState(false);
 
   useEffect(() => {
-    // Charger l'utilisateur depuis le stockage seulement après le splash
-    if (hasSeenSplash) {
+    // Charger l'utilisateur depuis le stockage seulement après l'intro vidéo
+    if (hasSeenIntro) {
       const savedUser = storage.getUser();
       if (savedUser) {
         setUser(savedUser);
         setScreen('date');
       }
     }
-  }, [hasSeenSplash]);
+  }, [hasSeenIntro]);
 
   const handleLandingStart = () => {
     setScreen('onboarding');
@@ -119,10 +117,8 @@ function App() {
         shouldFadeOut={screen === 'meditation' || screen === 'session-view'}
       />
 
-      {screen === 'video-intro' && <VideoIntro onComplete={() => setScreen('splash')} />}
-
-      {screen === 'splash' && <SplashScreen onComplete={() => {
-        setHasSeenSplash(true);
+      {screen === 'video-intro' && <VideoIntro onComplete={() => {
+        setHasSeenIntro(true);
         setScreen('landing');
       }} />}
 
