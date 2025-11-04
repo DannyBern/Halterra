@@ -37,14 +37,24 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    // Parse la date en format local pour éviter les problèmes de timezone
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month - 1 car les mois commencent à 0
+
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset l'heure pour comparaison exacte
+
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
-    if (date.toDateString() === today.toDateString()) {
+    // Comparaison en millisecondes après reset de l'heure
+    const dateTime = new Date(date).setHours(0, 0, 0, 0);
+    const todayTime = today.getTime();
+    const yesterdayTime = yesterday.getTime();
+
+    if (dateTime === todayTime) {
       return "Aujourd'hui";
-    } else if (date.toDateString() === yesterday.toDateString()) {
+    } else if (dateTime === yesterdayTime) {
       return 'Hier';
     } else {
       const options: Intl.DateTimeFormatOptions = {

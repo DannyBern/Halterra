@@ -6,6 +6,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 :root {
   /* 2025 Premium Dark Mode Color Palette */
   --color-bg-primary: #0A0E1A;

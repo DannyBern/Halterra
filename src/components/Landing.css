@@ -19,7 +19,7 @@
   }
 }
 
-/* Animated gradient orbs background */
+/* Cozy background image */
 .landing-bg {
   position: absolute;
   top: 0;
@@ -30,42 +30,43 @@
   z-index: 0;
 }
 
-.orb {
+.landing-bg::before {
+  content: '';
   position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.4;
-  animation: float 20s ease-in-out infinite;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/Halterra/landing-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
 }
 
-.orb-1 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(102, 126, 234, 0.6) 0%, transparent 70%);
-  top: -10%;
-  left: -10%;
-  animation-delay: 0s;
+.landing-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  z-index: 1;
 }
 
-.orb-2 {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(118, 75, 162, 0.5) 0%, transparent 70%);
-  bottom: -15%;
-  right: -15%;
-  animation-delay: -7s;
-  animation-duration: 25s;
+/* Gardé pour référence mais non utilisé avec la photo */
+.orb {
+  display: none;
 }
 
-.orb-3 {
-  width: 350px;
-  height: 350px;
-  background: radial-gradient(circle, rgba(79, 172, 254, 0.4) 0%, transparent 70%);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation-delay: -14s;
-  animation-duration: 30s;
+.orb-1, .orb-2, .orb-3 {
+  display: none;
 }
 
 @keyframes float {

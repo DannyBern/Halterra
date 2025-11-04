@@ -7,9 +7,10 @@ import './MoodSelector.css';
 interface MoodSelectorProps {
   userName: string;
   onMoodSelect: (mood: Mood) => void;
+  onBack: () => void;
 }
 
-export default function MoodSelector({ userName, onMoodSelect }: MoodSelectorProps) {
+export default function MoodSelector({ userName, onMoodSelect, onBack }: MoodSelectorProps) {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -23,6 +24,10 @@ export default function MoodSelector({ userName, onMoodSelect }: MoodSelectorPro
 
   return (
     <div className={`mood-selector ${isTransitioning ? 'fade-out' : ''}`}>
+      <button className="back-button" onClick={onBack} aria-label="Retour">
+        ← Retour
+      </button>
+
       <div className="mood-content fade-in">
         <h2 className="mood-title">{userName}, comment vous sentez-vous ce matin ?</h2>
 

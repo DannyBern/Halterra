@@ -3,9 +3,10 @@ import { useEffect, useRef, useState } from 'react';
 interface BackgroundMusicProps {
   shouldFadeOut: boolean;
   onFadeComplete?: () => void;
+  isMuted?: boolean;
 }
 
-export default function BackgroundMusic({ shouldFadeOut, onFadeComplete }: BackgroundMusicProps) {
+export default function BackgroundMusic({ shouldFadeOut, onFadeComplete, isMuted = false }: BackgroundMusicProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [volume, setVolume] = useState(0.3); // Volume initial à 30% pour ne pas être trop fort
   const fadeIntervalRef = useRef<number | null>(null);
@@ -41,6 +42,18 @@ export default function BackgroundMusic({ shouldFadeOut, onFadeComplete }: Backg
       audio.pause();
     };
   }, []);
+
+  // Handle mute/unmute
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isMuted) {
+      audio.volume = 0;
+    } else {
+      audio.volume = volume;
+    }
+  }, [isMuted, volume]);
 
   useEffect(() => {
     const audio = audioRef.current;

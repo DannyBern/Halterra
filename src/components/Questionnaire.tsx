@@ -8,9 +8,10 @@ interface QuestionnaireProps {
   mood: Mood;
   userName: string;
   onComplete: (responses: UserResponse[]) => void;
+  onBack: () => void;
 }
 
-export default function Questionnaire({ mood, userName, onComplete }: QuestionnaireProps) {
+export default function Questionnaire({ mood, userName, onComplete, onBack }: QuestionnaireProps) {
   const questionnaire = questionnaires.find(q => q.moodId === mood.id);
   const questions = questionnaire?.questions || [];
 
@@ -75,6 +76,12 @@ export default function Questionnaire({ mood, userName, onComplete }: Questionna
 
   return (
     <div className="questionnaire">
+      {currentQuestionIndex === 0 && (
+        <button className="back-button" onClick={onBack} aria-label="Retour">
+          ← Retour
+        </button>
+      )}
+
       <div className="questionnaire-header">
         <div className="mood-badge" style={{ backgroundColor: `${mood.color}15`, color: mood.color }}>
           <span className="mood-badge-icon">

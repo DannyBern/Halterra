@@ -27,6 +27,7 @@ export default function DateDisplay({ userName, onContinue }: DateDisplayProps) 
 
   return (
     <div className="date-display fade-in">
+      <div className="date-bg"></div>
       <div className="date-content">
         <div className="date-ornament">✦</div>
 

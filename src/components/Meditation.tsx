@@ -7,17 +7,21 @@ interface MeditationProps {
   mood: Mood;
   userName: string;
   responses: UserResponse[];
+  guideType: 'meditation' | 'reflection';
   anthropicApiKey: string;
   elevenlabsApiKey?: string;
   onComplete: (meditationText: string, audioBase64?: string) => void;
+  onBack: () => void;
 }
 
 export default function Meditation({
   mood,
   userName,
   responses,
+  guideType,
   anthropicApiKey,
-  onComplete
+  onComplete,
+  onBack
 }: MeditationProps) {
   const [status, setStatus] = useState<'generating-text' | 'generating-audio' | 'ready' | 'error'>('generating-text');
   const [meditationText, setMeditationText] = useState('');
@@ -37,7 +41,7 @@ export default function Meditation({
       setStatus('generating-text');
 
       // Générer le texte de méditation (retourne displayText et audioText)
-      const { displayText, audioText } = await generateMeditation(anthropicApiKey, userName, mood, responses);
+      const { displayText, audioText } = await generateMeditation(anthropicApiKey, userName, mood, responses, guideType);
       setMeditationText(displayText);  // Version propre pour l'affichage
 
       // TOUJOURS générer l'audio - le backend Vercel gère les clés API
@@ -45,7 +49,8 @@ export default function Meditation({
 
       try {
         // Générer l'audio avec la version SSML (audioText) - retourne directement un data URL base64
-        const audioDataUrl = await generateAudio('', audioText);
+        // Passer le guideType pour choisir la bonne voix (féminine pour méditation, masculine pour réflexion)
+        const audioDataUrl = await generateAudio('', audioText, '', guideType);
 
         setAudioBase64(audioDataUrl);
         setAudioUrl(audioDataUrl);
@@ -145,6 +150,17 @@ export default function Meditation({
       onClick={audioUrl ? handlePlay : undefined}
       style={{ cursor: audioUrl ? 'pointer' : 'default' }}
     >
+      <button
+        className="back-button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onBack();
+        }}
+        aria-label="Retour"
+      >
+        ← Retour
+      </button>
+
       <div className="meditation-header">
         <div className="mood-badge" style={{ backgroundColor: `${mood.color}15`, color: mood.color }}>
           <span className="mood-badge-icon">{mood.icon}</span>

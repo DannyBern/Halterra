@@ -3,6 +3,7 @@ import VideoIntro from './components/VideoIntro';
 import Landing from './components/Landing';
 import Onboarding from './components/Onboarding';
 import DateDisplay from './components/DateDisplay';
+import GuideSelector from './components/GuideSelector';
 import MoodSelector from './components/MoodSelector';
 import Questionnaire from './components/Questionnaire';
 import Meditation from './components/Meditation';
@@ -18,15 +19,19 @@ type AppScreen =
   | 'landing'
   | 'onboarding'
   | 'date'
+  | 'guide'
   | 'mood'
   | 'questionnaire'
   | 'meditation'
   | 'history'
   | 'session-view';
 
+type GuideType = 'meditation' | 'reflection';
+
 function App() {
   const [screen, setScreen] = useState<AppScreen>('video-intro');
   const [user, setUser] = useState<User | null>(null);
+  const [selectedGuideType, setSelectedGuideType] = useState<GuideType | null>(null);
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const [responses, setResponses] = useState<UserResponse[]>([]);
   const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
@@ -36,6 +41,7 @@ function App() {
   const elevenlabsApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || '';
 
   const [hasSeenIntro, setHasSeenIntro] = useState(false);
+  const [isMusicMuted, setIsMusicMuted] = useState(false);
 
   useEffect(() => {
     // Charger l'utilisateur depuis le stockage seulement après l'intro vidéo
@@ -48,6 +54,23 @@ function App() {
     }
   }, [hasSeenIntro]);
 
+  // Prevent pull-to-refresh on mobile
+  useEffect(() => {
+    const preventPullToRefresh = (e: TouchEvent) => {
+      const target = e.target as HTMLElement;
+      // Only prevent if at top of scroll and pulling down
+      if (target.scrollTop === 0 && e.touches[0].clientY > e.touches[0].clientY) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('touchmove', preventPullToRefresh, { passive: false });
+
+    return () => {
+      document.removeEventListener('touchmove', preventPullToRefresh);
+    };
+  }, []);
+
   const handleLandingStart = () => {
     setScreen('onboarding');
   };
@@ -59,7 +82,16 @@ function App() {
   };
 
   const handleDateContinue = () => {
+    setScreen('guide');
+  };
+
+  const handleGuideSelect = (guideType: GuideType) => {
+    setSelectedGuideType(guideType);
     setScreen('mood');
+  };
+
+  const handleGuideBack = () => {
+    setScreen('date');
   };
 
   const handleMoodSelect = (mood: Mood) => {
@@ -67,26 +99,55 @@ function App() {
     setScreen('questionnaire');
   };
 
+  const handleMoodBack = () => {
+    setScreen('guide');
+  };
+
   const handleQuestionnaireComplete = (userResponses: UserResponse[]) => {
     setResponses(userResponses);
     setScreen('meditation');
   };
 
+  const handleQuestionnaireBack = () => {
+    setScreen('mood');
+  };
+
+  const handleMeditationBack = () => {
+    setScreen('questionnaire');
+  };
+
   const handleMeditationComplete = (meditationText: string, audioBase64?: string) => {
-    if (!user || !selectedMood) return;
+    if (!user || !selectedMood) {
+      console.error('Cannot save: missing user or mood', { user, selectedMood });
+      return;
+    }
 
     const session: MeditationSession = {
       id: `session-${Date.now()}`,
       date: new Date().toISOString().split('T')[0],
       userName: user.name,
       mood: selectedMood.id,
+      guideType: selectedGuideType || 'meditation',
       responses,
       meditationText,
       audioUrl: audioBase64, // Stocker le base64 au lieu du blob URL
       timestamp: Date.now()
     };
 
+    console.log('Saving meditation session:', {
+      id: session.id,
+      hasText: !!meditationText,
+      hasAudio: !!audioBase64,
+      audioLength: audioBase64?.length,
+      guideType: session.guideType
+    });
+
     storage.saveMeditationSession(session);
+
+    // Verify save
+    const savedSessions = storage.getAllSessions();
+    console.log('Total sessions after save:', savedSessions.length);
+
     setScreen('history');
   };
 
@@ -96,6 +157,7 @@ function App() {
 
   const handleHistoryBack = () => {
     setScreen('date');
+    setSelectedGuideType(null);
     setSelectedMood(null);
     setResponses([]);
   };
@@ -115,7 +177,33 @@ function App() {
       {/* Musique de fond - fade out pendant la méditation */}
       <BackgroundMusic
         shouldFadeOut={screen === 'meditation' || screen === 'session-view'}
+        isMuted={isMusicMuted}
       />
+
+      {/* Bouton mute/unmute sophistiqué */}
+      {screen !== 'video-intro' && (
+        <button
+          className="music-toggle-button"
+          onClick={() => setIsMusicMuted(!isMusicMuted)}
+          aria-label={isMusicMuted ? 'Activer la musique' : 'Désactiver la musique'}
+        >
+          <div className="music-toggle-icon">
+            {isMusicMuted ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+                <line x1="23" y1="9" x2="17" y2="15"/>
+                <line x1="17" y1="9" x2="23" y2="15"/>
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              </svg>
+            )}
+          </div>
+        </button>
+      )}
 
       {screen === 'video-intro' && <VideoIntro onComplete={() => {
         setHasSeenIntro(true);
@@ -135,8 +223,20 @@ function App() {
         </div>
       )}
 
+      {screen === 'guide' && user && (
+        <GuideSelector
+          userName={user.name}
+          onSelectGuide={handleGuideSelect}
+          onBack={handleGuideBack}
+        />
+      )}
+
       {screen === 'mood' && user && (
-        <MoodSelector userName={user.name} onMoodSelect={handleMoodSelect} />
+        <MoodSelector
+          userName={user.name}
+          onMoodSelect={handleMoodSelect}
+          onBack={handleMoodBack}
+        />
       )}
 
       {screen === 'questionnaire' && user && selectedMood && (
@@ -144,6 +244,7 @@ function App() {
           mood={selectedMood}
           userName={user.name}
           onComplete={handleQuestionnaireComplete}
+          onBack={handleQuestionnaireBack}
         />
       )}
 
@@ -152,9 +253,11 @@ function App() {
           mood={selectedMood}
           userName={user.name}
           responses={responses}
+          guideType={selectedGuideType || 'meditation'}
           anthropicApiKey={anthropicApiKey}
           elevenlabsApiKey={elevenlabsApiKey}
           onComplete={handleMeditationComplete}
+          onBack={handleMeditationBack}
         />
       )}
 
