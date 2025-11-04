@@ -25,6 +25,14 @@ export default function Questionnaire({ mood, userName, onComplete, onBack }: Qu
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
+  // Mapping mood name to image filename
+  const getMoodImagePath = (moodName: string) => {
+    // Les noms des fichiers correspondent exactement aux noms des moods
+    return `/Halterra/${moodName}.jpeg`;
+  };
+
+  const backgroundImage = getMoodImagePath(mood.name);
+
   const handleOptionSelect = (option: string) => {
     const isCustomOption = option.includes('Autre') || option.includes('....') || option === '✍️ Écrire ma propre réponse';
 
@@ -75,7 +83,10 @@ export default function Questionnaire({ mood, userName, onComplete, onBack }: Qu
   const canProceed = selectedOption && (!showCustomInput || customAnswer.trim());
 
   return (
-    <div className="questionnaire">
+    <div className="questionnaire" style={{ backgroundImage: `url(${backgroundImage})` }}>
+      {/* Dark overlay for readability */}
+      <div className="questionnaire-overlay" />
+
       {currentQuestionIndex === 0 && (
         <button className="back-button" onClick={onBack} aria-label="Retour">
           ← Retour
