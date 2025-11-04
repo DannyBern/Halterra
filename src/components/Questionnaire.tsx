@@ -27,9 +27,10 @@ export default function Questionnaire({ mood, userName, onComplete, onBack }: Qu
 
   // Mapping mood name to image filename
   const getMoodImagePath = (moodName: string) => {
-    // Les noms des fichiers correspondent exactement aux noms des moods
-    // Encoder les espaces et caractères spéciaux pour l'URL
-    const encodedName = encodeURIComponent(moodName);
+    // Les fichiers utilisent deux espaces au lieu de " / "
+    // Ex: "Aligné / En flow" devient "Aligné  En flow.jpeg"
+    const fileName = moodName.replace(' / ', '  ');
+    const encodedName = encodeURIComponent(fileName);
     return `${import.meta.env.BASE_URL}${encodedName}.jpeg`;
   };
 
