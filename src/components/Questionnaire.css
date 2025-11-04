@@ -19,12 +19,12 @@
   height: 100%;
   background: linear-gradient(
     135deg,
-    rgba(0, 0, 0, 0.75) 0%,
-    rgba(0, 0, 0, 0.65) 50%,
-    rgba(0, 0, 0, 0.75) 100%
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    rgba(0, 0, 0, 0.5) 100%
   );
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
   z-index: 0;
   pointer-events: none;
 }
@@ -45,11 +45,13 @@
   border-radius: var(--radius-full);
   font-weight: 600;
   margin-bottom: var(--spacing-xl);
+  margin-left: auto;
   animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  float: right;
 }
 
 .mood-badge-icon {
