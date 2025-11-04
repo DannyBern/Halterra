@@ -1,64 +1,108 @@
 .history {
   min-height: 100vh;
   padding: 2rem;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Overlay sombre pour lisibilité avec effet glassmorphism */
+.history::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.65) 0%,
+    rgba(0, 0, 0, 0.55) 50%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .history-header {
   max-width: 900px;
   margin: 0 auto 3rem;
+  position: relative;
+  z-index: 1;
 }
 
 .back-button {
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
-  color: var(--color-primary);
-  background: var(--color-white);
+  color: var(--color-white);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 50px;
   margin-bottom: 2rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .back-button:hover {
   transform: translateX(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .history-title {
   font-size: 2.5rem;
   font-weight: 300;
-  color: var(--color-primary);
+  color: var(--color-white);
   margin-bottom: 0.5rem;
   text-align: center;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .history-subtitle {
   font-size: 1.1rem;
-  color: var(--color-text-light);
+  color: rgba(255, 255, 255, 0.85);
   text-align: center;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 
 .history-content {
   max-width: 900px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 /* Empty State */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .empty-icon {
   font-size: 4rem;
   margin-bottom: 1.5rem;
-  opacity: 0.5;
+  opacity: 0.8;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
 }
 
 .empty-text {
   font-size: 1.1rem;
-  color: var(--color-text-light);
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.8;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* Sessions List */
@@ -75,10 +119,13 @@
 .date-header {
   font-size: 1.5rem;
   font-weight: 400;
-  color: var(--color-primary);
+  color: var(--color-white);
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--color-accent);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .sessions-grid {
@@ -88,19 +135,24 @@
 }
 
 .session-card {
-  background: var(--color-white);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   padding: 1.5rem;
-  border-radius: 12px;
+  border-radius: 16px;
   border-left: 4px solid;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   text-align: left;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   cursor: pointer;
 }
 
 .session-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .session-mood {
@@ -117,23 +169,29 @@
 .session-mood-name {
   font-size: 1.1rem;
   font-weight: 500;
-  color: var(--color-primary);
+  color: var(--color-white);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .session-preview {
   font-size: 0.95rem;
-  color: var(--color-text-light);
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.6;
   margin-bottom: 1rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .session-audio-badge {
   display: inline-block;
   padding: 0.4rem 0.8rem;
   font-size: 0.85rem;
-  color: var(--color-secondary);
-  background: rgba(142, 154, 175, 0.1);
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 768px) {

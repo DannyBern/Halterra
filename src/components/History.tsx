@@ -77,8 +77,10 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
     new Date(b).getTime() - new Date(a).getTime()
   );
 
+  const backgroundImage = `${import.meta.env.BASE_URL}professional_photograph_of_a_modern_home_library.jpeg`;
+
   return (
-    <div className="history fade-in">
+    <div className="history fade-in" style={{ backgroundImage: `url(${backgroundImage})` }}>
       <div className="history-header">
         <button className="back-button" onClick={onBack}>
           ← Retour
