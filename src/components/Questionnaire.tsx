@@ -87,6 +87,30 @@ export default function Questionnaire({ mood, userName, onComplete, onBack }: Qu
     }
   };
 
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentQuestionIndex(currentQuestionIndex - 1);
+        // Restaurer la réponse précédente si elle existe
+        const previousResponse = responses[currentQuestionIndex - 1];
+        if (previousResponse) {
+          setSelectedOption(previousResponse.answer);
+          // Supprimer la dernière réponse
+          setResponses(responses.slice(0, -1));
+        } else {
+          setSelectedOption(null);
+        }
+        setCustomAnswer('');
+        setShowCustomInput(false);
+        setIsTransitioning(false);
+      }, 300);
+    } else {
+      // Si on est à la première question, retourner au sélecteur de mood
+      onBack();
+    }
+  };
+
   const canProceed = selectedOption && (!showCustomInput || customAnswer.trim());
 
   return (
@@ -94,11 +118,9 @@ export default function Questionnaire({ mood, userName, onComplete, onBack }: Qu
       {/* Dark overlay for readability */}
       <div className="questionnaire-overlay" />
 
-      {currentQuestionIndex === 0 && (
-        <button className="back-button" onClick={onBack} aria-label="Retour">
-          ← Retour
-        </button>
-      )}
+      <button className="back-button" onClick={handlePrevious} aria-label="Retour">
+        ← Retour
+      </button>
 
       <div className="questionnaire-header">
         <div className="mood-badge" style={{ backgroundColor: `${mood.color}15`, color: mood.color }}>
@@ -131,7 +153,7 @@ export default function Questionnaire({ mood, userName, onComplete, onBack }: Qu
                   className={`option-button ${isSelected ? 'selected' : ''}`}
                   onClick={() => handleOptionSelect(option)}
                   style={{
-                    animationDelay: `${index * 0.1}s`,
+                    animationDelay: `${1.5 + index * 0.2}s`,
                     borderColor: isSelected ? mood.color : 'transparent'
                   }}
                 >
@@ -165,7 +187,7 @@ export default function Questionnaire({ mood, userName, onComplete, onBack }: Qu
               className={`option-button custom-response-button ${selectedOption === '✍️ Écrire ma propre réponse' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('✍️ Écrire ma propre réponse')}
               style={{
-                animationDelay: `${currentQuestion?.options.length * 0.1}s`,
+                animationDelay: `${1.5 + currentQuestion?.options.length * 0.2}s`,
                 borderColor: selectedOption === '✍️ Écrire ma propre réponse' ? mood.color : 'transparent'
               }}
             >
