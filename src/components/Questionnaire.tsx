@@ -28,10 +28,16 @@ export default function Questionnaire({ mood, userName, onComplete, onBack }: Qu
   // Mapping mood name to image filename
   const getMoodImagePath = (moodName: string) => {
     // Les noms des fichiers correspondent exactement aux noms des moods
-    return `/Halterra/${moodName}.jpeg`;
+    // Encoder les espaces et caractères spéciaux pour l'URL
+    const encodedName = encodeURIComponent(moodName);
+    return `${import.meta.env.BASE_URL}${encodedName}.jpeg`;
   };
 
   const backgroundImage = getMoodImagePath(mood.name);
+
+  // Debug: log the path
+  console.log('Mood name:', mood.name);
+  console.log('Background image path:', backgroundImage);
 
   const handleOptionSelect = (option: string) => {
     const isCustomOption = option.includes('Autre') || option.includes('....') || option === '✍️ Écrire ma propre réponse';
