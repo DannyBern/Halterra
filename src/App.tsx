@@ -6,6 +6,7 @@ import DateDisplay from './components/DateDisplay';
 import GuideSelector from './components/GuideSelector';
 import MoodSelector from './components/MoodSelector';
 import { DurationSelection } from './components/DurationSelection';
+import { CategorySelection } from './components/CategorySelection';
 import Questionnaire from './components/Questionnaire';
 import Meditation from './components/Meditation';
 import History from './components/History';
@@ -23,6 +24,7 @@ type AppScreen =
   | 'guide'
   | 'mood'
   | 'duration'
+  | 'category'
   | 'questionnaire'
   | 'meditation'
   | 'history'
@@ -108,11 +110,22 @@ function App() {
 
   const handleDurationSelect = (duration: 2 | 5 | 10) => {
     setSelectedDuration(duration);
-    setScreen('questionnaire');
+    setScreen('category');
   };
 
   const handleDurationBack = () => {
     setScreen('mood');
+  };
+
+  const handleCategorySelect = (category: string, intention: string) => {
+    // For now, we'll store these as additional context
+    // Will be used in the meditation generation
+    console.log('Selected category:', category, 'intention:', intention);
+    setScreen('questionnaire');
+  };
+
+  const handleCategoryBack = () => {
+    setScreen('duration');
   };
 
   const handleQuestionnaireComplete = (userResponses: UserResponse[]) => {
@@ -121,7 +134,7 @@ function App() {
   };
 
   const handleQuestionnaireBack = () => {
-    setScreen('duration');
+    setScreen('category');
   };
 
   const handleMeditationBack = () => {
@@ -258,6 +271,14 @@ function App() {
           guideType={selectedGuideType}
           onSelect={handleDurationSelect}
           onBack={handleDurationBack}
+        />
+      )}
+
+      {screen === 'category' && selectedGuideType && (
+        <CategorySelection
+          guideType={selectedGuideType}
+          onSelectIntention={handleCategorySelect}
+          onBack={handleCategoryBack}
         />
       )}
 
