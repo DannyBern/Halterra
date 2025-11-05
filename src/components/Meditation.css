@@ -13,7 +13,7 @@
 }
 
 .meditation-fullscreen.playing {
-  background: radial-gradient(circle at center, rgba(102, 126, 234, 0.05) 0%, transparent 60%);
+  background: radial-gradient(circle at center, rgba(102, 126, 234, 0.03) 0%, transparent 60%);
 }
 
 .fullscreen-play-indicator {

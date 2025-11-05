@@ -20,7 +20,7 @@
   font-size: var(--font-size-4xl);
   font-weight: 600;
   text-align: center;
-  background: linear-gradient(135deg, #FFFFFF 0%, rgba(255, 255, 255, 0.8) 100%);
+  background: linear-gradient(135deg, #FFFFFF 0%, rgba(255, 255, 255, 0.40) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -63,7 +63,7 @@
 
 .mood-card:hover {
   transform: translateY(-8px);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.25);
   box-shadow: var(--shadow-xl);
 }
@@ -71,7 +71,7 @@
 .mood-card.selected {
   border-width: 2px;
   transform: translateY(-8px) scale(1.02);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.07);
   box-shadow: var(--shadow-2xl);
 }
 

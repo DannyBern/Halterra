@@ -62,8 +62,8 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
             className="duration-button"
             onClick={() => onSelect(2)}
             style={{
-              borderColor: `${mood.color}40`,
-              background: `linear-gradient(135deg, ${mood.color}15, ${mood.color}05)`
+              borderColor: `${mood.color}20`,
+              background: `linear-gradient(135deg, ${mood.color}0B, ${mood.color}03)`
             }}
           >
             <span className="duration-time" style={{ color: mood.color }}>2</span>
@@ -74,9 +74,9 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
             className="duration-button featured"
             onClick={() => onSelect(5)}
             style={{
-              borderColor: `${mood.color}60`,
-              background: `linear-gradient(135deg, ${mood.color}25, ${mood.color}10)`,
-              boxShadow: `0 8px 32px ${mood.color}30`
+              borderColor: `${mood.color}30`,
+              background: `linear-gradient(135deg, ${mood.color}13, ${mood.color}08)`,
+              boxShadow: `0 8px 32px ${mood.color}18`
             }}
           >
             <span className="duration-time" style={{ color: mood.color }}>5</span>
@@ -88,8 +88,8 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
             className="duration-button"
             onClick={() => onSelect(10)}
             style={{
-              borderColor: `${mood.color}40`,
-              background: `linear-gradient(135deg, ${mood.color}15, ${mood.color}05)`
+              borderColor: `${mood.color}20`,
+              background: `linear-gradient(135deg, ${mood.color}0B, ${mood.color}03)`
             }}
           >
             <span className="duration-time" style={{ color: mood.color }}>10</span>

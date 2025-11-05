@@ -92,10 +92,10 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
             className={`category-card ${expandedCategory === category.id ? 'expanded' : ''}`}
             onClick={() => handleCategoryClick(category.id)}
             style={{
-              borderColor: expandedCategory === category.id ? `${mood.color}60` : `${mood.color}30`,
+              borderColor: expandedCategory === category.id ? `${mood.color}30` : `${mood.color}18`,
               background: expandedCategory === category.id
-                ? `linear-gradient(135deg, ${mood.color}20, ${mood.color}10)`
-                : `linear-gradient(135deg, ${mood.color}10, ${mood.color}05)`
+                ? `linear-gradient(135deg, ${mood.color}10, ${mood.color}08)`
+                : `linear-gradient(135deg, ${mood.color}08, ${mood.color}03)`
             }}
           >
             <div className="category-card-inner">

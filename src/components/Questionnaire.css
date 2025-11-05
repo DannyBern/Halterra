@@ -19,9 +19,9 @@
   height: 100%;
   background: linear-gradient(
     135deg,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(0, 0, 0, 0.4) 50%,
-    rgba(0, 0, 0, 0.5) 100%
+    rgba(0, 0, 0, 0.25) 0%,
+    rgba(0, 0, 0, 0.20) 50%,
+    rgba(0, 0, 0, 0.25) 100%
   );
   backdrop-filter: blur(1px);
   -webkit-backdrop-filter: blur(1px);
@@ -89,7 +89,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
   animation: shimmer 2s infinite;
 }
 
@@ -143,7 +143,7 @@
 .option-button {
   width: 100%;
   padding: var(--spacing-xl);
-  background: rgba(0, 0, 0, 0.125);
+  background: rgba(0, 0, 0, 0.06);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -161,7 +161,7 @@
 
 .option-button:hover {
   transform: translateX(8px);
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.10);
   border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
@@ -169,7 +169,7 @@
 .option-button.selected {
   border-width: 2px;
   transform: translateX(12px) scale(1.02);
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
 }
 
@@ -200,16 +200,16 @@
 /* Style spécial pour le bouton de réponse personnalisée */
 .custom-response-button {
   border-style: dashed;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
   margin-top: var(--spacing-lg);
 }
 
 .custom-response-button:hover {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.07), rgba(118, 75, 162, 0.07));
 }
 
 .custom-response-button.selected {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.10), rgba(118, 75, 162, 0.10));
 }
 
 .custom-input-wrapper {
@@ -233,7 +233,7 @@
 .custom-input:focus {
   border-color: rgba(255, 255, 255, 0.4);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .custom-input::placeholder {
@@ -263,7 +263,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
   transition: left 0.5s ease;
 }
 
