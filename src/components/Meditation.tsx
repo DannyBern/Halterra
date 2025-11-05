@@ -8,6 +8,7 @@ interface MeditationProps {
   userName: string;
   responses: UserResponse[];
   guideType: 'meditation' | 'reflection';
+  duration: 2 | 5 | 10;
   anthropicApiKey: string;
   elevenlabsApiKey?: string;
   onComplete: (meditationText: string, audioBase64?: string) => void;
@@ -19,6 +20,7 @@ export default function Meditation({
   userName,
   responses,
   guideType,
+  duration,
   anthropicApiKey,
   onComplete,
   onBack
@@ -41,7 +43,7 @@ export default function Meditation({
       setStatus('generating-text');
 
       // Générer le texte de méditation (retourne displayText et audioText)
-      const { displayText, audioText } = await generateMeditation(anthropicApiKey, userName, mood, responses, guideType);
+      const { displayText, audioText } = await generateMeditation(anthropicApiKey, userName, mood, responses, guideType, duration);
       setMeditationText(displayText);  // Version propre pour l'affichage
 
       // TOUJOURS générer l'audio - le backend Vercel gère les clés API

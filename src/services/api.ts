@@ -1,14 +1,15 @@
 import type { Mood, UserResponse } from '../types';
 
 // URL du backend Vercel sécurisé
-const BACKEND_URL = 'https://halterra-backend-a8bjjbaun-dannys-projects-ff6db2ea.vercel.app';
+const BACKEND_URL = 'https://halterra-backend-nv78edg88-dannys-projects-ff6db2ea.vercel.app';
 
 export async function generateMeditation(
   _apiKey: string, // Paramètre conservé pour compatibilité mais non utilisé
   userName: string,
   mood: Mood,
   responses: UserResponse[],
-  guideType: 'meditation' | 'reflection' = 'meditation'
+  guideType: 'meditation' | 'reflection' = 'meditation',
+  duration: 2 | 5 | 10 = 5
 ): Promise<{ displayText: string; audioText: string }> {
   // Appel au backend Vercel qui gère les clés API de manière sécurisée
   const response = await fetch(`${BACKEND_URL}/api/meditation`, {
@@ -20,7 +21,8 @@ export async function generateMeditation(
       userName,
       mood,
       responses,
-      guideType
+      guideType,
+      duration
     })
   });
 

@@ -5,6 +5,7 @@ import Onboarding from './components/Onboarding';
 import DateDisplay from './components/DateDisplay';
 import GuideSelector from './components/GuideSelector';
 import MoodSelector from './components/MoodSelector';
+import { DurationSelection } from './components/DurationSelection';
 import Questionnaire from './components/Questionnaire';
 import Meditation from './components/Meditation';
 import History from './components/History';
@@ -21,6 +22,7 @@ type AppScreen =
   | 'date'
   | 'guide'
   | 'mood'
+  | 'duration'
   | 'questionnaire'
   | 'meditation'
   | 'history'
@@ -33,6 +35,7 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [selectedGuideType, setSelectedGuideType] = useState<GuideType | null>(null);
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
+  const [selectedDuration, setSelectedDuration] = useState<2 | 5 | 10 | null>(null);
   const [responses, setResponses] = useState<UserResponse[]>([]);
   const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
 
@@ -96,11 +99,20 @@ function App() {
 
   const handleMoodSelect = (mood: Mood) => {
     setSelectedMood(mood);
-    setScreen('questionnaire');
+    setScreen('duration');
   };
 
   const handleMoodBack = () => {
     setScreen('guide');
+  };
+
+  const handleDurationSelect = (duration: 2 | 5 | 10) => {
+    setSelectedDuration(duration);
+    setScreen('questionnaire');
+  };
+
+  const handleDurationBack = () => {
+    setScreen('mood');
   };
 
   const handleQuestionnaireComplete = (userResponses: UserResponse[]) => {
@@ -109,7 +121,7 @@ function App() {
   };
 
   const handleQuestionnaireBack = () => {
-    setScreen('mood');
+    setScreen('duration');
   };
 
   const handleMeditationBack = () => {
@@ -128,6 +140,7 @@ function App() {
       userName: user.name,
       mood: selectedMood.id,
       guideType: selectedGuideType || 'meditation',
+      duration: selectedDuration || 5,
       responses,
       meditationText,
       audioUrl: audioBase64, // Stocker le base64 au lieu du blob URL
@@ -159,6 +172,7 @@ function App() {
     setScreen('date');
     setSelectedGuideType(null);
     setSelectedMood(null);
+    setSelectedDuration(null);
     setResponses([]);
   };
 
@@ -239,6 +253,14 @@ function App() {
         />
       )}
 
+      {screen === 'duration' && selectedGuideType && (
+        <DurationSelection
+          guideType={selectedGuideType}
+          onSelect={handleDurationSelect}
+          onBack={handleDurationBack}
+        />
+      )}
+
       {screen === 'questionnaire' && user && selectedMood && (
         <Questionnaire
           mood={selectedMood}
@@ -248,12 +270,13 @@ function App() {
         />
       )}
 
-      {screen === 'meditation' && user && selectedMood && (
+      {screen === 'meditation' && user && selectedMood && selectedDuration && (
         <Meditation
           mood={selectedMood}
           userName={user.name}
           responses={responses}
           guideType={selectedGuideType || 'meditation'}
+          duration={selectedDuration}
           anthropicApiKey={anthropicApiKey}
           elevenlabsApiKey={elevenlabsApiKey}
           onComplete={handleMeditationComplete}

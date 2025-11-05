@@ -33,6 +33,7 @@ export interface MeditationSession {
   userName: string;
   mood: string;
   guideType?: 'meditation' | 'reflection';
+  duration?: 2 | 5 | 10;
   responses: UserResponse[];
   meditationText: string;
   audioUrl?: string;
