@@ -266,17 +266,19 @@ function App() {
         />
       )}
 
-      {screen === 'duration' && selectedGuideType && (
+      {screen === 'duration' && selectedGuideType && selectedMood && (
         <DurationSelection
           guideType={selectedGuideType}
+          mood={selectedMood}
           onSelect={handleDurationSelect}
           onBack={handleDurationBack}
         />
       )}
 
-      {screen === 'category' && selectedGuideType && (
+      {screen === 'category' && selectedGuideType && selectedMood && (
         <CategorySelection
           guideType={selectedGuideType}
+          mood={selectedMood}
           onSelectIntention={handleCategorySelect}
           onBack={handleCategoryBack}
         />
