@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import type { Mood } from '../types';
 import './CategorySelection.css';
 
 interface Category {
@@ -10,6 +11,7 @@ interface Category {
 
 interface CategorySelectionProps {
   guideType: 'meditation' | 'reflection';
+  mood: Mood;
   onSelectIntention: (category: string, intention: string) => void;
   onBack: () => void;
 }
@@ -32,6 +34,7 @@ const categories: Category[] = [
 
 export const CategorySelection: React.FC<CategorySelectionProps> = ({
   guideType,
+  mood,
   onBack
 }) => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -46,8 +49,32 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
 
   const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
 
+  // Get mood background image
+  const moodImageMap: Record<string, string> = {
+    'aligned': 'Aligné  En flow.jpeg',
+    'motivated': 'Motivé  Inspiré.jpeg',
+    'anxious': 'Anxieux  Inquiet.jpeg',
+    'exhausted': 'Épuisé  Vidé.jpeg',
+    'sad': 'Triste  Découragé.jpeg',
+    'frustrated': 'Frustré  En colère.jpeg',
+    'lost': 'Perdu  Confus.jpeg',
+    'alone': 'Seul  Isolé.jpeg',
+    'overwhelmed': 'Submergé  Sous pression.jpeg',
+    'calm': 'Calme  Serein.jpeg'
+  };
+
+  const moodImage = moodImageMap[mood.id] || '';
+
   return (
-    <div className="category-selection">
+    <div
+      className="category-selection"
+      style={{
+        backgroundImage: moodImage ? `url(/Halterra/${moodImage})` : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <button className="back-button-category" onClick={onBack}>
         ← Retour
       </button>
@@ -63,6 +90,12 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
             key={category.id}
             className={`category-card ${expandedCategory === category.id ? 'expanded' : ''}`}
             onClick={() => handleCategoryClick(category.id)}
+            style={{
+              borderColor: expandedCategory === category.id ? `${mood.color}60` : `${mood.color}30`,
+              background: expandedCategory === category.id
+                ? `linear-gradient(135deg, ${mood.color}20, ${mood.color}10)`
+                : `linear-gradient(135deg, ${mood.color}10, ${mood.color}05)`
+            }}
           >
             <div className="category-card-inner">
               <div

@@ -6,15 +6,22 @@
   justify-content: center;
   padding: 2rem;
   position: relative;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
 }
 
-.duration-selection.meditation {
-  background: linear-gradient(135deg, #2c1a4d 0%, #1a1a3e 100%);
+.duration-selection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 0;
 }
 
-.duration-selection.reflection {
-  background: linear-gradient(135deg, #1a3a4d 0%, #1a2a3e 100%);
+.duration-selection > * {
+  position: relative;
+  z-index: 1;
 }
 
 .back-button {
@@ -67,7 +74,6 @@
 }
 
 .duration-button {
-  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 24px;
@@ -106,8 +112,6 @@
 }
 
 .duration-button.featured {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.4);
   transform: scale(1.1);
 }
 
@@ -134,8 +138,7 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
-  color: #1a1a2e;
+  color: white;
   padding: 0.4rem 0.8rem;
   border-radius: 8px;
   font-size: 0.75rem;
