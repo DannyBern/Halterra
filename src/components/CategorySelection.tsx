@@ -98,32 +98,46 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
                 : `linear-gradient(135deg, ${mood.color}08, ${mood.color}03)`
             }}
           >
-            <div className="category-card-inner">
-              <div
-                className="category-icon"
-                style={{
-                  backgroundImage: `url(${import.meta.env.BASE_URL}${encodeURIComponent(category.icon)})`
-                }}
-              />
-              <div className="category-info">
-                <h3 className="category-name">{category.name}</h3>
-                {category.timeOfDay && (
-                  <span className="category-time">{category.timeOfDay}</span>
-                )}
-              </div>
-              <div className="category-arrow">
-                {expandedCategory === category.id ? '−' : '+'}
-              </div>
-            </div>
-
-            {/* Intentions will be rendered here when expanded */}
-            {expandedCategory === category.id && (
-              <div className="intentions-container">
-                <div className="intentions-placeholder">
-                  <p className="intentions-coming-soon">
-                    Les intentions spécifiques apparaîtront ici
-                  </p>
+            {/* Collapsed state - horizontal layout */}
+            {expandedCategory !== category.id && (
+              <div className="category-card-inner">
+                <div
+                  className="category-icon"
+                  style={{
+                    backgroundImage: `url(${import.meta.env.BASE_URL}${encodeURIComponent(category.icon)})`
+                  }}
+                />
+                <div className="category-info">
+                  <h3 className="category-name">{category.name}</h3>
+                  {category.timeOfDay && (
+                    <span className="category-time">{category.timeOfDay}</span>
+                  )}
                 </div>
+                <div className="category-arrow">+</div>
+              </div>
+            )}
+
+            {/* Expanded state - vertical layout */}
+            {expandedCategory === category.id && (
+              <div className="category-card-expanded">
+                <div
+                  className="category-icon-large"
+                  style={{
+                    backgroundImage: `url(${import.meta.env.BASE_URL}${encodeURIComponent(category.icon)})`
+                  }}
+                />
+                <h3 className="category-name-large">{category.name}</h3>
+                {category.timeOfDay && (
+                  <span className="category-time-large">{category.timeOfDay}</span>
+                )}
+                <div className="intentions-container">
+                  <div className="intentions-list">
+                    <div className="intention-item">
+                      <p>Les intentions spécifiques apparaîtront ici</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="category-arrow-expanded">−</div>
               </div>
             )}
           </div>
