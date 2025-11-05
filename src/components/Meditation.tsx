@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import type { Mood, UserResponse } from '../types';
+import type { Mood } from '../types';
 import { generateMeditation, generateAudio } from '../services/api';
 import './Meditation.css';
 
 interface MeditationProps {
   mood: Mood;
   userName: string;
-  responses: UserResponse[];
+  category: string;
+  intention: string;
   guideType: 'meditation' | 'reflection';
   duration: 2 | 5 | 10;
   anthropicApiKey: string;
@@ -18,7 +19,8 @@ interface MeditationProps {
 export default function Meditation({
   mood,
   userName,
-  responses,
+  category,
+  intention,
   guideType,
   duration,
   anthropicApiKey,
@@ -43,7 +45,7 @@ export default function Meditation({
       setStatus('generating-text');
 
       // Générer le texte de méditation (retourne displayText et audioText)
-      const { displayText, audioText } = await generateMeditation(anthropicApiKey, userName, mood, responses, guideType, duration);
+      const { displayText, audioText } = await generateMeditation(anthropicApiKey, userName, mood, category, intention, guideType, duration);
       setMeditationText(displayText);  // Version propre pour l'affichage
 
       // TOUJOURS générer l'audio - le backend Vercel gère les clés API

@@ -11,22 +11,6 @@ export interface Mood {
   color: string;
 }
 
-export interface Question {
-  id: string;
-  text: string;
-  options: string[];
-}
-
-export interface MoodQuestionnaire {
-  moodId: string;
-  questions: Question[];
-}
-
-export interface UserResponse {
-  questionId: string;
-  answer: string;
-}
-
 export interface MeditationSession {
   id: string;
   date: string;
@@ -34,7 +18,8 @@ export interface MeditationSession {
   mood: string;
   guideType?: 'meditation' | 'reflection';
   duration?: 2 | 5 | 10;
-  responses: UserResponse[];
+  category?: string;
+  intention?: string;
   meditationText: string;
   audioUrl?: string;
   timestamp: number;

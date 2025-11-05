@@ -1,4 +1,4 @@
-import type { Mood, UserResponse } from '../types';
+import type { Mood } from '../types';
 
 // URL du backend Vercel sécurisé
 const BACKEND_URL = 'https://halterra-backend-nv78edg88-dannys-projects-ff6db2ea.vercel.app';
@@ -7,7 +7,8 @@ export async function generateMeditation(
   _apiKey: string, // Paramètre conservé pour compatibilité mais non utilisé
   userName: string,
   mood: Mood,
-  responses: UserResponse[],
+  category: string,
+  intention: string,
   guideType: 'meditation' | 'reflection' = 'meditation',
   duration: 2 | 5 | 10 = 5
 ): Promise<{ displayText: string; audioText: string }> {
@@ -20,7 +21,8 @@ export async function generateMeditation(
     body: JSON.stringify({
       userName,
       mood,
-      responses,
+      category,
+      intention,
       guideType,
       duration
     })

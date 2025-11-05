@@ -7,12 +7,11 @@ import GuideSelector from './components/GuideSelector';
 import MoodSelector from './components/MoodSelector';
 import { DurationSelection } from './components/DurationSelection';
 import { CategorySelection } from './components/CategorySelection';
-import Questionnaire from './components/Questionnaire';
 import Meditation from './components/Meditation';
 import History from './components/History';
 import SessionView from './components/SessionView';
 import BackgroundMusic from './components/BackgroundMusic';
-import type { User, Mood, UserResponse, MeditationSession } from './types';
+import type { User, Mood, MeditationSession } from './types';
 import { storage } from './utils/storage';
 import './App.css';
 
@@ -25,7 +24,6 @@ type AppScreen =
   | 'mood'
   | 'duration'
   | 'category'
-  | 'questionnaire'
   | 'meditation'
   | 'history'
   | 'session-view';
@@ -38,7 +36,8 @@ function App() {
   const [selectedGuideType, setSelectedGuideType] = useState<GuideType | null>(null);
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<2 | 5 | 10 | null>(null);
-  const [responses, setResponses] = useState<UserResponse[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedIntention, setSelectedIntention] = useState<string | null>(null);
   const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
 
   // API Keys - Configurées via variables d'environnement
@@ -118,27 +117,17 @@ function App() {
   };
 
   const handleCategorySelect = (category: string, intention: string) => {
-    // For now, we'll store these as additional context
-    // Will be used in the meditation generation
-    console.log('Selected category:', category, 'intention:', intention);
-    setScreen('questionnaire');
+    setSelectedCategory(category);
+    setSelectedIntention(intention);
+    setScreen('meditation');
   };
 
   const handleCategoryBack = () => {
     setScreen('duration');
   };
 
-  const handleQuestionnaireComplete = (userResponses: UserResponse[]) => {
-    setResponses(userResponses);
-    setScreen('meditation');
-  };
-
-  const handleQuestionnaireBack = () => {
-    setScreen('category');
-  };
-
   const handleMeditationBack = () => {
-    setScreen('questionnaire');
+    setScreen('category');
   };
 
   const handleMeditationComplete = (meditationText: string, audioBase64?: string) => {
@@ -154,9 +143,10 @@ function App() {
       mood: selectedMood.id,
       guideType: selectedGuideType || 'meditation',
       duration: selectedDuration || 5,
-      responses,
+      category: selectedCategory || undefined,
+      intention: selectedIntention || undefined,
       meditationText,
-      audioUrl: audioBase64, // Stocker le base64 au lieu du blob URL
+      audioUrl: audioBase64,
       timestamp: Date.now()
     };
 
@@ -186,7 +176,8 @@ function App() {
     setSelectedGuideType(null);
     setSelectedMood(null);
     setSelectedDuration(null);
-    setResponses([]);
+    setSelectedCategory(null);
+    setSelectedIntention(null);
   };
 
   const handleSessionSelect = (session: MeditationSession) => {
@@ -284,20 +275,12 @@ function App() {
         />
       )}
 
-      {screen === 'questionnaire' && user && selectedMood && (
-        <Questionnaire
-          mood={selectedMood}
-          userName={user.name}
-          onComplete={handleQuestionnaireComplete}
-          onBack={handleQuestionnaireBack}
-        />
-      )}
-
-      {screen === 'meditation' && user && selectedMood && selectedDuration && (
+      {screen === 'meditation' && user && selectedMood && selectedDuration && selectedIntention && (
         <Meditation
           mood={selectedMood}
           userName={user.name}
-          responses={responses}
+          category={selectedCategory || ''}
+          intention={selectedIntention}
           guideType={selectedGuideType || 'meditation'}
           duration={selectedDuration}
           anthropicApiKey={anthropicApiKey}
