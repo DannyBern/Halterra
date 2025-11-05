@@ -100,16 +100,39 @@ export default function Meditation({
   };
 
   if (status === 'generating-text') {
+    const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
+    const breathingClass = guideType === 'meditation' ? 'breathing-slow' : 'breathing-dynamic';
+
     return (
       <div className="meditation">
-        <div className="meditation-loading fade-in">
-          <div className="loading-icon" style={{ color: mood.color }}>
-            <div className="pulse-ring"></div>
-            <span className="loading-emoji">{mood.icon}</span>
+        <div className="meditation-loading-premium fade-in">
+          {/* Breathing Circle Guide */}
+          <div className="breathing-guide-container">
+            <div
+              className={`breathing-circle ${breathingClass}`}
+              style={{
+                '--mood-color': mood.color,
+                '--mood-color-alpha': `${mood.color}33`
+              } as React.CSSProperties}
+            >
+              <div className="breathing-circle-inner"></div>
+              <div className="breathing-glow"></div>
+              <div className="mood-icon-center">{mood.icon}</div>
+            </div>
           </div>
-          <h2 className="loading-title">Création de votre méditation...</h2>
-          <p className="loading-text">
-            Claude compose un message personnalisé pour vous accompagner aujourd'hui.
+
+          {/* Progress Phases */}
+          <div className="loading-phases">
+            <div className="phase-dot active"></div>
+            <div className="phase-line"></div>
+            <div className="phase-dot pulsing" style={{ backgroundColor: mood.color }}></div>
+            <div className="phase-line"></div>
+            <div className="phase-dot"></div>
+          </div>
+
+          <h2 className="loading-title-premium">Création de votre {guideType === 'meditation' ? 'méditation' : 'réflexion'}</h2>
+          <p className="loading-subtitle-premium">
+            {guideName} compose un moment unique pour toi
           </p>
         </div>
       </div>
@@ -117,17 +140,46 @@ export default function Meditation({
   }
 
   if (status === 'generating-audio') {
+    const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
+
     return (
       <div className="meditation">
-        <div className="meditation-loading fade-in">
-          <div className="loading-icon" style={{ color: mood.color }}>
-            <div className="pulse-ring"></div>
-            <span className="loading-emoji">🎧</span>
+        <div className="meditation-loading-premium fade-in">
+          {/* Audio Wave Animation */}
+          <div className="audio-generation-container">
+            <div className="audio-waves-premium">
+              <div className="wave-bar" style={{ '--delay': '0s', '--height': '60%', backgroundColor: mood.color } as React.CSSProperties}></div>
+              <div className="wave-bar" style={{ '--delay': '0.1s', '--height': '80%', backgroundColor: mood.color } as React.CSSProperties}></div>
+              <div className="wave-bar" style={{ '--delay': '0.2s', '--height': '100%', backgroundColor: mood.color } as React.CSSProperties}></div>
+              <div className="wave-bar" style={{ '--delay': '0.3s', '--height': '80%', backgroundColor: mood.color } as React.CSSProperties}></div>
+              <div className="wave-bar" style={{ '--delay': '0.4s', '--height': '60%', backgroundColor: mood.color } as React.CSSProperties}></div>
+            </div>
+            <div className="audio-icon-overlay">🎧</div>
           </div>
-          <h2 className="loading-title">Narration de votre méditation...</h2>
-          <p className="loading-text">
-            Votre voix prend vie grâce à l'intelligence artificielle.
+
+          {/* Progress Phases */}
+          <div className="loading-phases">
+            <div className="phase-dot completed" style={{ backgroundColor: mood.color }}></div>
+            <div className="phase-line completed" style={{ backgroundColor: mood.color }}></div>
+            <div className="phase-dot completed" style={{ backgroundColor: mood.color }}></div>
+            <div className="phase-line"></div>
+            <div className="phase-dot pulsing" style={{ backgroundColor: mood.color }}></div>
+          </div>
+
+          <h2 className="loading-title-premium">Narration en cours</h2>
+          <p className="loading-subtitle-premium">
+            La voix de {guideName} prend vie
           </p>
+
+          {/* Progress Bar */}
+          <div className="narration-progress">
+            <div className="progress-bar-track">
+              <div
+                className="progress-bar-fill"
+                style={{ backgroundColor: mood.color }}
+              ></div>
+            </div>
+          </div>
         </div>
       </div>
     );
