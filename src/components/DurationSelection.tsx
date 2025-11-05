@@ -38,7 +38,7 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
     <div
       className={`duration-selection ${guideType}`}
       style={{
-        backgroundImage: moodImage ? `url(/Halterra/${moodImage})` : undefined,
+        backgroundImage: moodImage ? `url(/${moodImage})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'

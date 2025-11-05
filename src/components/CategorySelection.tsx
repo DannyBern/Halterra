@@ -69,7 +69,7 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
     <div
       className="category-selection"
       style={{
-        backgroundImage: moodImage ? `url(/Halterra/${moodImage})` : undefined,
+        backgroundImage: moodImage ? `url(/${moodImage})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -101,7 +101,7 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
               <div
                 className="category-icon"
                 style={{
-                  backgroundImage: `url(/Halterra/${category.icon})`
+                  backgroundImage: `url(/${category.icon})`
                 }}
               />
               <div className="category-info">
