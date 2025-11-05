@@ -33,12 +33,13 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
   };
 
   const moodImage = moodImageMap[mood.id] || '';
+  const backgroundImageUrl = moodImage ? `${import.meta.env.BASE_URL}${encodeURIComponent(moodImage)}` : '';
 
   return (
     <div
       className={`duration-selection ${guideType}`}
       style={{
-        backgroundImage: moodImage ? `url(/${moodImage})` : undefined,
+        backgroundImage: backgroundImageUrl ? `url(${backgroundImageUrl})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'

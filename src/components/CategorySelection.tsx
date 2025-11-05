@@ -64,12 +64,13 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
   };
 
   const moodImage = moodImageMap[mood.id] || '';
+  const backgroundImageUrl = moodImage ? `${import.meta.env.BASE_URL}${encodeURIComponent(moodImage)}` : '';
 
   return (
     <div
       className="category-selection"
       style={{
-        backgroundImage: moodImage ? `url(/${moodImage})` : undefined,
+        backgroundImage: backgroundImageUrl ? `url(${backgroundImageUrl})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -101,7 +102,7 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
               <div
                 className="category-icon"
                 style={{
-                  backgroundImage: `url(/${category.icon})`
+                  backgroundImage: `url(${import.meta.env.BASE_URL}${encodeURIComponent(category.icon)})`
                 }}
               />
               <div className="category-info">
