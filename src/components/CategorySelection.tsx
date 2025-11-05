@@ -6,7 +6,7 @@ interface Category {
   id: string;
   name: string;
   icon: string;
-  timeOfDay?: string;
+  intentions: string[];
 }
 
 interface CategorySelectionProps {
@@ -17,24 +17,179 @@ interface CategorySelectionProps {
 }
 
 const categories: Category[] = [
-  { id: 'sante-corps', name: 'Santé & Corps', icon: 'Santé & Corps icon.jpeg' },
-  { id: 'changement-habitudes', name: 'Changement & Habitudes', icon: 'Changement & Habitudes icon.jpeg' },
-  { id: 'eveil-preparation', name: 'Éveil & Préparation', icon: 'Éveil & Préparation icon.jpeg', timeOfDay: 'Matin' },
-  { id: 'attention-cognition', name: 'Attention & Cognition', icon: 'Attention & Cognition icon.jpeg', timeOfDay: 'Matin/Journée' },
-  { id: 'performance-action', name: 'Performance & Action', icon: 'Performance & Action icon.jpeg', timeOfDay: 'Journée' },
-  { id: 'regulation-resilience', name: 'Régulation & Résilience', icon: 'Régulation & Résilience icon.jpeg', timeOfDay: 'Journée' },
-  { id: 'flexibilite-psychologique', name: 'Flexibilité Psychologique', icon: 'Flexibilité Psychologique icon.jpeg', timeOfDay: 'Journée' },
-  { id: 'relations-connexion', name: 'Relations & Connexion', icon: 'Relations & Connexion icon.jpeg', timeOfDay: 'Journée' },
-  { id: 'bien-etre-etats-positifs', name: 'Bien-être & États Positifs', icon: 'Bien-être & États Positifs icon.jpeg', timeOfDay: 'Soir' },
-  { id: 'soi-developpement', name: 'Soi & Développement', icon: 'Soi & Développement icon.jpeg', timeOfDay: 'Soir' },
-  { id: 'autonomie-valeurs', name: 'Autonomie & Valeurs', icon: 'Autonomie & Valeurs.jpeg', timeOfDay: 'Soir' },
-  { id: 'spiritualite-transcendance', name: 'Spiritualité & Transcendance', icon: 'Spiritualité & Transcendance icon.jpeg', timeOfDay: 'Soir/Nuit' },
-  { id: 'detente-sommeil', name: 'Détente & Sommeil', icon: 'Détente & Sommeil icon.jpeg', timeOfDay: 'Nuit' },
+  {
+    id: 'sante-corps',
+    name: 'Santé & Corps',
+    icon: 'Santé & Corps icon.jpeg',
+    intentions: [
+      'Gérer la douleur chronique',
+      'Améliorer la santé physique générale',
+      'Soutenir la récupération ou la gestion de maladie'
+    ]
+  },
+  {
+    id: 'changement-habitudes',
+    name: 'Changement & Habitudes',
+    icon: 'Changement & Habitudes icon.jpeg',
+    intentions: [
+      'Briser les habitudes néfastes et les dépendances',
+      'Développer des comportements sains et activés'
+    ]
+  },
+  {
+    id: 'eveil-preparation',
+    name: 'Éveil & Préparation',
+    icon: 'Éveil & Préparation icon.jpeg',
+    intentions: [
+      'Se préparer mentalement',
+      'Cultiver la conscience du moment présent',
+      'Définir ses intentions pour la journée',
+      'Développer l\'énergie mentale',
+      'Activer la présence et la conscience corporelle'
+    ]
+  },
+  {
+    id: 'attention-cognition',
+    name: 'Attention & Cognition',
+    icon: 'Attention & Cognition icon.jpeg',
+    intentions: [
+      'Améliorer la concentration et le focus',
+      'Développer l\'attention soutenue et la présence',
+      'Réduire la distraction et le vagabondage mental',
+      'Améliorer la mémoire et les fonctions exécutives',
+      'Développer la conscience métacognitive',
+      'Renforcer les fonctions exécutives',
+      'Améliorer la capacité de mémoire de travail',
+      'Développer la flexibilité cognitive'
+    ]
+  },
+  {
+    id: 'performance-action',
+    name: 'Performance & Action',
+    icon: 'Performance & Action icon.jpeg',
+    intentions: [
+      'Augmenter la productivité et la performance au travail',
+      'Développer la créativité et l\'innovation',
+      'Améliorer les compétences en résolution de problèmes',
+      'Renforcer l\'agentivité personnelle',
+      'Développer le sentiment de contrôle',
+      'Pratiquer l\'activation comportementale',
+      'Développer l\'action engagée vers ses valeurs'
+    ]
+  },
+  {
+    id: 'regulation-resilience',
+    name: 'Régulation & Résilience',
+    icon: 'Régulation & Résilience icon.jpeg',
+    intentions: [
+      'Réduire le stress et l\'anxiété',
+      'Gérer l\'anxiété et les pensées anxieuses',
+      'Gérer le stress professionnel et l\'épuisement',
+      'Réguler les émotions et développer l\'équanimité',
+      'Gérer les transitions et moments difficiles',
+      'Gérer les moments de crise ou d\'anxiété aiguë',
+      'Développer l\'intelligence émotionnelle',
+      'Développer des stratégies d\'adaptation'
+    ]
+  },
+  {
+    id: 'flexibilite-psychologique',
+    name: 'Flexibilité Psychologique',
+    icon: 'Flexibilité Psychologique icon.jpeg',
+    intentions: [
+      'Cultiver l\'acceptation et la tolérance à la détresse',
+      'Développer la flexibilité psychologique',
+      'Pratiquer la décentration',
+      'Réduire la rumination et les pensées répétitives',
+      'Réduire l\'évitement expérientiel',
+      'Cultiver la disposition à l\'ouverture',
+      'Améliorer l\'autorégulation'
+    ]
+  },
+  {
+    id: 'relations-connexion',
+    name: 'Relations & Connexion',
+    icon: 'Relations & Connexion icon.jpeg',
+    intentions: [
+      'Améliorer les relations et la communication',
+      'Cultiver la compassion et la bienveillance',
+      'Gérer les conflits et conversations difficiles',
+      'Développer l\'empathie',
+      'Satisfaire le besoin d\'appartenance',
+      'Cultiver l\'intelligence sociale'
+    ]
+  },
+  {
+    id: 'bien-etre-etats-positifs',
+    name: 'Bien-être & États Positifs',
+    icon: 'Bien-être & États Positifs icon.jpeg',
+    intentions: [
+      'Augmenter le bonheur et les émotions positives',
+      'Cultiver la gratitude et l\'appréciation',
+      'Développer la patience et l\'équanimité',
+      'Se détendre et décompresser',
+      'Développer l\'épanouissement'
+    ]
+  },
+  {
+    id: 'soi-developpement',
+    name: 'Soi & Développement',
+    icon: 'Soi & Développement icon.jpeg',
+    intentions: [
+      'Développer la connaissance et l\'acceptation de soi',
+      'Développer l\'auto-compassion et réduire l\'autocritique',
+      'Cultiver la compréhension de soi',
+      'Renforcer la compétence et le sentiment d\'efficacité',
+      'Développer la conscience de soi',
+      'Réduire la dissonance de soi',
+      'Développer les forces de caractère',
+      'Atteindre la croissance personnelle continue',
+      'Progresser vers l\'actualisation de soi',
+      'Atteindre la maturité psychologique'
+    ]
+  },
+  {
+    id: 'autonomie-valeurs',
+    name: 'Autonomie & Valeurs',
+    icon: 'Autonomie & Valeurs.jpeg',
+    intentions: [
+      'Trouver le sens et le but de sa vie',
+      'Clarifier ses valeurs personnelles',
+      'Aligner ses comportements et ses valeurs',
+      'Cultiver l\'autonomie et l\'autodétermination',
+      'Renforcer la motivation intrinsèque',
+      'Développer le sentiment d\'efficacité personnelle',
+      'Cultiver la motivation autonome',
+      'Développer une vie alignée sur ses valeurs'
+    ]
+  },
+  {
+    id: 'spiritualite-transcendance',
+    name: 'Spiritualité & Transcendance',
+    icon: 'Spiritualité & Transcendance icon.jpeg',
+    intentions: [
+      'Explorer la conscience et la nature de l\'esprit',
+      'Rechercher l\'éveil ou l\'illumination spirituelle',
+      'Cultiver la connexion à quelque chose de plus grand',
+      'Développer une pratique religieuse ou contemplative',
+      'Développer la maîtrise personnelle'
+    ]
+  },
+  {
+    id: 'detente-sommeil',
+    name: 'Détente & Sommeil',
+    icon: 'Détente & Sommeil icon.jpeg',
+    intentions: [
+      'S\'endormir et améliorer la qualité du sommeil',
+      'Gérer l\'insomnie et les réveils nocturnes'
+    ]
+  }
 ];
 
 export const CategorySelection: React.FC<CategorySelectionProps> = ({
   guideType,
   mood,
+  onSelectIntention,
   onBack
 }) => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -109,9 +264,6 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
                 />
                 <div className="category-info">
                   <h3 className="category-name">{category.name}</h3>
-                  {category.timeOfDay && (
-                    <span className="category-time">{category.timeOfDay}</span>
-                  )}
                 </div>
                 <div className="category-arrow">+</div>
               </div>
@@ -127,14 +279,20 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
                   }}
                 />
                 <h3 className="category-name-large">{category.name}</h3>
-                {category.timeOfDay && (
-                  <span className="category-time-large">{category.timeOfDay}</span>
-                )}
                 <div className="intentions-container">
                   <div className="intentions-list">
-                    <div className="intention-item">
-                      <p>Les intentions spécifiques apparaîtront ici</p>
-                    </div>
+                    {category.intentions.map((intention, index) => (
+                      <button
+                        key={index}
+                        className="intention-item"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectIntention(category.id, intention);
+                        }}
+                      >
+                        {intention}
+                      </button>
+                    ))}
                   </div>
                 </div>
                 <div className="category-arrow-expanded">−</div>
