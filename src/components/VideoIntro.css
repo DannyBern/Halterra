@@ -35,41 +35,41 @@
   }
 }
 
-.play-button {
+.center-play-button {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  color: white;
-  padding: 24px 48px;
-  border-radius: 60px;
-  font-size: 18px;
-  font-weight: 600;
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10001;
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
   animation: pulsePlay 2s ease-in-out infinite;
 }
 
-.play-button:hover {
+.center-play-button:hover {
   background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.6);
-  transform: translate(-50%, -50%) scale(1.05);
-  box-shadow: 0 8px 32px rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 12px 40px rgba(255, 255, 255, 0.3);
 }
 
-.play-button:active {
+.center-play-button:active {
   transform: translate(-50%, -50%) scale(0.95);
 }
 
-.play-icon {
-  font-size: 24px;
+.play-icon-large {
+  font-size: 36px;
+  color: white;
+  margin-left: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -77,10 +77,10 @@
 
 @keyframes pulsePlay {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5);
   }
   50% {
-    box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+    box-shadow: 0 0 0 30px rgba(255, 255, 255, 0);
   }
 }
 

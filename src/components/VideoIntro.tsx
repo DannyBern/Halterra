@@ -8,28 +8,56 @@ interface VideoIntroProps {
 export default function VideoIntro({ onComplete }: VideoIntroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [needsPlay, setNeedsPlay] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Dès que le vidéo commence à jouer, activer le son
-    const handlePlay = () => {
-      video.muted = false;
+    // Tenter l'autoplay
+    const attemptAutoplay = async () => {
+      try {
+        await video.play();
+        setIsPlaying(true);
+        setNeedsPlay(false);
+      } catch (error) {
+        console.log('Autoplay bloqué, affichage du bouton play');
+        setNeedsPlay(true);
+      }
     };
 
-    video.addEventListener('play', handlePlay);
+    // Attendre que le vidéo soit prêt
+    if (video.readyState >= 3) {
+      attemptAutoplay();
+    } else {
+      video.addEventListener('canplay', attemptAutoplay, { once: true });
+    }
 
     return () => {
-      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('canplay', attemptAutoplay);
     };
   }, []);
+
+  const handlePlay = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    try {
+      await video.play();
+      setIsPlaying(true);
+      setNeedsPlay(false);
+    } catch (error) {
+      console.error('Erreur de lecture:', error);
+    }
+  };
 
   const handleVideoEnd = () => {
     const video = videoRef.current;
     if (video) {
       video.pause();
       video.currentTime = 0;
+      video.load(); // Recharger le vidéo pour arrêter complètement l'audio
     }
     setIsTransitioning(true);
     setTimeout(() => {
@@ -37,11 +65,13 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
     }, 500);
   };
 
-  const handleSkip = () => {
+  const handleSkip = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const video = videoRef.current;
     if (video) {
       video.pause();
       video.currentTime = 0;
+      video.load(); // Recharger le vidéo pour arrêter complètement l'audio
     }
     setIsTransitioning(true);
     setTimeout(() => {
@@ -55,8 +85,6 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
         ref={videoRef}
         className="intro-video"
         onEnded={handleVideoEnd}
-        autoPlay
-        muted
         playsInline
         preload="auto"
       >
@@ -65,6 +93,12 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
           type="video/mp4"
         />
       </video>
+
+      {needsPlay && !isPlaying && (
+        <button className="center-play-button" onClick={handlePlay}>
+          <div className="play-icon-large">▶</div>
+        </button>
+      )}
 
       <button className="skip-button" onClick={handleSkip}>
         Passer
