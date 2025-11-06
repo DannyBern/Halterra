@@ -9,13 +9,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.video-intro.fade-out {
+  opacity: 0;
 }
 
 .intro-video {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Cover pour remplir tout l'écran Pixel 8 Pro (20:9) */
+  object-fit: cover;
   object-position: center;
+  animation: videoFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes videoFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .skip-button {
