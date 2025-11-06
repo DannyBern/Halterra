@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Mood } from '../types';
+import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
 import './CategorySelection.css';
 
 interface Category {
@@ -221,6 +222,8 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
   const moodImage = moodImageMap[mood.id] || '';
   const backgroundImageUrl = moodImage ? `${import.meta.env.BASE_URL}${encodeURIComponent(moodImage)}` : '';
 
+  const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImageUrl);
+
   return (
     <div
       className="category-selection"
@@ -230,6 +233,12 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
+      onMouseDown={handlePressStart}
+      onMouseUp={handlePressEnd}
+      onMouseLeave={handlePressEnd}
+      onTouchStart={handlePressStart}
+      onTouchEnd={handlePressEnd}
+      onTouchCancel={handlePressEnd}
     >
       <button className="back-button-category" onClick={onBack}>
         ← Retour
@@ -301,6 +310,9 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
           </div>
         ))}
       </div>
+
+      {/* Fullscreen Background Viewer */}
+      <FullscreenViewer />
     </div>
   );
 };

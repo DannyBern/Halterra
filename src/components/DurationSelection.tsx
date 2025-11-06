@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Mood } from '../types';
+import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
 import './DurationSelection.css';
 
 interface DurationSelectionProps {
@@ -36,6 +37,8 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
   const moodImage = moodImageMap[mood.id] || '';
   const backgroundImageUrl = moodImage ? `${import.meta.env.BASE_URL}${encodeURIComponent(moodImage)}` : '';
 
+  const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImageUrl);
+
   return (
     <div
       className={`duration-selection ${guideType}`}
@@ -45,6 +48,12 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
+      onMouseDown={handlePressStart}
+      onMouseUp={handlePressEnd}
+      onMouseLeave={handlePressEnd}
+      onTouchStart={handlePressStart}
+      onTouchEnd={handlePressEnd}
+      onTouchCancel={handlePressEnd}
     >
       <button className="back-button" onClick={onBack}>
         ← Retour
@@ -135,6 +144,9 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Fullscreen Background Viewer */}
+      <FullscreenViewer />
     </div>
   );
 };

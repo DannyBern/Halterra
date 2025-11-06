@@ -24,62 +24,23 @@ export const storage = {
       const sessions = storage.getAllSessions();
       sessions.push(session);
 
-      // Essayer de sauvegarder
+      // Sauvegarder toutes les sessions - pas de limite automatique
       const dataToSave = JSON.stringify(sessions);
 
-      // Vérifier la taille (localStorage a généralement une limite de 5-10 MB)
+      // Log pour monitoring (mais ne bloque plus la sauvegarde)
       const sizeInMB = new Blob([dataToSave]).size / 1024 / 1024;
       console.log(`Saving session. Total storage size: ${sizeInMB.toFixed(2)} MB`);
       console.log(`Session has audio: ${!!session.audioUrl}, audio length: ${session.audioUrl?.length || 0}`);
-
-      if (sizeInMB > 8) {
-        console.warn('⚠️ Storage size approaching limit. Removing oldest sessions to make space...');
-        // Supprimer les anciennes sessions pour faire de la place
-        // On garde les 5 sessions les plus récentes (incluant la nouvelle)
-        const sortedSessions = sessions.sort((a, b) => b.timestamp - a.timestamp);
-        const recentSessions = sortedSessions.slice(0, 5);
-        localStorage.setItem(SESSIONS_KEY, JSON.stringify(recentSessions));
-        console.log(`✅ Kept 5 most recent sessions WITH AUDIO to save space`);
-        return;
-      }
 
       localStorage.setItem(SESSIONS_KEY, dataToSave);
       console.log('✅ Session saved successfully WITH AUDIO');
     } catch (error) {
       console.error('❌ Error saving meditation session:', error);
 
-      // Si erreur de quota, supprimer les anciennes sessions pour faire de la place
+      // Si erreur de quota, informer l'utilisateur - NE PAS supprimer automatiquement
       if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-        console.warn('localStorage quota exceeded. Removing old sessions to make room...');
-        try {
-          const sessions = storage.getAllSessions();
-
-          // Essayer de garder 3 sessions les plus récentes avec la nouvelle
-          let sessionsToKeep = 3;
-          let saved = false;
-
-          while (sessionsToKeep > 0 && !saved) {
-            const sortedSessions = [...sessions, session].sort((a, b) => b.timestamp - a.timestamp);
-            const recentSessions = sortedSessions.slice(0, sessionsToKeep);
-
-            try {
-              localStorage.setItem(SESSIONS_KEY, JSON.stringify(recentSessions));
-              console.log(`✅ Session saved WITH AUDIO (kept ${sessionsToKeep} sessions)`);
-              saved = true;
-            } catch {
-              sessionsToKeep--;
-            }
-          }
-
-          if (!saved) {
-            // En dernier recours, sauvegarder UNIQUEMENT la nouvelle session AVEC audio
-            localStorage.setItem(SESSIONS_KEY, JSON.stringify([session]));
-            console.log('✅ Session saved WITH AUDIO (kept only this session)');
-          }
-        } catch (retryError) {
-          console.error('❌ Failed to save session:', retryError);
-          throw retryError;
-        }
+        console.error('⚠️ localStorage quota exceeded. User needs to manually delete old sessions.');
+        throw new Error('Espace de stockage insuffisant. Supprimez des méditations anciennes dans l\'historique pour libérer de l\'espace.');
       } else {
         throw error;
       }

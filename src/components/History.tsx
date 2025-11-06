@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { MeditationSession } from '../types';
 import { storage } from '../utils/storage';
 import { moods } from '../data/moods';
+import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
 import './History.css';
 
 interface HistoryProps {
@@ -11,6 +12,11 @@ interface HistoryProps {
 
 export default function History({ onBack, onSessionSelect }: HistoryProps) {
   const [sessions, setSessions] = useState<MeditationSession[]>([]);
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const backgroundImage = `${import.meta.env.BASE_URL}professional_photograph_of_a_modern_home_library.jpeg`;
+  const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImage);
 
   useEffect(() => {
     loadSessions();
@@ -21,6 +27,28 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
     // Trier par date décroissante (plus récent en premier)
     const sorted = allSessions.sort((a, b) => b.timestamp - a.timestamp);
     setSessions(sorted);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, sessionId: string) => {
+    e.stopPropagation(); // Empêcher l'ouverture de la session
+    setSessionToDelete(sessionId);
+  };
+
+  const confirmDelete = () => {
+    if (sessionToDelete) {
+      setIsDeleting(true);
+      // Petit délai pour l'animation
+      setTimeout(() => {
+        storage.deleteSession(sessionToDelete);
+        loadSessions();
+        setSessionToDelete(null);
+        setIsDeleting(false);
+      }, 300);
+    }
+  };
+
+  const cancelDelete = () => {
+    setSessionToDelete(null);
   };
 
   const groupSessionsByDate = () => {
@@ -77,10 +105,17 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
     new Date(b).getTime() - new Date(a).getTime()
   );
 
-  const backgroundImage = `${import.meta.env.BASE_URL}professional_photograph_of_a_modern_home_library.jpeg`;
-
   return (
-    <div className="history fade-in" style={{ backgroundImage: `url(${backgroundImage})` }}>
+    <div
+      className="history fade-in"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+      onMouseDown={handlePressStart}
+      onMouseUp={handlePressEnd}
+      onMouseLeave={handlePressEnd}
+      onTouchStart={handlePressStart}
+      onTouchEnd={handlePressEnd}
+      onTouchCancel={handlePressEnd}
+    >
       <div className="history-header">
         <button className="back-button" onClick={onBack}>
           ← Retour
@@ -109,25 +144,36 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
                   {groupedSessions[date].map(session => {
                     const mood = getMoodById(session.mood);
                     return (
-                      <button
-                        key={session.id}
-                        className="session-card"
-                        onClick={() => onSessionSelect(session)}
-                        style={{ borderLeftColor: mood?.color || 'var(--color-accent)' }}
-                      >
-                        <div className="session-mood">
-                          <span className="session-icon">{mood?.icon || '🌟'}</span>
-                          <span className="session-mood-name">{mood?.name || session.mood}</span>
-                        </div>
-                        <p className="session-preview">
-                          {session.meditationText.substring(0, 120)}...
-                        </p>
-                        {session.audioUrl && (
-                          <div className="session-audio-badge">
-                            🔊 Audio disponible
+                      <div key={session.id} className="session-card-wrapper">
+                        <button
+                          className="session-card"
+                          onClick={() => onSessionSelect(session)}
+                          style={{ borderLeftColor: mood?.color || 'var(--color-accent)' }}
+                        >
+                          <div className="session-mood">
+                            <span className="session-icon">{mood?.icon || '🌟'}</span>
+                            <span className="session-mood-name">{mood?.name || session.mood}</span>
                           </div>
-                        )}
-                      </button>
+                          <p className="session-preview">
+                            {session.meditationText.substring(0, 120)}...
+                          </p>
+                          {session.audioUrl && (
+                            <div className="session-audio-badge">
+                              🔊 Audio disponible
+                            </div>
+                          )}
+                        </button>
+                        <button
+                          className="delete-button"
+                          onClick={(e) => handleDeleteClick(e, session.id)}
+                          aria-label="Supprimer cette méditation"
+                          title="Supprimer cette méditation"
+                        >
+                          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" strokeWidth="2">
+                            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
+                          </svg>
+                        </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -136,6 +182,30 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
           </div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      {sessionToDelete && (
+        <div className="delete-modal-overlay" onClick={cancelDelete}>
+          <div className={`delete-modal ${isDeleting ? 'deleting' : ''}`} onClick={(e) => e.stopPropagation()}>
+            <div className="delete-modal-icon">🗑️</div>
+            <h3 className="delete-modal-title">Supprimer cette méditation ?</h3>
+            <p className="delete-modal-text">
+              Cette action est irréversible. La méditation et son audio seront définitivement supprimés.
+            </p>
+            <div className="delete-modal-actions">
+              <button className="delete-modal-cancel" onClick={cancelDelete}>
+                Annuler
+              </button>
+              <button className="delete-modal-confirm" onClick={confirmDelete}>
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen Background Viewer */}
+      <FullscreenViewer />
     </div>
   );
 }
