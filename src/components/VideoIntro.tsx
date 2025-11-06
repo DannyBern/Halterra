@@ -8,56 +8,67 @@ interface VideoIntroProps {
 export default function VideoIntro({ onComplete }: VideoIntroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [needsPlay, setNeedsPlay] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Tenter l'autoplay
-    const attemptAutoplay = async () => {
+    // Stratégie: démarrer muted pour contourner les restrictions d'autoplay,
+    // puis unmute immédiatement
+    const startVideo = async () => {
       try {
+        video.muted = true;
         await video.play();
-        setIsPlaying(true);
-        setNeedsPlay(false);
+        // Unmute immédiatement après le démarrage
+        video.muted = false;
+        console.log('Vidéo démarrée avec audio');
       } catch (error) {
-        console.log('Autoplay bloqué, affichage du bouton play');
-        setNeedsPlay(true);
+        console.error('Erreur autoplay:', error);
+        // Si même muted ne fonctionne pas, essayer sans mute
+        try {
+          video.muted = false;
+          await video.play();
+        } catch (err) {
+          console.error('Impossible de démarrer le vidéo:', err);
+        }
       }
     };
 
     // Attendre que le vidéo soit prêt
     if (video.readyState >= 3) {
-      attemptAutoplay();
+      startVideo();
     } else {
-      video.addEventListener('canplay', attemptAutoplay, { once: true });
+      video.addEventListener('canplay', startVideo, { once: true });
     }
 
     return () => {
-      video.removeEventListener('canplay', attemptAutoplay);
+      video.removeEventListener('canplay', startVideo);
     };
   }, []);
-
-  const handlePlay = async () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    try {
-      await video.play();
-      setIsPlaying(true);
-      setNeedsPlay(false);
-    } catch (error) {
-      console.error('Erreur de lecture:', error);
-    }
-  };
 
   const handleVideoEnd = () => {
     const video = videoRef.current;
     if (video) {
-      video.pause();
-      video.currentTime = 0;
-      video.load(); // Recharger le vidéo pour arrêter complètement l'audio
+      // Fade out audio progressivement sur 1 seconde
+      const fadeOutDuration = 1000;
+      const startVolume = video.volume;
+      const startTime = Date.now();
+
+      const fadeAudio = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / fadeOutDuration, 1);
+        video.volume = startVolume * (1 - progress);
+
+        if (progress < 1) {
+          requestAnimationFrame(fadeAudio);
+        } else {
+          video.pause();
+          video.currentTime = 0;
+          video.load();
+        }
+      };
+
+      fadeAudio();
     }
     setIsTransitioning(true);
     setTimeout(() => {
@@ -69,9 +80,26 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
     e.stopPropagation();
     const video = videoRef.current;
     if (video) {
-      video.pause();
-      video.currentTime = 0;
-      video.load(); // Recharger le vidéo pour arrêter complètement l'audio
+      // Fade out rapide sur 300ms
+      const fadeOutDuration = 300;
+      const startVolume = video.volume;
+      const startTime = Date.now();
+
+      const fadeAudio = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / fadeOutDuration, 1);
+        video.volume = startVolume * (1 - progress);
+
+        if (progress < 1) {
+          requestAnimationFrame(fadeAudio);
+        } else {
+          video.pause();
+          video.currentTime = 0;
+          video.load();
+        }
+      };
+
+      fadeAudio();
     }
     setIsTransitioning(true);
     setTimeout(() => {
@@ -93,12 +121,6 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
           type="video/mp4"
         />
       </video>
-
-      {needsPlay && !isPlaying && (
-        <button className="center-play-button" onClick={handlePlay}>
-          <div className="play-icon-large">▶</div>
-        </button>
-      )}
 
       <button className="skip-button" onClick={handleSkip}>
         Passer
