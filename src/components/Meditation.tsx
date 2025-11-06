@@ -54,6 +54,7 @@ export default function Meditation({
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [loadingQuote, setLoadingQuote] = useState<{ quote: string; author: string } | null>(null);
+  const [dailyInspiration, setDailyInspiration] = useState<string>();
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -78,8 +79,9 @@ export default function Meditation({
     try {
       setStatus('generating-text');
 
-      const { displayText, audioText } = await generateMeditation(anthropicApiKey, userName, mood, category, intention, guideType, duration);
+      const { displayText, audioText, dailyInspiration: inspiration } = await generateMeditation(anthropicApiKey, userName, mood, category, intention, guideType, duration);
       setMeditationText(displayText);
+      setDailyInspiration(inspiration);
 
       // Skip audio generation if user chose text-only
       if (!generateAudio) {
@@ -398,6 +400,16 @@ export default function Meditation({
               </p>
             ))}
           </div>
+
+          {dailyInspiration && (
+            <div className="daily-inspiration-container">
+              <div className="inspiration-icon">✦</div>
+              <div className="inspiration-content">
+                <div className="inspiration-label">Inspiration du jour</div>
+                <div className="inspiration-text">{dailyInspiration}</div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="meditation-actions" onClick={(e) => e.stopPropagation()}>
