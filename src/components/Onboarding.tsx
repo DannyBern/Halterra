@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { User } from '../types';
+import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
 import './Onboarding.css';
 
 interface OnboardingProps {
@@ -9,6 +10,9 @@ interface OnboardingProps {
 export default function Onboarding({ onComplete }: OnboardingProps) {
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const backgroundImage = `${import.meta.env.BASE_URL}ultra_detailed_cinematic_mobile_app_background_minimalistic_and.jpeg`;
+  const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImage);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +28,15 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   };
 
   return (
-    <div className={`onboarding ${isSubmitting ? 'fade-out' : ''}`}>
+    <div
+      className={`onboarding ${isSubmitting ? 'fade-out' : ''}`}
+      onMouseDown={handlePressStart}
+      onMouseUp={handlePressEnd}
+      onMouseLeave={handlePressEnd}
+      onTouchStart={handlePressStart}
+      onTouchEnd={handlePressEnd}
+      onTouchCancel={handlePressEnd}
+    >
       <div className="onboarding-content fade-in">
         <div className="onboarding-icon">🌱</div>
 
@@ -62,6 +74,9 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           Vos données restent privées et sont stockées localement sur votre appareil.
         </p>
       </div>
+
+      {/* Fullscreen Background Viewer */}
+      <FullscreenViewer />
     </div>
   );
 }
