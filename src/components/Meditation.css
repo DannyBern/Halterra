@@ -343,6 +343,52 @@
 }
 
 /* ============================================
+   LOADING QUOTE
+   ============================================ */
+
+.loading-quote {
+  margin-top: 3rem;
+  padding: 2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
+  animation: fadeInUp 0.8s ease-out 0.5s backwards;
+}
+
+.quote-text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  font-style: italic;
+  margin: 0 0 0.75rem;
+  text-align: center;
+  font-weight: 300;
+}
+
+.quote-author {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
    LEGACY LOADING STATE (FALLBACK)
    ============================================ */
 
@@ -878,6 +924,20 @@
 
   .progress-bar-track {
     height: 5px;
+  }
+
+  .loading-quote {
+    margin-top: 2rem;
+    padding: 1.5rem 1rem;
+  }
+
+  .quote-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .quote-author {
+    font-size: 0.85rem;
   }
 
   /* Regular meditation view */

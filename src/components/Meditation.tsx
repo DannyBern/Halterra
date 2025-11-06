@@ -34,11 +34,24 @@ export default function Meditation({
   const [error, setError] = useState<string>();
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0); // Vitesse par défaut: 1.0x
+  const [loadingQuote, setLoadingQuote] = useState<{ quote: string; author: string } | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     generateContent();
+    fetchLoadingQuote();
   }, []);
+
+  const fetchLoadingQuote = async () => {
+    try {
+      const response = await fetch('https://halterra-backend-9m1sookhd-dannys-projects-ff6db2ea.vercel.app/api/quote');
+      const data = await response.json();
+      setLoadingQuote(data);
+    } catch (error) {
+      console.warn('Failed to fetch loading quote');
+      setLoadingQuote({ quote: "Respire profondément et laisse le moment se déployer", author: "Halterra" });
+    }
+  };
 
   const generateContent = async () => {
     try {
@@ -134,6 +147,14 @@ export default function Meditation({
           <p className="loading-subtitle-premium">
             {guideName} compose un moment unique pour toi
           </p>
+
+          {/* Loading Quote */}
+          {loadingQuote && (
+            <div className="loading-quote fade-in">
+              <p className="quote-text">"{loadingQuote.quote}"</p>
+              <p className="quote-author">— {loadingQuote.author}</p>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -180,6 +201,14 @@ export default function Meditation({
               ></div>
             </div>
           </div>
+
+          {/* Loading Quote */}
+          {loadingQuote && (
+            <div className="loading-quote fade-in">
+              <p className="quote-text">"{loadingQuote.quote}"</p>
+              <p className="quote-author">— {loadingQuote.author}</p>
+            </div>
+          )}
         </div>
       </div>
     );
