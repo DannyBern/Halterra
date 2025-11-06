@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { Mood } from '../types';
 import { generateMeditation, generateAudio as generateAudioAPI } from '../services/api';
 import './Meditation.css';
+import './Meditation_Premium.css';
 
 interface MeditationProps {
   mood: Mood;
@@ -135,9 +136,9 @@ export default function Meditation({
   };
 
   const categoryIcon = getCategoryIcon(category);
+  const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
 
   if (status === 'generating-text') {
-    const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
 
     return (
       <div className="meditation">
@@ -274,66 +275,94 @@ export default function Meditation({
       onClick={audioUrl ? handlePlay : undefined}
       style={{ cursor: audioUrl ? 'pointer' : 'default' }}
     >
+      {/* Ambient background gradient */}
+      <div className="meditation-ambient-bg" style={{
+        background: `radial-gradient(circle at 30% 20%, ${mood.color}15 0%, transparent 50%),
+                     radial-gradient(circle at 70% 80%, ${mood.color}10 0%, transparent 50%)`
+      }}></div>
+
       <button
-        className="back-button"
+        className="back-button-premium"
         onClick={(e) => {
           e.stopPropagation();
           onBack();
         }}
         aria-label="Retour"
       >
-        ← Retour
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Retour</span>
       </button>
 
-      <div className="meditation-header">
-        <div className="mood-badge" style={{ backgroundColor: `${mood.color}15`, color: mood.color }}>
-          <span className="mood-badge-icon">{mood.icon}</span>
-          <span className="mood-badge-text">{mood.name}</span>
+      {/* Premium header with category icon and mood */}
+      <div className="meditation-header-premium">
+        <div className="header-category-icon">
+          <img src={`/${categoryIcon}`} alt={category} />
+        </div>
+        <div className="header-info">
+          <div className="header-mood-badge" style={{
+            backgroundColor: `${mood.color}20`,
+            borderColor: `${mood.color}40`
+          }}>
+            <span className="mood-icon">{mood.icon}</span>
+            <span className="mood-name" style={{ color: mood.color }}>{mood.name}</span>
+          </div>
+          <h1 className="meditation-title-premium">
+            Ta {guideType === 'meditation' ? 'méditation' : 'réflexion'} avec {guideName}
+          </h1>
         </div>
       </div>
 
-      <div className="meditation-content">
-        <h2 className="meditation-title">Votre méditation personnalisée</h2>
+      <div className="meditation-content-premium">
 
         {audioUrl && (
           <>
-            <div className="fullscreen-play-indicator">
-              <div
-                className={`play-button-sophisticated ${isPlaying ? 'playing' : ''}`}
+            {/* Central play button with ambient design */}
+            <div className="audio-player-central" onClick={(e) => e.stopPropagation()}>
+              <div className="player-ambient-circle" style={{
+                backgroundColor: `${mood.color}08`,
+                boxShadow: `0 0 80px ${mood.color}30, inset 0 0 40px ${mood.color}10`
+              }}></div>
+
+              <button
+                className={`play-button-central ${isPlaying ? 'playing' : ''}`}
+                onClick={handlePlay}
                 style={{
-                  '--button-color': mood.color,
-                  '--button-color-light': `${mood.color}15`
-                } as React.CSSProperties}
+                  backgroundColor: mood.color,
+                  boxShadow: `0 8px 32px ${mood.color}60, 0 0 0 0 ${mood.color}40`
+                }}
               >
-                <div className="play-button-bg"></div>
-                <div className="play-button-pulse"></div>
-                <span className="play-icon">
-                  {isPlaying ? (
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                      <rect x="6" y="4" width="4" height="16" rx="1"/>
-                      <rect x="14" y="4" width="4" height="16" rx="1"/>
-                    </svg>
-                  ) : (
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                  )}
-                </span>
-              </div>
-              <div className="audio-hint">
                 {isPlaying ? (
-                  <>
-                    <span className="audio-status playing">En lecture - Touchez pour pauser</span>
-                    <span className="audio-waves">
-                      <span className="wave"></span>
-                      <span className="wave"></span>
-                      <span className="wave"></span>
-                    </span>
-                  </>
+                  <svg viewBox="0 0 24 24" fill="white" className="pause-icon">
+                    <rect x="6" y="4" width="4" height="16" rx="2"/>
+                    <rect x="14" y="4" width="4" height="16" rx="2"/>
+                  </svg>
                 ) : (
-                  <span className="audio-status">Touchez n'importe où pour démarrer</span>
+                  <svg viewBox="0 0 24 24" fill="white" className="play-icon-svg">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
                 )}
-              </div>
+              </button>
+
+              {isPlaying && (
+                <div className="audio-visualizer">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="visualizer-bar"
+                      style={{
+                        backgroundColor: mood.color,
+                        animationDelay: `${i * 0.15}s`
+                      }}
+                    ></div>
+                  ))}
+                </div>
+              )}
+
+              <p className="audio-instruction">
+                {isPlaying ? 'En lecture...' : 'Appuie pour commencer'}
+              </p>
             </div>
             <audio
               ref={audioRef}
@@ -351,80 +380,77 @@ export default function Meditation({
         )}
 
         {audioUrl && (
-          <div className="speed-control" onClick={(e) => e.stopPropagation()}>
-            <label className="speed-label">Vitesse de lecture: {playbackSpeed.toFixed(2)}x</label>
-            <div className="speed-slider-container">
-              <span className="speed-label-min">0.75x</span>
-              <input
-                type="range"
-                min="0.75"
-                max="1.5"
-                step="0.05"
-                value={playbackSpeed}
-                onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
-                className="speed-slider"
-                style={{
-                  background: `linear-gradient(to right, ${mood.color} 0%, ${mood.color} ${((playbackSpeed - 0.75) / 0.75) * 100}%, #ddd ${((playbackSpeed - 0.75) / 0.75) * 100}%, #ddd 100%)`
-                }}
-              />
-              <span className="speed-label-max">1.5x</span>
+          <div className="speed-control-premium" onClick={(e) => e.stopPropagation()}>
+            <div className="speed-header">
+              <span className="speed-icon">⚡</span>
+              <span className="speed-label-current">{playbackSpeed.toFixed(2)}x</span>
             </div>
-            <div className="speed-presets">
-              <button
-                className="speed-preset-btn"
-                onClick={() => handleSpeedChange(0.75)}
-              >
-                Très lent
-              </button>
-              <button
-                className="speed-preset-btn"
-                onClick={() => handleSpeedChange(1.0)}
-              >
-                Normal
-              </button>
-              <button
-                className="speed-preset-btn"
-                onClick={() => handleSpeedChange(1.25)}
-              >
-                Rapide
-              </button>
+            <div className="speed-options">
+              {[
+                { value: 0.75, label: 'Lent' },
+                { value: 1.0, label: 'Normal' },
+                { value: 1.25, label: 'Rapide' }
+              ].map(option => (
+                <button
+                  key={option.value}
+                  className={`speed-option ${playbackSpeed === option.value ? 'active' : ''}`}
+                  onClick={() => handleSpeedChange(option.value)}
+                  style={{
+                    borderColor: playbackSpeed === option.value ? mood.color : 'rgba(255, 255, 255, 0.1)',
+                    backgroundColor: playbackSpeed === option.value ? `${mood.color}15` : 'transparent',
+                    color: playbackSpeed === option.value ? mood.color : 'rgba(255, 255, 255, 0.6)'
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
             </div>
           </div>
         )}
 
-        <div className="meditation-text-container">
-          <div className="meditation-text">
+        {/* Premium text container with card design */}
+        <div className="meditation-text-card">
+          <div className="card-glow" style={{
+            background: `linear-gradient(135deg, ${mood.color}08, transparent)`
+          }}></div>
+
+          <div className="meditation-text-premium">
             {meditationText.split('\\n\\n').map((paragraph, index) => (
-              <p key={index} className="meditation-paragraph">
+              <p key={index} className="meditation-paragraph-premium">
                 {paragraph}
               </p>
             ))}
           </div>
+        </div>
 
-          {dailyInspiration && (
-            <div className="daily-inspiration-container">
-              <div className="inspiration-icon">✦</div>
-              <div className="inspiration-content">
-                <div className="inspiration-label">Inspiration du jour</div>
-                <div className="inspiration-text">{dailyInspiration}</div>
-              </div>
+        {dailyInspiration && (
+          <div className="daily-inspiration-premium">
+            <div className="inspiration-header">
+              <div className="inspiration-icon-premium">✦</div>
+              <span className="inspiration-label-premium">Inspiration du jour</span>
             </div>
-          )}
-        </div>
+            <p className="inspiration-text-premium">{dailyInspiration}</p>
+          </div>
+        )}
 
-        <div className="meditation-actions" onClick={(e) => e.stopPropagation()}>
-          <button
-            className="complete-button"
-            onClick={handleComplete}
-            style={{ backgroundColor: mood.color }}
-          >
-            Enregistrer cette méditation
-          </button>
-        </div>
-      </div>
-
-      <div className="meditation-ornament">
-        <div className="ornament-circle" style={{ borderColor: mood.color }}></div>
+        <button
+          className="save-button-premium"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleComplete();
+          }}
+          style={{
+            backgroundColor: mood.color,
+            boxShadow: `0 4px 20px ${mood.color}40`
+          }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          <span>Enregistrer</span>
+        </button>
       </div>
     </div>
   );
