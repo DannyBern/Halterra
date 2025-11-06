@@ -75,36 +75,12 @@
   transform: translateY(0);
 }
 
-/* Logo - STATIQUE, pas d'animation */
-.landing-logo-container {
-  position: relative;
-  margin-bottom: var(--spacing-3xl);
-  display: inline-block;
-}
-
-.landing-logo {
-  position: relative;
-  z-index: 1;
-}
-
-.meditation-logo {
-  width: 140px;
-  height: 140px;
-  display: inline-block;
-  filter: drop-shadow(0 10px 30px rgba(102, 126, 234, 0.3));
-  transition: var(--transition-base);
-}
-
-.meditation-logo:hover {
-  transform: scale(1.02);
-  filter: drop-shadow(0 12px 35px rgba(102, 126, 234, 0.4));
-}
-
 /* Title with gradient text */
 .landing-title {
   font-size: var(--font-size-5xl);
   font-weight: 700;
   margin-bottom: var(--spacing-xl);
+  margin-top: var(--spacing-3xl);
   background: linear-gradient(135deg, #FFFFFF 0%, rgba(255, 255, 255, 0.35) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -277,10 +253,6 @@
     justify-content: center;
   }
 
-  .meditation-logo {
-    width: 100px;
-    height: 100px;
-  }
 
   .landing-features {
     gap: var(--spacing-md);

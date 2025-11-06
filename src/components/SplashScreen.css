@@ -142,21 +142,26 @@
   }
 }
 
-/* Logo with breathing animation */
-.splash-logo {
+/* Title with breathing animation */
+.splash-title {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 140px;
-  height: 140px;
   animation: breatheLogo 4s ease-in-out infinite;
-  filter: drop-shadow(0 10px 40px rgba(168, 197, 217, 0.6));
+  text-align: center;
 }
 
-.splash-logo img {
-  width: 100%;
-  height: 100%;
+.splash-title h1 {
+  font-size: 4rem;
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  background: linear-gradient(135deg, #E8F2F7 0%, #A8C5D9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  text-shadow: 0 10px 40px rgba(168, 197, 217, 0.6);
 }
 
 @keyframes breatheLogo {
@@ -166,19 +171,6 @@
   50% {
     transform: translate(-50%, -50%) scale(1.05);
   }
-}
-
-/* App title */
-.splash-title {
-  font-size: var(--font-size-4xl);
-  font-weight: 300;
-  letter-spacing: 0.3em;
-  background: linear-gradient(135deg, #E8F2F7 0%, #A8C5D9 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: var(--spacing-md);
-  animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
 }
 
 .splash-tagline {
@@ -266,13 +258,8 @@
     margin-top: -50px;
   }
 
-  .splash-logo {
-    width: 110px;
-    height: 110px;
-  }
-
-  .splash-title {
-    font-size: var(--font-size-3xl);
+  .splash-title h1 {
+    font-size: 3rem;
     letter-spacing: 0.2em;
   }
 

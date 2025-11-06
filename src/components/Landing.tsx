@@ -38,13 +38,6 @@ export default function Landing({ onStart }: LandingProps) {
       <div className="landing-bg"></div>
 
       <div className={`landing-content ${isLoaded ? 'loaded' : ''}`}>
-        {/* Logo - statique */}
-        <div className="landing-logo-container">
-          <div className="landing-logo">
-            <img src="/logo.svg" alt="Halterra" className="meditation-logo" />
-          </div>
-        </div>
-
         {/* Main heading */}
         <h1 className="landing-title">
           Halterra
