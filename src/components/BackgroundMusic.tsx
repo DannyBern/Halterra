@@ -13,7 +13,7 @@ export default function BackgroundMusic({ shouldFadeOut, onFadeComplete, isMuted
 
   // Sélectionner aléatoirement l'une des deux musiques au montage
   const [musicTrack] = useState(() => {
-    const tracks = ['/Halterra/zen-flow.mp3', '/Halterra/zen-flow-2.mp3'];
+    const tracks = ['/zen-flow.mp3', '/zen-flow-2.mp3'];
     return tracks[Math.floor(Math.random() * tracks.length)];
   });
 

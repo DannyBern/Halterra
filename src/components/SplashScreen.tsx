@@ -37,7 +37,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
           {/* Logo SVG */}
           <div className="splash-logo">
-            <img src="/Halterra/logo.svg" alt="Halterra" />
+            <img src="/logo.svg" alt="Halterra" />
           </div>
         </div>
 

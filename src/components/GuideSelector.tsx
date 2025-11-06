@@ -33,7 +33,7 @@ export default function GuideSelector({ userName, onSelectGuide, onBack }: Guide
           >
             <div className="guide-card-image-container">
               <img
-                src="/Halterra/guide-meditation.webp.jpeg"
+                src="/guide-meditation.webp.jpeg"
                 alt="Iza - Guide de méditation"
                 loading="lazy"
                 className="guide-card-image"
@@ -62,7 +62,7 @@ export default function GuideSelector({ userName, onSelectGuide, onBack }: Guide
           >
             <div className="guide-card-image-container">
               <img
-                src="/Halterra/guide-reflection.webp.jpeg"
+                src="/guide-reflection.webp.jpeg"
                 alt="Dann - Guide de réflexion"
                 loading="lazy"
                 className="guide-card-image"

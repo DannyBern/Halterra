@@ -34,7 +34,7 @@ export default function Landing({ onStart }: LandingProps) {
         <div className="landing-logo-container">
           <div className="logo-glow"></div>
           <div className="landing-logo">
-            <img src="/Halterra/logo.svg" alt="Halterra" className="meditation-logo" />
+            <img src="/logo.svg" alt="Halterra" className="meditation-logo" />
           </div>
         </div>
 

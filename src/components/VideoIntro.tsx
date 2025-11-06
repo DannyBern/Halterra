@@ -37,7 +37,7 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
         playsInline
         muted
       >
-        <source src="/Halterra/intro-video.mp4" type="video/mp4" />
+        <source src="/intro-video.mp4" type="video/mp4" />
       </video>
 
       <button className="skip-button" onClick={handleSkip}>
