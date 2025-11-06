@@ -44,7 +44,7 @@ export default function Meditation({
 
   const fetchLoadingQuote = async () => {
     try {
-      const response = await fetch('https://halterra-backend-9m1sookhd-dannys-projects-ff6db2ea.vercel.app/api/quote');
+      const response = await fetch('https://halterra-backend-i3s4okq80-dannys-projects-ff6db2ea.vercel.app/api/quote');
       const data = await response.json();
       setLoadingQuote(data);
     } catch (error) {
