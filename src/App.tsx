@@ -237,6 +237,9 @@ function App() {
 
       {screen === 'date' && user && (
         <div>
+          <button className="intro-replay-link" onClick={() => setScreen('video-intro')}>
+            🎬 Revoir l'intro
+          </button>
           <button className="history-link" onClick={handleViewHistory}>
             📖 Historique
           </button>
