@@ -484,94 +484,57 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  animation: fullscreenFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  animation: fullscreenEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
 }
 
-.fullscreen-close-button {
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  width: 56px;
-  height: 56px;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 10000;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+.fullscreen-background-overlay.closing {
+  animation: fullscreenExit 0.5s cubic-bezier(0.7, 0, 0.84, 0) forwards;
 }
 
-.fullscreen-close-button:hover {
-  background: rgba(0, 0, 0, 0.8);
-  transform: scale(1.1);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-}
-
-.fullscreen-close-button:active {
-  transform: scale(0.95);
-}
-
-.fullscreen-hint {
-  position: absolute;
-  bottom: 3rem;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 1rem 2rem;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50px;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.95rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  animation: hintPulse 3s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes fullscreenFadeIn {
-  from {
+/* Premium enter animation - elegant zoom and fade */
+@keyframes fullscreenEnter {
+  0% {
     opacity: 0;
-    transform: scale(1.05);
+    transform: scale(1.1);
+    filter: blur(20px);
   }
-  to {
+  60% {
+    opacity: 0.8;
+    filter: blur(5px);
+  }
+  100% {
     opacity: 1;
     transform: scale(1);
+    filter: blur(0px);
   }
 }
 
-@keyframes hintPulse {
-  0%, 100% {
-    opacity: 0.8;
-    transform: translateX(-50%) translateY(0);
-  }
-  50% {
+/* Premium exit animation - smooth zoom out and fade */
+@keyframes fullscreenExit {
+  0% {
     opacity: 1;
-    transform: translateX(-50%) translateY(-5px);
+    transform: scale(1);
+    filter: blur(0px);
+  }
+  40% {
+    opacity: 0.6;
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
+    filter: blur(15px);
   }
 }
 
 @media (max-width: 768px) {
-  .fullscreen-close-button {
-    top: 1.5rem;
-    right: 1.5rem;
-    width: 48px;
-    height: 48px;
+  .fullscreen-background-overlay {
+    animation-duration: 0.5s;
   }
 
-  .fullscreen-hint {
-    bottom: 2rem;
-    font-size: 0.85rem;
-    padding: 0.8rem 1.5rem;
+  .fullscreen-background-overlay.closing {
+    animation-duration: 0.4s;
   }
 }

@@ -12,14 +12,21 @@ interface UseFullscreenBackgroundReturn {
 
 export function useFullscreenBackground(backgroundImageUrl: string): UseFullscreenBackgroundReturn {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [pressTimer, setPressTimer] = useState<number | null>(null);
 
   const showFullscreen = useCallback(() => {
     setIsFullscreen(true);
+    setIsClosing(false);
   }, []);
 
   const hideFullscreen = useCallback(() => {
-    setIsFullscreen(false);
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsFullscreen(false);
+      setIsClosing(false);
+    }, 500); // Duration of exit animation
+
     if (pressTimer) {
       clearTimeout(pressTimer);
       setPressTimer(null);
@@ -43,17 +50,25 @@ export function useFullscreenBackground(backgroundImageUrl: string): UseFullscre
       target.tagName === 'BUTTON' ||
       target.tagName === 'INPUT' ||
       target.tagName === 'A' ||
+      target.tagName === 'SELECT' ||
+      target.tagName === 'TEXTAREA' ||
       target.closest('button') ||
       target.closest('input') ||
       target.closest('a') ||
-      target.closest('.interactive')
+      target.closest('select') ||
+      target.closest('textarea') ||
+      target.closest('.interactive') ||
+      target.closest('.mood-card') ||
+      target.closest('.category-card') ||
+      target.closest('.duration-button') ||
+      target.closest('.audio-toggle')
     ) {
       return; // Don't trigger on interactive elements
     }
 
     const timer = window.setTimeout(() => {
       showFullscreen();
-    }, 500); // 500ms long-press
+    }, 700); // 700ms long-press for better UX
     setPressTimer(timer);
   }, [showFullscreen]);
 
@@ -70,24 +85,13 @@ export function useFullscreenBackground(backgroundImageUrl: string): UseFullscre
 
     return (
       <div
-        className="fullscreen-background-overlay"
+        className={`fullscreen-background-overlay ${isClosing ? 'closing' : ''}`}
         onClick={hideFullscreen}
-        onTouchEnd={hideFullscreen}
+        onTouchStart={hideFullscreen}
         style={{ backgroundImage: `url(${backgroundImageUrl})` }}
-      >
-        <button
-          className="fullscreen-close-button"
-          onClick={hideFullscreen}
-          aria-label="Fermer la vue plein écran"
-        >
-          <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" fill="none" strokeWidth="2">
-            <path d="M18 6L6 18M6 6l12 12"/>
-          </svg>
-        </button>
-        <div className="fullscreen-hint">Touchez n'importe où pour fermer</div>
-      </div>
+      />
     );
-  }, [isFullscreen, backgroundImageUrl, hideFullscreen]);
+  }, [isFullscreen, isClosing, backgroundImageUrl, hideFullscreen]);
 
   return {
     isFullscreen,
