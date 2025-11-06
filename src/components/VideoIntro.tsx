@@ -9,17 +9,23 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [audioStarted, setAudioStarted] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
     const audio = audioRef.current;
 
     if (video && audio) {
-      // Jouer l'audio dès que possible
-      const playAudio = () => {
-        audio.play().catch((error) => {
-          console.log('Audio autoplay prevented:', error);
-        });
+      // Tenter de jouer l'audio dès que la vidéo démarre
+      const playAudio = async () => {
+        try {
+          // Synchroniser la position de l'audio avec la vidéo
+          audio.currentTime = video.currentTime;
+          await audio.play();
+          setAudioStarted(true);
+        } catch (error) {
+          console.log('Audio autoplay prevented, waiting for user interaction:', error);
+        }
       };
 
       // Synchroniser avec le début de la vidéo
@@ -75,8 +81,29 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
     }, 300);
   };
 
+  const handleScreenClick = async () => {
+    // Si l'audio n'a pas encore démarré, le démarrer maintenant
+    if (!audioStarted) {
+      const video = videoRef.current;
+      const audio = audioRef.current;
+
+      if (video && audio) {
+        try {
+          audio.currentTime = video.currentTime;
+          await audio.play();
+          setAudioStarted(true);
+        } catch (error) {
+          console.log('Failed to start audio:', error);
+        }
+      }
+    }
+  };
+
   return (
-    <div className={`video-intro ${isTransitioning ? 'fade-out' : ''}`}>
+    <div
+      className={`video-intro ${isTransitioning ? 'fade-out' : ''}`}
+      onClick={handleScreenClick}
+    >
       <video
         ref={videoRef}
         className="intro-video"
@@ -101,6 +128,12 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
           type="audio/mpeg"
         />
       </audio>
+
+      {!audioStarted && (
+        <div className="audio-prompt">
+          Touchez l'écran pour activer le son
+        </div>
+      )}
 
       <button className="skip-button" onClick={handleSkip}>
         Passer
