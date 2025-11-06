@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Mood } from '../types';
 import { moods } from '../data/moods';
 import MoodIcon from './MoodIcon';
+import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
 import './MoodSelector.css';
 
 interface MoodSelectorProps {
@@ -14,6 +15,9 @@ export default function MoodSelector({ userName, onMoodSelect, onBack }: MoodSel
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  const backgroundImage = `${import.meta.env.BASE_URL}ultra_detailed_cinematic_mobile_app_background_minimalistic_and.jpeg`;
+  const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImage);
+
   const handleMoodClick = (mood: Mood) => {
     setSelectedMood(mood.id);
     setIsTransitioning(true);
@@ -23,7 +27,15 @@ export default function MoodSelector({ userName, onMoodSelect, onBack }: MoodSel
   };
 
   return (
-    <div className={`mood-selector ${isTransitioning ? 'fade-out' : ''}`}>
+    <div
+      className={`mood-selector ${isTransitioning ? 'fade-out' : ''}`}
+      onMouseDown={handlePressStart}
+      onMouseUp={handlePressEnd}
+      onMouseLeave={handlePressEnd}
+      onTouchStart={handlePressStart}
+      onTouchEnd={handlePressEnd}
+      onTouchCancel={handlePressEnd}
+    >
       <button className="back-button" onClick={onBack} aria-label="Retour">
         ← Retour
       </button>
@@ -60,6 +72,9 @@ export default function MoodSelector({ userName, onMoodSelect, onBack }: MoodSel
           ))}
         </div>
       </div>
+
+      {/* Fullscreen Background Viewer */}
+      <FullscreenViewer />
     </div>
   );
 }
