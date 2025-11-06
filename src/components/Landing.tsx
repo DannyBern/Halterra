@@ -22,77 +22,60 @@ export default function Landing({ onStart }: LandingProps) {
 
   return (
     <div className={`landing ${isAnimating ? 'fade-out' : ''}`}>
-      {/* Animated gradient orbs background */}
-      <div className="landing-bg">
-        <div className="orb orb-1"></div>
-        <div className="orb orb-2"></div>
-        <div className="orb orb-3"></div>
-      </div>
+      {/* Background */}
+      <div className="landing-bg"></div>
 
       <div className={`landing-content ${isLoaded ? 'loaded' : ''}`}>
-        {/* Hero logo with floating animation */}
+        {/* Logo - statique */}
         <div className="landing-logo-container">
-          <div className="logo-glow"></div>
           <div className="landing-logo">
             <img src="/logo.svg" alt="Halterra" className="meditation-logo" />
           </div>
         </div>
 
-        {/* Main heading with gradient */}
+        {/* Main heading */}
         <h1 className="landing-title">
           Halterra
         </h1>
 
-        {/* Tagline with staggered animation */}
+        {/* Tagline */}
         <div className="landing-tagline">
           <p className="tagline-line">Un moment de pause.</p>
           <p className="tagline-line">Une réflexion guidée.</p>
-          <p className="tagline-line">Votre journée transformée.</p>
+          <p className="tagline-line">Votre esprit transformé.</p>
         </div>
 
-        {/* Description in glass card */}
+        {/* Description */}
         <div className="landing-description">
           <p>
-            Commencez chaque journée par une méditation personnalisée qui
+            Accordez-vous un moment de méditation personnalisée qui
             honore votre état d'esprit et illumine votre chemin.
           </p>
         </div>
 
         {/* Premium CTA button */}
         <button className="landing-cta" onClick={handleStart}>
-          <span className="cta-text">Commencer votre voyage</span>
-          <div className="cta-shimmer"></div>
+          <span className="cta-text">Commencer</span>
           <svg className="cta-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M4 10h12m0 0l-4-4m4 4l-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
 
-        {/* Feature highlights */}
+        {/* Feature highlights - icons statiques */}
         <div className="landing-features">
           <div className="feature">
-            <div className="feature-icon">✨</div>
+            <span className="feature-icon">✨</span>
             <span>Méditations personnalisées</span>
           </div>
           <div className="feature">
-            <div className="feature-icon">🎧</div>
+            <span className="feature-icon">🎧</span>
             <span>Audio IA haute qualité</span>
           </div>
           <div className="feature">
-            <div className="feature-icon">📱</div>
+            <span className="feature-icon">📱</span>
             <span>Accès partout</span>
           </div>
         </div>
-      </div>
-
-      {/* Ambient particles */}
-      <div className="particles">
-        {[...Array(20)].map((_, i) => (
-          <div key={i} className="particle" style={{
-            left: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 3}s`,
-            animationDuration: `${3 + Math.random() * 4}s`
-          }}></div>
-        ))}
       </div>
     </div>
   );

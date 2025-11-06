@@ -9,7 +9,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "npm run build && vercel --prod --yes",
+    "deploy:preview": "npm run build && vercel",
+    "deploy:gh": "npm run build && gh-pages -d dist",
+    "clean": "rm -rf dist node_modules/.vite",
+    "fresh": "npm run clean && npm install && npm run dev",
+    "vercel": "vercel --prod --yes"
   },
   "dependencies": {
     "lucide-react": "^0.552.0",
