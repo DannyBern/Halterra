@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import './VideoIntro.css';
 
 interface VideoIntroProps {
@@ -9,7 +9,28 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Dès que le vidéo commence à jouer, activer le son
+    const handlePlay = () => {
+      video.muted = false;
+    };
+
+    video.addEventListener('play', handlePlay);
+
+    return () => {
+      video.removeEventListener('play', handlePlay);
+    };
+  }, []);
+
   const handleVideoEnd = () => {
+    const video = videoRef.current;
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
     setIsTransitioning(true);
     setTimeout(() => {
       onComplete();
@@ -17,6 +38,11 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
   };
 
   const handleSkip = () => {
+    const video = videoRef.current;
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
     setIsTransitioning(true);
     setTimeout(() => {
       onComplete();
@@ -30,6 +56,7 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
         className="intro-video"
         onEnded={handleVideoEnd}
         autoPlay
+        muted
         playsInline
         preload="auto"
       >
