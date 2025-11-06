@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
 import './Landing.css';
 
 interface LandingProps {
@@ -8,6 +9,9 @@ interface LandingProps {
 export default function Landing({ onStart }: LandingProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+
+  const backgroundImage = `${import.meta.env.BASE_URL}ultra_detailed_cinematic_mobile_app_background_minimalistic_and.jpeg`;
+  const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImage);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -21,7 +25,15 @@ export default function Landing({ onStart }: LandingProps) {
   };
 
   return (
-    <div className={`landing ${isAnimating ? 'fade-out' : ''}`}>
+    <div
+      className={`landing ${isAnimating ? 'fade-out' : ''}`}
+      onMouseDown={handlePressStart}
+      onMouseUp={handlePressEnd}
+      onMouseLeave={handlePressEnd}
+      onTouchStart={handlePressStart}
+      onTouchEnd={handlePressEnd}
+      onTouchCancel={handlePressEnd}
+    >
       {/* Background */}
       <div className="landing-bg"></div>
 
@@ -77,6 +89,9 @@ export default function Landing({ onStart }: LandingProps) {
           </div>
         </div>
       </div>
+
+      {/* Fullscreen Background Viewer */}
+      <FullscreenViewer />
     </div>
   );
 }
