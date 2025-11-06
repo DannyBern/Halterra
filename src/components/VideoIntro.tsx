@@ -9,51 +9,25 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [canAutoplay, setCanAutoplay] = useState(true);
-  const hasAttemptedPlay = useRef(false);
 
   useEffect(() => {
     const video = videoRef.current;
     const audio = audioRef.current;
 
-    if (video && audio && !hasAttemptedPlay.current) {
-      hasAttemptedPlay.current = true;
-
-      // Attendre que les deux soient prêts
-      const handleCanPlay = () => {
-        if (video.readyState >= 3 && audio.readyState >= 3) {
-          playMedia();
-        }
+    if (video && audio) {
+      // Jouer l'audio dès que possible
+      const playAudio = () => {
+        audio.play().catch((error) => {
+          console.log('Audio autoplay prevented:', error);
+        });
       };
 
-      const playMedia = async () => {
-        try {
-          // Jouer vidéo et audio simultanément
-          const videoPromise = video.play();
-          const audioPromise = audio.play();
+      // Synchroniser avec le début de la vidéo
+      video.addEventListener('play', playAudio);
 
-          await Promise.all([videoPromise, audioPromise]);
-          setCanAutoplay(true);
-        } catch (error) {
-          console.log('Autoplay prevented, waiting for user interaction:', error);
-          setCanAutoplay(false);
-          // Ne pas skip automatiquement, attendre que l'utilisateur clique
-        }
+      return () => {
+        video.removeEventListener('play', playAudio);
       };
-
-      // Si déjà prêt, jouer immédiatement
-      if (video.readyState >= 3 && audio.readyState >= 3) {
-        playMedia();
-      } else {
-        // Sinon, attendre
-        video.addEventListener('canplay', handleCanPlay);
-        audio.addEventListener('canplaythrough', handleCanPlay);
-
-        return () => {
-          video.removeEventListener('canplay', handleCanPlay);
-          audio.removeEventListener('canplaythrough', handleCanPlay);
-        };
-      }
     }
   }, []);
 
@@ -101,27 +75,14 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
     }, 300);
   };
 
-  const handlePlayClick = async () => {
-    const video = videoRef.current;
-    const audio = audioRef.current;
-
-    if (video && audio) {
-      try {
-        await video.play();
-        await audio.play();
-        setCanAutoplay(true);
-      } catch (error) {
-        console.error('Failed to play media:', error);
-      }
-    }
-  };
-
   return (
     <div className={`video-intro ${isTransitioning ? 'fade-out' : ''}`}>
       <video
         ref={videoRef}
         className="intro-video"
         onEnded={handleVideoEnd}
+        autoPlay
+        muted
         playsInline
         preload="auto"
       >
@@ -140,13 +101,6 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
           type="audio/mpeg"
         />
       </audio>
-
-      {!canAutoplay && (
-        <button className="play-button" onClick={handlePlayClick}>
-          <div className="play-icon">▶</div>
-          <span>Lancer l'introduction</span>
-        </button>
-      )}
 
       <button className="skip-button" onClick={handleSkip}>
         Passer
