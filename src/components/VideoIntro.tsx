@@ -9,27 +9,53 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [canAutoplay, setCanAutoplay] = useState(true);
+  const hasAttemptedPlay = useRef(false);
 
   useEffect(() => {
     const video = videoRef.current;
     const audio = audioRef.current;
 
-    if (video && audio) {
-      // Synchroniser l'audio avec la vidéo
-      const playMedia = async () => {
-        try {
-          await video.play();
-          await audio.play();
-        } catch (error) {
-          console.log('Autoplay prevented:', error);
-          // Si autoplay est bloqué, skip directement
-          onComplete();
+    if (video && audio && !hasAttemptedPlay.current) {
+      hasAttemptedPlay.current = true;
+
+      // Attendre que les deux soient prêts
+      const handleCanPlay = () => {
+        if (video.readyState >= 3 && audio.readyState >= 3) {
+          playMedia();
         }
       };
 
-      playMedia();
+      const playMedia = async () => {
+        try {
+          // Jouer vidéo et audio simultanément
+          const videoPromise = video.play();
+          const audioPromise = audio.play();
+
+          await Promise.all([videoPromise, audioPromise]);
+          setCanAutoplay(true);
+        } catch (error) {
+          console.log('Autoplay prevented, waiting for user interaction:', error);
+          setCanAutoplay(false);
+          // Ne pas skip automatiquement, attendre que l'utilisateur clique
+        }
+      };
+
+      // Si déjà prêt, jouer immédiatement
+      if (video.readyState >= 3 && audio.readyState >= 3) {
+        playMedia();
+      } else {
+        // Sinon, attendre
+        video.addEventListener('canplay', handleCanPlay);
+        audio.addEventListener('canplaythrough', handleCanPlay);
+
+        return () => {
+          video.removeEventListener('canplay', handleCanPlay);
+          audio.removeEventListener('canplaythrough', handleCanPlay);
+        };
+      }
     }
-  }, [onComplete]);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -75,6 +101,21 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
     }, 300);
   };
 
+  const handlePlayClick = async () => {
+    const video = videoRef.current;
+    const audio = audioRef.current;
+
+    if (video && audio) {
+      try {
+        await video.play();
+        await audio.play();
+        setCanAutoplay(true);
+      } catch (error) {
+        console.error('Failed to play media:', error);
+      }
+    }
+  };
+
   return (
     <div className={`video-intro ${isTransitioning ? 'fade-out' : ''}`}>
       <video
@@ -82,7 +123,7 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
         className="intro-video"
         onEnded={handleVideoEnd}
         playsInline
-        muted
+        preload="auto"
       >
         <source
           src={`${import.meta.env.BASE_URL}ultra_detailed_cinematic_concept_art_for_a_meditation.mp4`}
@@ -92,13 +133,20 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
 
       <audio
         ref={audioRef}
-        loop={false}
+        preload="auto"
       >
         <source
           src={`${import.meta.env.BASE_URL}Golden Meditation Intro.mp3`}
           type="audio/mpeg"
         />
       </audio>
+
+      {!canAutoplay && (
+        <button className="play-button" onClick={handlePlayClick}>
+          <div className="play-icon">▶</div>
+          <span>Lancer l'introduction</span>
+        </button>
+      )}
 
       <button className="skip-button" onClick={handleSkip}>
         Passer
