@@ -36,6 +36,7 @@ function App() {
   const [selectedGuideType, setSelectedGuideType] = useState<GuideType | null>(null);
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<2 | 5 | 10 | null>(null);
+  const [generateAudio, setGenerateAudio] = useState<boolean>(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedIntention, setSelectedIntention] = useState<string | null>(null);
   const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
@@ -107,8 +108,9 @@ function App() {
     setScreen('guide');
   };
 
-  const handleDurationSelect = (duration: 2 | 5 | 10) => {
+  const handleDurationSelect = (duration: 2 | 5 | 10, audioEnabled: boolean) => {
     setSelectedDuration(duration);
+    setGenerateAudio(audioEnabled);
     setScreen('category');
   };
 
@@ -176,6 +178,7 @@ function App() {
     setSelectedGuideType(null);
     setSelectedMood(null);
     setSelectedDuration(null);
+    setGenerateAudio(true);
     setSelectedCategory(null);
     setSelectedIntention(null);
   };
@@ -283,6 +286,7 @@ function App() {
           intention={selectedIntention}
           guideType={selectedGuideType || 'meditation'}
           duration={selectedDuration}
+          generateAudio={generateAudio}
           anthropicApiKey={anthropicApiKey}
           elevenlabsApiKey={elevenlabsApiKey}
           onComplete={handleMeditationComplete}

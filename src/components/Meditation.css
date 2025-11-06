@@ -64,6 +64,288 @@
 }
 
 /* ============================================
+   CATEGORY ICON DISPLAY (NEW PREMIUM DESIGN)
+   ============================================ */
+
+.category-icon-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-icon-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0.4;
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+.category-icon-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid;
+  opacity: 0.6;
+  animation: ring-pulse 3s ease-in-out infinite;
+}
+
+@keyframes ring-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+.category-icon-image {
+  position: relative;
+  z-index: 1;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: icon-float 4s ease-in-out infinite;
+}
+
+@keyframes icon-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ============================================
+   MODERN PROGRESS PHASES
+   ============================================ */
+
+.loading-phases-modern {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2.5rem 0 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.phase-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.phase-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.5s ease;
+  position: relative;
+}
+
+.phase-step.active .phase-dot {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.phase-step.completed .phase-dot,
+.phase-step.current .phase-dot {
+  width: 16px;
+  height: 16px;
+}
+
+.phase-dot.pulsing {
+  animation: modern-dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes modern-dot-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  50% {
+    transform: scale(1.3);
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+.phase-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 400;
+  transition: color 0.5s ease;
+  text-align: center;
+}
+
+.phase-step.active .phase-label,
+.phase-step.completed .phase-label,
+.phase-step.current .phase-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.phase-connector {
+  width: 50px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  transition: all 0.5s ease;
+  margin-bottom: 1.5rem;
+}
+
+.phase-connector.completed {
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* ============================================
+   MODERN LOADING TEXT STYLES
+   ============================================ */
+
+.loading-title-modern {
+  font-size: 2rem;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 0.75rem;
+  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 20px rgba(255, 255, 255, 0.1);
+}
+
+.loading-subtitle-modern {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 300;
+  font-style: italic;
+}
+
+/* ============================================
+   MODERN QUOTE DISPLAY
+   ============================================ */
+
+.loading-quote-modern {
+  margin-top: 3rem;
+  padding: 2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
+}
+
+.quote-icon {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.quote-text-modern {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  font-style: italic;
+  margin: 0 0 0.75rem;
+  text-align: center;
+  font-weight: 300;
+}
+
+.quote-author-modern {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   AUDIO WAVE VISUALIZATION (GENERATING-AUDIO)
+   ============================================ */
+
+.audio-wave-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 0 auto 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.audio-wave-bars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 180px;
+  z-index: 1;
+}
+
+.wave-bar-modern {
+  width: 12px;
+  border-radius: 6px;
+  opacity: 0.8;
+  animation: modern-wave-pulse 1.2s ease-in-out infinite;
+  box-shadow: 0 0 20px currentColor;
+  height: 60px;
+}
+
+@keyframes modern-wave-pulse {
+  0%, 100% {
+    transform: scaleY(0.4);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.audio-icon-modern {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.12;
+  pointer-events: none;
+  filter: blur(1px);
+}
+
+.audio-icon-modern svg {
+  color: white;
+}
+
+/* ============================================
    BREATHING CIRCLE GUIDE
    ============================================ */
 
@@ -862,6 +1144,85 @@
     border-radius: 24px;
   }
 
+  /* New category icon styles */
+  .category-icon-container {
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 2rem;
+  }
+
+  .category-icon-image {
+    width: 110px;
+    height: 110px;
+  }
+
+  .loading-phases-modern {
+    gap: 0.75rem;
+    margin: 2rem 0 1.5rem;
+  }
+
+  .phase-dot {
+    width: 12px;
+    height: 12px;
+  }
+
+  .phase-step.completed .phase-dot,
+  .phase-step.current .phase-dot {
+    width: 14px;
+    height: 14px;
+  }
+
+  .phase-label {
+    font-size: 0.75rem;
+  }
+
+  .phase-connector {
+    width: 35px;
+  }
+
+  .loading-title-modern {
+    font-size: 1.5rem;
+  }
+
+  .loading-subtitle-modern {
+    font-size: 0.95rem;
+  }
+
+  .loading-quote-modern {
+    margin-top: 2rem;
+    padding: 1.5rem 1rem;
+  }
+
+  .quote-text-modern {
+    font-size: 0.95rem;
+  }
+
+  .quote-author-modern {
+    font-size: 0.85rem;
+  }
+
+  .audio-wave-container {
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 2rem;
+  }
+
+  .audio-wave-bars {
+    height: 140px;
+    gap: 10px;
+  }
+
+  .wave-bar-modern {
+    width: 10px;
+    height: 50px;
+  }
+
+  .audio-icon-modern svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Old breathing circle styles */
   .breathing-guide-container {
     width: 220px;
     height: 220px;

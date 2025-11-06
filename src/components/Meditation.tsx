@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Mood } from '../types';
-import { generateMeditation, generateAudio } from '../services/api';
+import { generateMeditation, generateAudio as generateAudioAPI } from '../services/api';
 import './Meditation.css';
 
 interface MeditationProps {
@@ -10,11 +10,29 @@ interface MeditationProps {
   intention: string;
   guideType: 'meditation' | 'reflection';
   duration: 2 | 5 | 10;
+  generateAudio: boolean;
   anthropicApiKey: string;
   elevenlabsApiKey?: string;
   onComplete: (meditationText: string, audioBase64?: string) => void;
   onBack: () => void;
 }
+
+// Helper pour récupérer l'icône de la catégorie
+const getCategoryIcon = (categoryId: string): string => {
+  const categoryIcons: Record<string, string> = {
+    'sante-corps': 'Santé & Corps icon.jpeg',
+    'changement-habitudes': 'Changement & Habitudes icon.jpeg',
+    'eveil-preparation': 'Éveil & Préparation icon.jpeg',
+    'attention-cognition': 'Attention & Cognition icon.jpeg',
+    'performance-action': 'Performance & Action icon.jpeg',
+    'regulation-resilience': 'Régulation & Résilience icon.jpeg',
+    'flexibilite-psychologique': 'Flexibilité Psychologique icon.jpeg',
+    'relations-sociales': 'Relations & Sociales icon.jpeg',
+    'sens-valeurs': 'Sens & Valeurs icon.jpeg',
+    'sommeil-repos': 'Sommeil & Repos icon.jpeg'
+  };
+  return categoryIcons[categoryId] || 'Éveil & Préparation icon.jpeg';
+};
 
 export default function Meditation({
   mood,
@@ -23,6 +41,7 @@ export default function Meditation({
   intention,
   guideType,
   duration,
+  generateAudio,
   anthropicApiKey,
   onComplete,
   onBack
@@ -33,7 +52,7 @@ export default function Meditation({
   const [audioUrl, setAudioUrl] = useState<string>();
   const [error, setError] = useState<string>();
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1.0); // Vitesse par défaut: 1.0x
+  const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [loadingQuote, setLoadingQuote] = useState<{ quote: string; author: string } | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -59,22 +78,21 @@ export default function Meditation({
     try {
       setStatus('generating-text');
 
-      // Générer le texte de méditation (retourne displayText et audioText)
       const { displayText, audioText } = await generateMeditation(anthropicApiKey, userName, mood, category, intention, guideType, duration);
-      setMeditationText(displayText);  // Version propre pour l'affichage
+      setMeditationText(displayText);
 
-      // TOUJOURS générer l'audio - le backend Vercel gère les clés API
+      // Skip audio generation if user chose text-only
+      if (!generateAudio) {
+        setStatus('ready');
+        return;
+      }
+
       setStatus('generating-audio');
 
       try {
-        // Générer l'audio avec la version SSML (audioText) - retourne directement un data URL base64
-        // Passer le guideType pour choisir la bonne voix (féminine pour méditation, masculine pour réflexion)
-        const audioDataUrl = await generateAudio('', audioText, '', guideType);
-
+        const audioDataUrl = await generateAudioAPI('', audioText, '', guideType);
         setAudioBase64(audioDataUrl);
         setAudioUrl(audioDataUrl);
-
-        // Ne passer à 'ready' QUE quand l'audio est prêt
         setStatus('ready');
       } catch (audioError) {
         console.error('Erreur audio:', audioError);
@@ -114,47 +132,54 @@ export default function Meditation({
     onComplete(meditationText, audioBase64);
   };
 
+  const categoryIcon = getCategoryIcon(category);
+
   if (status === 'generating-text') {
     const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
-    const breathingClass = guideType === 'meditation' ? 'breathing-slow' : 'breathing-dynamic';
 
     return (
       <div className="meditation">
         <div className="meditation-loading-premium fade-in">
-          {/* Breathing Circle Guide */}
-          <div className="breathing-guide-container">
-            <div
-              className={`breathing-circle ${breathingClass}`}
-              style={{
-                '--mood-color': mood.color,
-                '--mood-color-alpha': `${mood.color}33`
-              } as React.CSSProperties}
-            >
-              <div className="breathing-circle-inner"></div>
-              <div className="breathing-glow"></div>
-              <div className="mood-icon-center">{mood.icon}</div>
+          {/* Icône de catégorie au centre */}
+          <div className="category-icon-container">
+            <div className="category-icon-glow" style={{ backgroundColor: `${mood.color}15` }}></div>
+            <div className="category-icon-ring" style={{ borderColor: mood.color }}></div>
+            <img
+              src={`/${categoryIcon}`}
+              alt={category}
+              className="category-icon-image"
+            />
+          </div>
+
+          {/* Progress indicators */}
+          <div className="loading-phases-modern">
+            <div className="phase-step active">
+              <div className="phase-dot" style={{ backgroundColor: mood.color }}></div>
+              <span className="phase-label">Préparation</span>
+            </div>
+            <div className="phase-connector"></div>
+            <div className="phase-step current">
+              <div className="phase-dot pulsing" style={{ backgroundColor: mood.color }}></div>
+              <span className="phase-label">Création</span>
+            </div>
+            <div className="phase-connector"></div>
+            <div className="phase-step">
+              <div className="phase-dot"></div>
+              <span className="phase-label">Narration</span>
             </div>
           </div>
 
-          {/* Progress Phases */}
-          <div className="loading-phases">
-            <div className="phase-dot active"></div>
-            <div className="phase-line"></div>
-            <div className="phase-dot pulsing" style={{ backgroundColor: mood.color }}></div>
-            <div className="phase-line"></div>
-            <div className="phase-dot"></div>
-          </div>
-
-          <h2 className="loading-title-premium">Création de votre {guideType === 'meditation' ? 'méditation' : 'réflexion'}</h2>
-          <p className="loading-subtitle-premium">
-            {guideName} compose un moment unique pour toi
+          <h2 className="loading-title-modern">{guideName} compose votre moment</h2>
+          <p className="loading-subtitle-modern">
+            {guideType === 'meditation' ? 'Une méditation' : 'Une réflexion'} personnalisée pour{' '}
+            <span style={{ color: mood.color }}>{intention.toLowerCase()}</span>
           </p>
 
-          {/* Loading Quote */}
           {loadingQuote && (
-            <div className="loading-quote fade-in">
-              <p className="quote-text">"{loadingQuote.quote}"</p>
-              <p className="quote-author">— {loadingQuote.author}</p>
+            <div className="loading-quote-modern fade-in">
+              <div className="quote-icon">✦</div>
+              <p className="quote-text-modern">"{loadingQuote.quote}"</p>
+              <p className="quote-author-modern">— {loadingQuote.author}</p>
             </div>
           )}
         </div>
@@ -168,47 +193,57 @@ export default function Meditation({
     return (
       <div className="meditation">
         <div className="meditation-loading-premium fade-in">
-          {/* Audio Wave Animation */}
-          <div className="audio-generation-container">
-            <div className="audio-waves-premium">
-              <div className="wave-bar" style={{ '--delay': '0s', '--height': '60%', backgroundColor: mood.color } as React.CSSProperties}></div>
-              <div className="wave-bar" style={{ '--delay': '0.1s', '--height': '80%', backgroundColor: mood.color } as React.CSSProperties}></div>
-              <div className="wave-bar" style={{ '--delay': '0.2s', '--height': '100%', backgroundColor: mood.color } as React.CSSProperties}></div>
-              <div className="wave-bar" style={{ '--delay': '0.3s', '--height': '80%', backgroundColor: mood.color } as React.CSSProperties}></div>
-              <div className="wave-bar" style={{ '--delay': '0.4s', '--height': '60%', backgroundColor: mood.color } as React.CSSProperties}></div>
+          {/* Audio wave visualization */}
+          <div className="audio-wave-container">
+            <div className="audio-wave-bars">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="wave-bar-modern"
+                  style={{
+                    backgroundColor: mood.color,
+                    animationDelay: `${i * 0.1}s`
+                  }}
+                ></div>
+              ))}
             </div>
-            <div className="audio-icon-overlay">🎧</div>
+            <div className="audio-icon-modern">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" x2="12" y1="19" y2="22"/>
+              </svg>
+            </div>
           </div>
 
-          {/* Progress Phases */}
-          <div className="loading-phases">
-            <div className="phase-dot completed" style={{ backgroundColor: mood.color }}></div>
-            <div className="phase-line completed" style={{ backgroundColor: mood.color }}></div>
-            <div className="phase-dot completed" style={{ backgroundColor: mood.color }}></div>
-            <div className="phase-line"></div>
-            <div className="phase-dot pulsing" style={{ backgroundColor: mood.color }}></div>
+          {/* Progress indicators */}
+          <div className="loading-phases-modern">
+            <div className="phase-step completed">
+              <div className="phase-dot" style={{ backgroundColor: mood.color }}></div>
+              <span className="phase-label">Préparation</span>
+            </div>
+            <div className="phase-connector completed" style={{ backgroundColor: mood.color }}></div>
+            <div className="phase-step completed">
+              <div className="phase-dot" style={{ backgroundColor: mood.color }}></div>
+              <span className="phase-label">Création</span>
+            </div>
+            <div className="phase-connector"></div>
+            <div className="phase-step current">
+              <div className="phase-dot pulsing" style={{ backgroundColor: mood.color }}></div>
+              <span className="phase-label">Narration</span>
+            </div>
           </div>
 
-          <h2 className="loading-title-premium">Narration en cours</h2>
-          <p className="loading-subtitle-premium">
-            La voix de {guideName} prend vie
+          <h2 className="loading-title-modern">La voix de {guideName} prend vie</h2>
+          <p className="loading-subtitle-modern">
+            Narration de votre {guideType === 'meditation' ? 'méditation' : 'réflexion'} en haute qualité
           </p>
 
-          {/* Progress Bar */}
-          <div className="narration-progress">
-            <div className="progress-bar-track">
-              <div
-                className="progress-bar-fill"
-                style={{ backgroundColor: mood.color }}
-              ></div>
-            </div>
-          </div>
-
-          {/* Loading Quote */}
           {loadingQuote && (
-            <div className="loading-quote fade-in">
-              <p className="quote-text">"{loadingQuote.quote}"</p>
-              <p className="quote-author">— {loadingQuote.author}</p>
+            <div className="loading-quote-modern fade-in">
+              <div className="quote-icon">✦</div>
+              <p className="quote-text-modern">"{loadingQuote.quote}"</p>
+              <p className="quote-author-modern">— {loadingQuote.author}</p>
             </div>
           )}
         </div>
@@ -357,7 +392,7 @@ export default function Meditation({
 
         <div className="meditation-text-container">
           <div className="meditation-text">
-            {meditationText.split('\n\n').map((paragraph, index) => (
+            {meditationText.split('\\n\\n').map((paragraph, index) => (
               <p key={index} className="meditation-paragraph">
                 {paragraph}
               </p>

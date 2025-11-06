@@ -5,7 +5,7 @@ import './DurationSelection.css';
 interface DurationSelectionProps {
   guideType: 'meditation' | 'reflection';
   mood: Mood;
-  onSelect: (duration: 2 | 5 | 10) => void;
+  onSelect: (duration: 2 | 5 | 10, generateAudio: boolean) => void;
   onBack: () => void;
 }
 
@@ -15,6 +15,7 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
   onSelect,
   onBack
 }) => {
+  const [generateAudio, setGenerateAudio] = React.useState(true);
   const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
   const guideTitle = guideType === 'meditation' ? 'Méditation' : 'Réflexion';
 
@@ -60,7 +61,7 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
         <div className="duration-options">
           <button
             className="duration-button"
-            onClick={() => onSelect(2)}
+            onClick={() => onSelect(2, generateAudio)}
             style={{
               borderColor: `${mood.color}20`,
               background: `linear-gradient(135deg, ${mood.color}0B, ${mood.color}03)`
@@ -72,7 +73,7 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
 
           <button
             className="duration-button featured"
-            onClick={() => onSelect(5)}
+            onClick={() => onSelect(5, generateAudio)}
             style={{
               borderColor: `${mood.color}30`,
               background: `linear-gradient(135deg, ${mood.color}13, ${mood.color}08)`,
@@ -86,7 +87,7 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
 
           <button
             className="duration-button"
-            onClick={() => onSelect(10)}
+            onClick={() => onSelect(10, generateAudio)}
             style={{
               borderColor: `${mood.color}20`,
               background: `linear-gradient(135deg, ${mood.color}0B, ${mood.color}03)`
@@ -94,6 +95,43 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
           >
             <span className="duration-time" style={{ color: mood.color }}>10</span>
             <span className="duration-label">minutes</span>
+          </button>
+        </div>
+
+        {/* Audio generation toggle */}
+        <div className="audio-option-container">
+          <button
+            className={`audio-toggle ${generateAudio ? 'enabled' : 'disabled'}`}
+            onClick={() => setGenerateAudio(!generateAudio)}
+            style={{
+              borderColor: generateAudio ? mood.color : 'rgba(255, 255, 255, 0.2)',
+              background: generateAudio
+                ? `linear-gradient(135deg, ${mood.color}15, ${mood.color}08)`
+                : 'linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01))'
+            }}
+          >
+            <div className="audio-toggle-icon">
+              {generateAudio ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" x2="12" y1="19" y2="22"/>
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+              )}
+            </div>
+            <div className="audio-toggle-text">
+              <div className="audio-toggle-title" style={{ color: generateAudio ? mood.color : 'rgba(255, 255, 255, 0.6)' }}>
+                {generateAudio ? 'Narration audio activée' : 'Lecture seule'}
+              </div>
+              <div className="audio-toggle-subtitle">
+                {generateAudio ? `Voix de ${guideName} incluse` : 'Texte seulement'}
+              </div>
+            </div>
           </button>
         </div>
       </div>

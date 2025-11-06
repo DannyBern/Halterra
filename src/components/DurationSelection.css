@@ -148,6 +148,73 @@
   letter-spacing: 0.5px;
 }
 
+/* Audio generation toggle */
+.audio-option-container {
+  margin-top: 3rem;
+  display: flex;
+  justify-content: center;
+}
+
+.audio-toggle {
+  backdrop-filter: blur(10px);
+  border: 2px solid;
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 400px;
+  width: 100%;
+}
+
+.audio-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.audio-toggle-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.audio-toggle-icon svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.audio-toggle.enabled .audio-toggle-icon {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.audio-toggle-text {
+  text-align: left;
+  flex: 1;
+}
+
+.audio-toggle-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  transition: color 0.3s ease;
+}
+
+.audio-toggle-subtitle {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
+}
+
 @media (max-width: 768px) {
   .duration-title {
     font-size: 2rem;
@@ -186,5 +253,32 @@
     left: 1rem;
     padding: 0.6rem 1.2rem;
     font-size: 0.9rem;
+  }
+
+  .audio-option-container {
+    margin-top: 2rem;
+    padding: 0 1rem;
+  }
+
+  .audio-toggle {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .audio-toggle-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .audio-toggle-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .audio-toggle-title {
+    font-size: 1rem;
+  }
+
+  .audio-toggle-subtitle {
+    font-size: 0.85rem;
   }
 }
