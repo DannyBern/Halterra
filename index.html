@@ -2,29 +2,57 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/Halterra/logo.svg" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
 
-    <!-- Mobile Optimization -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+    <!-- Mobile-First Optimization -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#667eea" />
+    <meta name="theme-color" content="#0f172a" />
 
     <!-- App Info -->
-    <title>Halterra - Votre moment de pause quotidien</title>
-    <meta name="description" content="Méditations personnalisées guidées par l'IA. Commencez votre journée avec clarté et sérénité." />
+    <title>Halterra - Méditations Personnalisées</title>
+    <meta name="description" content="Méditations guidées personnalisées avec IA. Iza & Dann vous accompagnent." />
 
     <!-- PWA Support -->
-    <link rel="manifest" href="/Halterra/manifest.json" />
-    <link rel="apple-touch-icon" href="/Halterra/logo.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/logo-192.png" />
 
     <!-- Splash Screen for iOS -->
     <meta name="apple-mobile-web-app-title" content="Halterra" />
-    <link rel="apple-touch-startup-image" href="/Halterra/logo.svg" />
 
-    <!-- Prevent text size adjustment on orientation change -->
+    <!-- Prevent zoom and text size adjustment -->
     <meta name="format-detection" content="telephone=no" />
+
+    <style>
+      /* Force mobile viewport always */
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* Mobile-first container */
+      #root {
+        max-width: 430px;
+        margin: 0 auto;
+        min-height: 100vh;
+        background: #0f172a;
+        box-shadow: 0 0 50px rgba(0,0,0,0.3);
+      }
+
+      /* Desktop: Center mobile view */
+      @media (min-width: 431px) {
+        body {
+          background: #000;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
