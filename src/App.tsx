@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import VideoIntro from './components/VideoIntro';
-import Landing from './components/Landing';
 import Onboarding from './components/Onboarding';
 import DateDisplay from './components/DateDisplay';
 import GuideSelector from './components/GuideSelector';
@@ -17,7 +16,6 @@ import './App.css';
 
 type AppScreen =
   | 'video-intro'
-  | 'landing'
   | 'onboarding'
   | 'date'
   | 'guide'
@@ -75,10 +73,6 @@ function App() {
       document.removeEventListener('touchmove', preventPullToRefresh);
     };
   }, []);
-
-  const handleLandingStart = () => {
-    setScreen('onboarding');
-  };
 
   const handleOnboardingComplete = (newUser: User) => {
     setUser(newUser);
