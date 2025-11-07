@@ -14,19 +14,13 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
     const video = videoRef.current;
     if (!video) return;
 
-    // Détecter si l'autoplay a fonctionné
-    const checkAutoplay = setTimeout(() => {
-      if (video.paused) {
-        console.log('Autoplay bloqué, interaction requise');
-        setNeedsInteraction(true);
-      } else {
-        console.log('Autoplay réussi');
-        setNeedsInteraction(false);
-      }
-    }, 500);
+    // Toujours demander l'interaction car le vidéo est muted
+    // et on veut l'audio dès le début
+    console.log('VideoIntro chargé, interaction requise pour l\'audio');
+    setNeedsInteraction(true);
 
     return () => {
-      clearTimeout(checkAutoplay);
+      // Cleanup
     };
   }, []);
 
@@ -35,17 +29,20 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
     if (!video) return;
 
     try {
+      // Redémarrer le vidéo depuis le début avec audio
+      video.currentTime = 0;
       video.muted = false;
       video.volume = 1.0;
       await video.play();
       setNeedsInteraction(false);
-      console.log('Vidéo démarrée avec audio');
+      console.log('Vidéo démarrée avec audio depuis le début');
     } catch (error) {
       console.error('Erreur de lecture:', error);
     }
   };
 
   const handleVideoEnd = () => {
+    console.log('Vidéo terminée, démarrage de la transition...');
     const video = videoRef.current;
     if (video) {
       // Fade out audio progressivement sur 1 seconde
@@ -64,6 +61,7 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
           video.pause();
           video.currentTime = 0;
           video.load();
+          console.log('Fade out terminé');
         }
       };
 
@@ -71,6 +69,7 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
     }
     setIsTransitioning(true);
     setTimeout(() => {
+      console.log('Appel de onComplete()');
       onComplete();
     }, 500);
   };
