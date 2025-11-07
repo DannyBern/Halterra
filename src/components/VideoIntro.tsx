@@ -7,69 +7,76 @@ interface VideoIntroProps {
 
 export default function VideoIntro({ onComplete }: VideoIntroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [needsInteraction, setNeedsInteraction] = useState(true);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    // Toujours demander l'interaction car le vidéo est muted
-    // et on veut l'audio dès le début
-    console.log('VideoIntro chargé, interaction requise pour l\'audio');
-    setNeedsInteraction(true);
-
+    console.log('VideoIntro chargé');
     return () => {
       // Cleanup
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
     };
   }, []);
 
   const handleStartVideo = async () => {
     const video = videoRef.current;
-    if (!video) return;
+    const audio = audioRef.current;
+    if (!video || !audio) return;
 
     try {
-      // Redémarrer le vidéo depuis le début avec audio
+      // Démarrer vidéo et audio en même temps
       video.currentTime = 0;
-      video.muted = false;
-      video.volume = 1.0;
-      await video.play();
+      audio.currentTime = 0;
+      audio.volume = 1.0;
+
+      await Promise.all([
+        video.play(),
+        audio.play()
+      ]);
+
       setNeedsInteraction(false);
-      console.log('Vidéo démarrée avec audio depuis le début');
+      console.log('Vidéo et audio démarrés');
+
+      // Démarrer le fade-out de l'audio à 7 secondes (vidéo dure 9 secondes)
+      const startFadeOutAt = 7000; // 7 secondes en millisecondes
+      const fadeOutDuration = 2000; // 2 secondes de fade
+
+      setTimeout(() => {
+        const fadeStartTime = Date.now();
+        const startVolume = audio.volume;
+
+        const fadeOut = () => {
+          const elapsed = Date.now() - fadeStartTime;
+          const progress = Math.min(elapsed / fadeOutDuration, 1);
+          audio.volume = startVolume * (1 - progress);
+
+          if (progress < 1 && !audio.paused) {
+            requestAnimationFrame(fadeOut);
+          }
+        };
+
+        fadeOut();
+      }, startFadeOutAt);
+
     } catch (error) {
       console.error('Erreur de lecture:', error);
     }
   };
 
   const handleVideoEnd = () => {
-    console.log('Vidéo terminée, démarrage de la transition...');
-    const video = videoRef.current;
-    if (video) {
-      // Fade out audio progressivement sur 1 seconde
-      const fadeOutDuration = 1000;
-      const startVolume = video.volume;
-      const startTime = Date.now();
-
-      const fadeAudio = () => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / fadeOutDuration, 1);
-        video.volume = startVolume * (1 - progress);
-
-        if (progress < 1) {
-          requestAnimationFrame(fadeAudio);
-        } else {
-          video.pause();
-          video.currentTime = 0;
-          video.load();
-          console.log('Fade out terminé');
-        }
-      };
-
-      fadeAudio();
+    console.log('Vidéo terminée - transition immédiate');
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
     }
     setIsTransitioning(true);
+    // Transition immédiate
     setTimeout(() => {
-      console.log('Appel de onComplete()');
       onComplete();
     }, 500);
   };
@@ -77,28 +84,17 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
   const handleSkip = (e: React.MouseEvent) => {
     e.stopPropagation();
     const video = videoRef.current;
+    const audio = audioRef.current;
+
     if (video) {
-      // Fade out rapide sur 300ms
-      const fadeOutDuration = 300;
-      const startVolume = video.volume;
-      const startTime = Date.now();
-
-      const fadeAudio = () => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / fadeOutDuration, 1);
-        video.volume = startVolume * (1 - progress);
-
-        if (progress < 1) {
-          requestAnimationFrame(fadeAudio);
-        } else {
-          video.pause();
-          video.currentTime = 0;
-          video.load();
-        }
-      };
-
-      fadeAudio();
+      video.pause();
+      video.currentTime = 0;
     }
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
     setIsTransitioning(true);
     setTimeout(() => {
       onComplete();
@@ -112,15 +108,24 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
         className="intro-video"
         onEnded={handleVideoEnd}
         playsInline
-        autoPlay
         muted
         preload="auto"
       >
         <source
-          src={`${import.meta.env.BASE_URL}intro-video-with-audio.mp4`}
+          src={`${import.meta.env.BASE_URL}ultra_detailed_cinematic_concept_art_for_a_meditation.mp4`}
           type="video/mp4"
         />
       </video>
+
+      <audio
+        ref={audioRef}
+        preload="auto"
+      >
+        <source
+          src={`${import.meta.env.BASE_URL}Golden Meditation Intro.mp3`}
+          type="audio/mpeg"
+        />
+      </audio>
 
       {needsInteraction && (
         <div
@@ -150,7 +155,7 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
             borderRadius: '20px',
             border: '2px solid rgba(255, 255, 255, 0.3)'
           }}>
-            Touchez pour démarrer avec audio
+            Touchez pour démarrer
           </div>
         </div>
       )}
