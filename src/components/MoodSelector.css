@@ -4,6 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xl);
+  padding-top: 5rem; /* Space for back button */
   position: relative;
   background-image: url('/ultra_detailed_cinematic_mobile_app_background_minimalistic_and.jpeg');
   background-size: cover;

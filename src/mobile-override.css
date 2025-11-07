@@ -4,7 +4,24 @@
    ============================================ */
 
 /* Remove all max-width constraints on mobile */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
+
+  /* Let browser handle base font size naturally */
+  html {
+    font-size: 100% !important; /* Use browser default (usually 16px) */
+    -webkit-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+  }
+
+  /* NUCLEAR OPTION: Remove ALL max-width constraints */
+  * {
+    max-width: none !important;
+  }
+
+  /* Exception: root container needs 100vw */
+  html, body, #root, .app {
+    max-width: 100vw !important;
+  }
 
   /* Global containers */
   .container,
@@ -20,7 +37,7 @@
     max-width: none !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 1rem !important;
+    padding: 1.5rem !important;
   }
 
   /* Landing page */
@@ -109,15 +126,34 @@
     overflow-x: hidden;
   }
 
-  /* Fix buttons and interactive elements */
+  /* Fix buttons and interactive elements - Touch-friendly */
   button, .button, .btn {
     width: auto !important;
     max-width: none !important;
+    min-height: 48px !important; /* iOS recommended touch target */
+    font-size: clamp(1rem, 4vw, 1.25rem) !important;
+    padding: clamp(0.75rem, 3vw, 1rem) clamp(1.25rem, 5vw, 2rem) !important;
   }
 
   /* Ensure cards and panels use full width */
   .card, .panel, .box {
     max-width: none !important;
     width: 100% !important;
+  }
+
+  /* Use viewport units for responsive text - scales naturally */
+  h1 { font-size: clamp(2rem, 8vw, 3.5rem) !important; }
+  h2 { font-size: clamp(1.5rem, 6vw, 2.5rem) !important; }
+  h3 { font-size: clamp(1.25rem, 5vw, 2rem) !important; }
+  h4 { font-size: clamp(1.1rem, 4vw, 1.5rem) !important; }
+  p { font-size: clamp(1rem, 3.5vw, 1.25rem) !important; line-height: 1.6 !important; }
+  span, div { font-size: inherit !important; }
+  label { font-size: clamp(1rem, 3.5vw, 1.2rem) !important; }
+
+  /* Input fields - minimum 16px to prevent iOS zoom */
+  input, textarea, select {
+    font-size: max(16px, 1rem) !important;
+    min-height: 48px !important;
+    padding: clamp(0.75rem, 3vw, 1rem) !important;
   }
 }

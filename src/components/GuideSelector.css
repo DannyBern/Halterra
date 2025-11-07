@@ -4,6 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  padding-top: 5rem; /* Space for back button */
   position: relative;
   overflow: hidden;
 }

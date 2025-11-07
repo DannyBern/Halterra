@@ -197,6 +197,7 @@ input, textarea {
   width: 100%;
   margin: 0;
   padding: var(--spacing-md);
+  padding-top: 5rem; /* Space for back button */
 }
 
 /* Desktop only: limit width */
@@ -205,6 +206,7 @@ input, textarea {
     max-width: 800px;
     margin: 0 auto;
     padding: var(--spacing-xl);
+    padding-top: 5rem; /* Space for back button */
   }
 }
 
