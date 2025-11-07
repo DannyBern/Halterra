@@ -17,7 +17,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [birthTime, setBirthTime] = useState('');
   const [birthLocation, setBirthLocation] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [skipHumanDesign, setSkipHumanDesign] = useState(false);
+  const [skipAstrologicalProfile, setSkipAstrologicalProfile] = useState(false);
 
   const backgroundImage = `${import.meta.env.BASE_URL}macro_close_up_of_a_fern_leaf_unfolding.jpeg`;
   const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImage);
@@ -40,14 +40,14 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         createdAt: new Date().toISOString()
       };
 
-      // Calculate Human Design if data provided
-      if (!skipHumanDesign && birthDate && birthTime && birthLocation) {
-        const humanDesign = await calculateHumanDesign({
+      // Calculate Astrological Profile if data provided
+      if (!skipAstrologicalProfile && birthDate && birthTime && birthLocation) {
+        const astrologicalProfile = await calculateHumanDesign({
           date: birthDate,
           time: birthTime,
           location: birthLocation
         });
-        user.humanDesign = humanDesign;
+        user.astrologicalProfile = astrologicalProfile;
       }
 
       setTimeout(() => {
@@ -66,7 +66,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   };
 
   const handleSkip = () => {
-    setSkipHumanDesign(true);
+    setSkipAstrologicalProfile(true);
     setIsSubmitting(true);
     setTimeout(() => {
       onComplete({

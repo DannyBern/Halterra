@@ -237,7 +237,7 @@ function App() {
           </button>
           <DateDisplay
             userName={user.name}
-            humanDesign={user.humanDesign}
+            astrologicalProfile={user.astrologicalProfile}
             onContinue={handleDateContinue}
           />
         </div>
@@ -288,7 +288,7 @@ function App() {
           generateAudio={generateAudio}
           anthropicApiKey={anthropicApiKey}
           elevenlabsApiKey={elevenlabsApiKey}
-          humanDesign={user.humanDesign}
+          astrologicalProfile={user.astrologicalProfile}
           onComplete={handleMeditationComplete}
           onBack={handleMeditationBack}
         />

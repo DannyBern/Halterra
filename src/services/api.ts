@@ -1,4 +1,4 @@
-import type { Mood, HumanDesign } from '../types';
+import type { Mood, AstrologicalProfile } from '../types';
 
 // URL du backend Vercel sécurisé
 const BACKEND_URL = 'https://halterra-backend-i3s4okq80-dannys-projects-ff6db2ea.vercel.app';
@@ -11,7 +11,7 @@ export async function generateMeditation(
   intention: string,
   guideType: 'meditation' | 'reflection' = 'meditation',
   duration: 2 | 5 | 10 = 5,
-  humanDesign?: HumanDesign
+  humanDesign?: AstrologicalProfile
 ): Promise<{ displayText: string; audioText: string; dailyInspiration?: string }> {
   // Appel au backend Vercel qui gère les clés API de manière sécurisée
   const response = await fetch(`${BACKEND_URL}/api/meditation`, {

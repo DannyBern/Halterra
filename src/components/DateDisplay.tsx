@@ -1,14 +1,14 @@
 import './DateDisplay.css';
-import type { HumanDesign } from '../types';
+import type { AstrologicalProfile } from '../types';
 import { getHumanDesignSignature } from '../utils/humanDesign';
 
 interface DateDisplayProps {
   userName: string;
-  humanDesign?: HumanDesign;
+  astrologicalProfile?: AstrologicalProfile;
   onContinue: () => void;
 }
 
-export default function DateDisplay({ userName, humanDesign, onContinue }: DateDisplayProps) {
+export default function DateDisplay({ userName, astrologicalProfile, onContinue }: DateDisplayProps) {
   const today = new Date();
 
   const options: Intl.DateTimeFormatOptions = {
@@ -42,9 +42,9 @@ export default function DateDisplay({ userName, humanDesign, onContinue }: DateD
           <p className="date-text">{capitalizedDate}</p>
         </div>
 
-        {humanDesign && (
+        {astrologicalProfile && (
           <div className="human-design-signature">
-            <p className="signature-text">{getHumanDesignSignature(humanDesign)}</p>
+            <p className="signature-text">{getHumanDesignSignature(astrologicalProfile)}</p>
           </div>
         )}
 

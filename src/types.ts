@@ -1,17 +1,36 @@
-export interface HumanDesign {
-  type: 'Generator' | 'Manifesting Generator' | 'Projector' | 'Manifestor' | 'Reflector';
-  strategy: string;
-  authority: string;
-  profile: string;
+export interface AstrologicalProfile {
+  // Astrologie Occidentale
+  sunSign: string;
+  moonSign: string;
+  ascendant: string;
+
+  // Astrologie Chinoise
+  chineseZodiac: string;
+  chineseElement: string;
+  yinYang: 'Yin' | 'Yang';
+
+  // Numérologie
+  lifePath: number;
+
+  // Analyse Croisée
+  dominantElement: 'Feu' | 'Terre' | 'Air' | 'Eau';
+  dominantQuality: 'Cardinal' | 'Fixe' | 'Mutable';
+  energyType: 'Introvertie' | 'Extravertie' | 'Ambivertie';
+
+  // Métadonnées
   birthDate: string;
   birthTime: string;
   birthLocation: string;
+
+  // Signature personnalisée
+  signature: string;
+  description: string;
 }
 
 export interface User {
   name: string;
   createdAt: string;
-  humanDesign?: HumanDesign;
+  astrologicalProfile?: AstrologicalProfile;
 }
 
 export interface Mood {
