@@ -1,0 +1,123 @@
+/* ============================================
+   MOBILE-FIRST OVERRIDES
+   Force full-width on all components for mobile
+   ============================================ */
+
+/* Remove all max-width constraints on mobile */
+@media (max-width: 767px) {
+
+  /* Global containers */
+  .container,
+  .landing,
+  .onboarding,
+  .mood-selector,
+  .category-selection,
+  .duration-selection,
+  .guide-selector,
+  .meditation,
+  .history,
+  .session-view {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+  }
+
+  /* Landing page */
+  .landing-content,
+  .landing-header,
+  .landing-title-container {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* Category selection */
+  .category-grid-container,
+  .category-grid {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* Duration selection */
+  .duration-container,
+  .duration-selection-container,
+  .duration-info {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* Guide selector */
+  .guide-selector-container,
+  .guide-cards,
+  .guide-comparison {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* Meditation view */
+  .meditation-container,
+  .meditation-content,
+  .meditation-text-container {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* History */
+  .history-container,
+  .history-content,
+  .session-card {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* Date display */
+  .date-container,
+  .date-display-container {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* Mood selector */
+  .mood-selector-container,
+  .mood-grid {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* Onboarding */
+  .onboarding-container,
+  .onboarding-content {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* Splash screen */
+  .splash-screen {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* Remove unnecessary margins and padding constraints */
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Ensure full viewport usage */
+  html, body, #root, .app {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden;
+  }
+
+  /* Fix buttons and interactive elements */
+  button, .button, .btn {
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  /* Ensure cards and panels use full width */
+  .card, .panel, .box {
+    max-width: none !important;
+    width: 100% !important;
+  }
+}

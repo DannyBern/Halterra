@@ -194,9 +194,18 @@ input, textarea {
 }
 
 .container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: var(--spacing-xl);
+  width: 100%;
+  margin: 0;
+  padding: var(--spacing-md);
+}
+
+/* Desktop only: limit width */
+@media (min-width: 768px) {
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+  }
 }
 
 /* Glassmorphism card component */
