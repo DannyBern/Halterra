@@ -11,7 +11,7 @@ export async function generateMeditation(
   intention: string,
   guideType: 'meditation' | 'reflection' = 'meditation',
   duration: 2 | 5 | 10 = 5,
-  humanDesign?: AstrologicalProfile
+  astrologicalProfile?: AstrologicalProfile
 ): Promise<{ displayText: string; audioText: string; dailyInspiration?: string }> {
   // Appel au backend Vercel qui gère les clés API de manière sécurisée
   const response = await fetch(`${BACKEND_URL}/api/meditation`, {
@@ -26,7 +26,7 @@ export async function generateMeditation(
       intention,
       guideType,
       duration,
-      humanDesign
+      astrologicalProfile
     })
   });
 
