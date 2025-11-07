@@ -228,10 +228,8 @@ function App() {
 
       {screen === 'video-intro' && <VideoIntro onComplete={() => {
         setHasSeenIntro(true);
-        setScreen('landing');
+        setScreen('onboarding');
       }} />}
-
-      {screen === 'landing' && <Landing onStart={handleLandingStart} />}
 
       {screen === 'onboarding' && <Onboarding onComplete={handleOnboardingComplete} />}
 

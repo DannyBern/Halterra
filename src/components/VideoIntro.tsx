@@ -10,6 +10,7 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [needsInteraction, setNeedsInteraction] = useState(true);
+  const [showBlackScreen, setShowBlackScreen] = useState(false);
 
   useEffect(() => {
     console.log('VideoIntro chargé');
@@ -28,39 +29,43 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
     if (!video || !audio) return;
 
     try {
-      // Démarrer vidéo et audio en même temps
-      video.currentTime = 0;
+      setNeedsInteraction(false);
+
+      // Étape 1: Montrer écran noir et démarrer audio
+      setShowBlackScreen(true);
       audio.currentTime = 0;
       audio.volume = 1.0;
+      await audio.play();
+      console.log('Audio démarré');
 
-      await Promise.all([
-        video.play(),
-        audio.play()
-      ]);
+      // Étape 2: Après 2 secondes, démarrer le vidéo
+      setTimeout(async () => {
+        setShowBlackScreen(false);
+        video.currentTime = 0;
+        await video.play();
+        console.log('Vidéo démarrée après 2s d\'écran noir');
 
-      setNeedsInteraction(false);
-      console.log('Vidéo et audio démarrés');
+        // Démarrer le fade-out de l'audio à 7 secondes (vidéo dure 9 secondes)
+        const startFadeOutAt = 7000; // 7 secondes
+        const fadeOutDuration = 2000; // 2 secondes de fade
 
-      // Démarrer le fade-out de l'audio à 7 secondes (vidéo dure 9 secondes)
-      const startFadeOutAt = 7000; // 7 secondes en millisecondes
-      const fadeOutDuration = 2000; // 2 secondes de fade
+        setTimeout(() => {
+          const fadeStartTime = Date.now();
+          const startVolume = audio.volume;
 
-      setTimeout(() => {
-        const fadeStartTime = Date.now();
-        const startVolume = audio.volume;
+          const fadeOut = () => {
+            const elapsed = Date.now() - fadeStartTime;
+            const progress = Math.min(elapsed / fadeOutDuration, 1);
+            audio.volume = startVolume * (1 - progress);
 
-        const fadeOut = () => {
-          const elapsed = Date.now() - fadeStartTime;
-          const progress = Math.min(elapsed / fadeOutDuration, 1);
-          audio.volume = startVolume * (1 - progress);
+            if (progress < 1 && !audio.paused) {
+              requestAnimationFrame(fadeOut);
+            }
+          };
 
-          if (progress < 1 && !audio.paused) {
-            requestAnimationFrame(fadeOut);
-          }
-        };
-
-        fadeOut();
-      }, startFadeOutAt);
+          fadeOut();
+        }, startFadeOutAt);
+      }, 2000);
 
     } catch (error) {
       console.error('Erreur de lecture:', error);
@@ -103,6 +108,18 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
 
   return (
     <div className={`video-intro ${isTransitioning ? 'fade-out' : ''}`}>
+      {showBlackScreen && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: '#000',
+          zIndex: 10003
+        }} />
+      )}
+
       <video
         ref={videoRef}
         className="intro-video"
