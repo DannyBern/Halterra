@@ -1,7 +1,7 @@
 import type { Mood, AstrologicalProfile } from '../types';
 
-// URL du backend Vercel sécurisé
-const BACKEND_URL = 'https://halterra-backend-i3s4okq80-dannys-projects-ff6db2ea.vercel.app';
+// URL du backend Vercel sécurisé - Utilise l'alias principal
+const BACKEND_URL = 'https://halterra-backend.vercel.app';
 
 export async function generateMeditation(
   _apiKey: string, // Paramètre conservé pour compatibilité mais non utilisé
