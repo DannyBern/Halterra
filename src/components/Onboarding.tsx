@@ -139,7 +139,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
             <form onSubmit={handleFinalSubmit} className="onboarding-form">
               <div className="input-group">
-                <label className="input-label">📅 Date de naissance</label>
+                <label className="input-label input-label-date">Date de naissance</label>
                 <div className="input-wrapper">
                   <input
                     type="date"
@@ -153,7 +153,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               </div>
 
               <div className="input-group">
-                <label className="input-label">🕐 Heure de naissance</label>
+                <label className="input-label input-label-time">Heure de naissance</label>
                 <div className="input-wrapper">
                   <input
                     type="time"
@@ -165,7 +165,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               </div>
 
               <div className="input-group">
-                <label className="input-label">📍 Lieu de naissance</label>
+                <label className="input-label input-label-location">Lieu de naissance</label>
                 <div className="input-wrapper">
                   <input
                     type="text"

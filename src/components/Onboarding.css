@@ -149,6 +149,38 @@
   letter-spacing: 1px;
   text-transform: uppercase;
   text-align: center;
+  padding-left: 32px;
+  position: relative;
+}
+
+/* Custom icons for each label */
+.input-label-date::before,
+.input-label-time::before,
+.input-label-location::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+.input-label-date::before {
+  background-image: url('/icon-date.png');
+}
+
+.input-label-time::before {
+  background-image: url('/icon-time.png');
+}
+
+.input-label-location::before {
+  background-image: url('/icon-location.png');
 }
 
 .button-group {
