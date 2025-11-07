@@ -16,7 +16,7 @@ export default function MoodSelector({ userName, onMoodSelect, onBack }: MoodSel
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const backgroundImage = `${import.meta.env.BASE_URL}ultra_detailed_cinematic_mobile_app_background_minimalistic_and.jpeg`;
-  const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImage);
+  const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImage);
 
   const handleMoodClick = (mood: Mood) => {
     setSelectedMood(mood.id);
@@ -29,12 +29,7 @@ export default function MoodSelector({ userName, onMoodSelect, onBack }: MoodSel
   return (
     <div
       className={`mood-selector ${isTransitioning ? 'fade-out' : ''}`}
-      onMouseDown={handlePressStart}
-      onMouseUp={handlePressEnd}
-      onMouseLeave={handlePressEnd}
-      onTouchStart={handlePressStart}
-      onTouchEnd={handlePressEnd}
-      onTouchCancel={handlePressEnd}
+      onClick={handleBackgroundClick}
     >
       <button className="back-button" onClick={onBack} aria-label="Retour">
         ← Retour

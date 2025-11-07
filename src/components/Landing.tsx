@@ -11,7 +11,7 @@ export default function Landing({ onStart }: LandingProps) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const backgroundImage = `${import.meta.env.BASE_URL}ultra_detailed_cinematic_mobile_app_background_minimalistic_and.jpeg`;
-  const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImage);
+  const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImage);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -27,12 +27,7 @@ export default function Landing({ onStart }: LandingProps) {
   return (
     <div
       className={`landing ${isAnimating ? 'fade-out' : ''}`}
-      onMouseDown={handlePressStart}
-      onMouseUp={handlePressEnd}
-      onMouseLeave={handlePressEnd}
-      onTouchStart={handlePressStart}
-      onTouchEnd={handlePressEnd}
-      onTouchCancel={handlePressEnd}
+      onClick={handleBackgroundClick}
     >
       {/* Background */}
       <div className="landing-bg"></div>

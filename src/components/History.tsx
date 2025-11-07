@@ -16,7 +16,7 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const backgroundImage = `${import.meta.env.BASE_URL}professional_photograph_of_a_modern_home_library.jpeg`;
-  const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImage);
+  const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImage);
 
   useEffect(() => {
     loadSessions();
@@ -109,12 +109,7 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
     <div
       className="history fade-in"
       style={{ backgroundImage: `url(${backgroundImage})` }}
-      onMouseDown={handlePressStart}
-      onMouseUp={handlePressEnd}
-      onMouseLeave={handlePressEnd}
-      onTouchStart={handlePressStart}
-      onTouchEnd={handlePressEnd}
-      onTouchCancel={handlePressEnd}
+      onClick={handleBackgroundClick}
     >
       <div className="history-header">
         <button className="back-button" onClick={onBack}>

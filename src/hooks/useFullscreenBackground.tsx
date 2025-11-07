@@ -1,49 +1,34 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import type { ReactElement } from 'react';
 
 interface UseFullscreenBackgroundReturn {
   isFullscreen: boolean;
-  showFullscreen: () => void;
-  hideFullscreen: () => void;
+  toggleFullscreen: () => void;
   FullscreenViewer: () => ReactElement | null;
-  handlePressStart: (e: React.MouseEvent | React.TouchEvent) => void;
-  handlePressEnd: () => void;
+  handleBackgroundClick: (e: React.MouseEvent | React.TouchEvent) => void;
 }
 
 export function useFullscreenBackground(backgroundImageUrl: string): UseFullscreenBackgroundReturn {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [pressTimer, setPressTimer] = useState<number | null>(null);
 
-  const showFullscreen = useCallback(() => {
-    setIsFullscreen(true);
-    setIsClosing(false);
-  }, []);
-
-  const hideFullscreen = useCallback(() => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setIsFullscreen(false);
+  const toggleFullscreen = useCallback(() => {
+    if (isFullscreen) {
+      // Hide with animation
+      setIsClosing(true);
+      setTimeout(() => {
+        setIsFullscreen(false);
+        setIsClosing(false);
+      }, 400); // Duration of exit animation
+    } else {
+      // Show immediately
+      setIsFullscreen(true);
       setIsClosing(false);
-    }, 500); // Duration of exit animation
-
-    if (pressTimer) {
-      clearTimeout(pressTimer);
-      setPressTimer(null);
     }
-  }, [pressTimer]);
+  }, [isFullscreen]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (pressTimer) {
-        clearTimeout(pressTimer);
-      }
-    };
-  }, [pressTimer]);
-
-  // Handle long-press start
-  const handlePressStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+  // Handle background click - toggle fullscreen mode
+  const handleBackgroundClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     // Check if the click/touch is on a button or interactive element
     const target = e.target as HTMLElement;
     if (
@@ -61,24 +46,15 @@ export function useFullscreenBackground(backgroundImageUrl: string): UseFullscre
       target.closest('.mood-card') ||
       target.closest('.category-card') ||
       target.closest('.duration-button') ||
-      target.closest('.audio-toggle')
+      target.closest('.audio-toggle') ||
+      target.closest('.guide-card')
     ) {
       return; // Don't trigger on interactive elements
     }
 
-    const timer = window.setTimeout(() => {
-      showFullscreen();
-    }, 700); // 700ms long-press for better UX
-    setPressTimer(timer);
-  }, [showFullscreen]);
-
-  // Handle long-press end
-  const handlePressEnd = useCallback(() => {
-    if (pressTimer) {
-      clearTimeout(pressTimer);
-      setPressTimer(null);
-    }
-  }, [pressTimer]);
+    e.stopPropagation();
+    toggleFullscreen();
+  }, [toggleFullscreen]);
 
   const FullscreenViewer = useCallback(() => {
     if (!isFullscreen) return null;
@@ -86,19 +62,17 @@ export function useFullscreenBackground(backgroundImageUrl: string): UseFullscre
     return (
       <div
         className={`fullscreen-background-overlay ${isClosing ? 'closing' : ''}`}
-        onClick={hideFullscreen}
-        onTouchStart={hideFullscreen}
+        onClick={toggleFullscreen}
+        onTouchStart={toggleFullscreen}
         style={{ backgroundImage: `url(${backgroundImageUrl})` }}
       />
     );
-  }, [isFullscreen, isClosing, backgroundImageUrl, hideFullscreen]);
+  }, [isFullscreen, isClosing, backgroundImageUrl, toggleFullscreen]);
 
   return {
     isFullscreen,
-    showFullscreen,
-    hideFullscreen,
+    toggleFullscreen,
     FullscreenViewer,
-    handlePressStart,
-    handlePressEnd
+    handleBackgroundClick,
   };
 }

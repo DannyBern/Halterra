@@ -222,7 +222,7 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
   const moodImage = moodImageMap[mood.id] || '';
   const backgroundImageUrl = moodImage ? `${import.meta.env.BASE_URL}${encodeURIComponent(moodImage)}` : '';
 
-  const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImageUrl);
+  const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImageUrl);
 
   return (
     <div
@@ -233,12 +233,7 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
-      onMouseDown={handlePressStart}
-      onMouseUp={handlePressEnd}
-      onMouseLeave={handlePressEnd}
-      onTouchStart={handlePressStart}
-      onTouchEnd={handlePressEnd}
-      onTouchCancel={handlePressEnd}
+      onClick={handleBackgroundClick}
     >
       <button className="back-button-category" onClick={onBack}>
         ← Retour

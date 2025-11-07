@@ -20,7 +20,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [skipAstrologicalProfile, setSkipAstrologicalProfile] = useState(false);
 
   const backgroundImage = `${import.meta.env.BASE_URL}macro_close_up_of_a_fern_leaf_unfolding.jpeg`;
-  const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImage);
+  const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImage);
 
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,12 +82,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   return (
     <div
       className={`onboarding ${isSubmitting ? 'fade-out' : ''}`}
-      onMouseDown={handlePressStart}
-      onMouseUp={handlePressEnd}
-      onMouseLeave={handlePressEnd}
-      onTouchStart={handlePressStart}
-      onTouchEnd={handlePressEnd}
-      onTouchCancel={handlePressEnd}
+      onClick={handleBackgroundClick}
     >
       <div className="onboarding-content fade-in">
         {step === 'name' && (
