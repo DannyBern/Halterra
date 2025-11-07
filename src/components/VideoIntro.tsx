@@ -13,35 +13,21 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
     const video = videoRef.current;
     if (!video) return;
 
-    // Démarrer muted pour contourner les restrictions d'autoplay
-    const startVideo = async () => {
-      try {
-        video.muted = true;
-        video.volume = 1.0;
-        const playPromise = video.play();
-
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            console.log('Vidéo démarrée en mode muet');
-            // Attendre un petit délai puis unmute
-            setTimeout(() => {
-              video.muted = false;
-              console.log('Audio activé');
-            }, 100);
-          }).catch((error) => {
-            console.error('Erreur autoplay:', error);
-          });
+    // Attendre que le vidéo soit en train de jouer avant d'activer l'audio
+    const handlePlaying = () => {
+      console.log('Vidéo en lecture, activation de l\'audio...');
+      setTimeout(() => {
+        if (video) {
+          video.muted = false;
+          console.log('Audio activé');
         }
-      } catch (error) {
-        console.error('Erreur de démarrage:', error);
-      }
+      }, 200);
     };
 
-    // Démarrer immédiatement sans attendre canplay
-    startVideo();
+    video.addEventListener('playing', handlePlaying, { once: true });
 
     return () => {
-      // Cleanup
+      video.removeEventListener('playing', handlePlaying);
     };
   }, []);
 
