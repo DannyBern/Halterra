@@ -370,11 +370,12 @@
 
 .meditation-paragraph-premium {
   font-size: 1.15rem;
-  line-height: 1.9;
+  line-height: 2.0;
   color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 1.75rem;
+  margin: 0 0 2.5rem;
   font-weight: 300;
   letter-spacing: 0.01em;
+  text-align: left;
 }
 
 .meditation-paragraph-premium:last-child {
