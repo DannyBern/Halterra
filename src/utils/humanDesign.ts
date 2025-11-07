@@ -8,13 +8,71 @@ interface BirthData {
 
 /**
  * Calculate Human Design chart based on birth data
- * This is a simplified calculation - a full implementation would require
- * ephemeris data and complex astronomical calculations
+ * Uses Swiss Ephemeris via backend API for accurate astronomical calculations
  */
 export async function calculateHumanDesign(birthData: BirthData): Promise<HumanDesign> {
-  // For now, we'll use a deterministic approach based on birth date/time
-  // In a production app, this would call an API or use a full ephemeris library
+  const { date, time, location } = birthData;
 
+  try {
+    // Call backend API for accurate Human Design calculation
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    const response = await fetch(`${backendUrl}/api/humandesign`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        birthDate: date,
+        birthTime: time
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Map backend response to frontend HumanDesign type
+    const strategyMap: Record<string, string> = {
+      'To Respond': 'Répondre - Attendre les opportunités et y répondre',
+      'To Initiate': 'Informer - Initier et informer avant d\'agir',
+      'Wait for Invitation': 'Attendre l\'invitation - Être reconnu et invité',
+      'Wait 28 Days': 'Attendre un cycle lunaire - Observer pendant 28 jours avant de décider'
+    };
+
+    const authorityMap: Record<string, string> = {
+      'Emotional': 'Autorité Émotionnelle',
+      'Sacral': 'Autorité Sacrale',
+      'Splenic': 'Autorité Splénique',
+      'Ego': 'Autorité du Cœur/Ego',
+      'Self-Projected': 'Autorité du Soi/G',
+      'Outer Authority': 'Autorité Mentale',
+      'Lunar (Reflector)': 'Autorité Lunaire'
+    };
+
+    return {
+      type: data.type,
+      strategy: strategyMap[data.strategy] || data.strategy,
+      authority: authorityMap[data.authority] || data.authority,
+      profile: data.profile,
+      birthDate: date,
+      birthTime: time,
+      birthLocation: location
+    };
+  } catch (error) {
+    console.error('Error calculating Human Design via API:', error);
+
+    // Fallback to simplified calculation if API fails
+    console.log('Falling back to simplified calculation');
+    return fallbackCalculateHumanDesign(birthData);
+  }
+}
+
+/**
+ * Fallback calculation method (simplified) if API is unavailable
+ */
+function fallbackCalculateHumanDesign(birthData: BirthData): HumanDesign {
   const { date, time, location } = birthData;
   const birthDate = new Date(`${date}T${time}`);
 
