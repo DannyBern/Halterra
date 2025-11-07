@@ -13,36 +13,35 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
     const video = videoRef.current;
     if (!video) return;
 
-    // Stratégie: démarrer muted pour contourner les restrictions d'autoplay,
-    // puis unmute immédiatement
+    // Démarrer muted pour contourner les restrictions d'autoplay
     const startVideo = async () => {
       try {
         video.muted = true;
-        await video.play();
-        // Unmute immédiatement après le démarrage
-        video.muted = false;
-        console.log('Vidéo démarrée avec audio');
-      } catch (error) {
-        console.error('Erreur autoplay:', error);
-        // Si même muted ne fonctionne pas, essayer sans mute
-        try {
-          video.muted = false;
-          await video.play();
-        } catch (err) {
-          console.error('Impossible de démarrer le vidéo:', err);
+        video.volume = 1.0;
+        const playPromise = video.play();
+
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            console.log('Vidéo démarrée en mode muet');
+            // Attendre un petit délai puis unmute
+            setTimeout(() => {
+              video.muted = false;
+              console.log('Audio activé');
+            }, 100);
+          }).catch((error) => {
+            console.error('Erreur autoplay:', error);
+          });
         }
+      } catch (error) {
+        console.error('Erreur de démarrage:', error);
       }
     };
 
-    // Attendre que le vidéo soit prêt
-    if (video.readyState >= 3) {
-      startVideo();
-    } else {
-      video.addEventListener('canplay', startVideo, { once: true });
-    }
+    // Démarrer immédiatement sans attendre canplay
+    startVideo();
 
     return () => {
-      video.removeEventListener('canplay', startVideo);
+      // Cleanup
     };
   }, []);
 
@@ -114,6 +113,8 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
         className="intro-video"
         onEnded={handleVideoEnd}
         playsInline
+        autoPlay
+        muted
         preload="auto"
       >
         <source
