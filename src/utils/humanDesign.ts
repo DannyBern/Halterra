@@ -115,3 +115,19 @@ ${getHumanDesignDescription(humanDesign)}
 
 Lors de la création de cette méditation, tiens compte de ces caractéristiques uniques de leur design énergétique. Adapte le langage, les métaphores et les conseils pour résonner avec leur type spécifique.`;
 }
+
+/**
+ * Get a signature phrase for the user based on their Human Design type
+ * Simple, powerful, and deeply personal - Steve Jobs style
+ */
+export function getHumanDesignSignature(humanDesign: HumanDesign): string {
+  const signatures: Record<string, string> = {
+    'Generator': 'Votre énergie est votre superpouvoir. Répondez à ce qui vous allume.',
+    'Manifesting Generator': 'Vous êtes fait pour la vitesse et la multiplicité. Suivez votre élan.',
+    'Projector': 'Votre sagesse guide les autres. Attendez d\'être reconnu.',
+    'Manifestor': 'Vous êtes né pour initier. Informez, puis agissez.',
+    'Reflector': 'Vous reflétez le monde. Prenez le temps d\'observer.'
+  };
+
+  return signatures[humanDesign.type] || 'Honorez votre nature unique.';
+}

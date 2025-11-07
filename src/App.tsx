@@ -235,7 +235,11 @@ function App() {
           <button className="history-link" onClick={handleViewHistory}>
             📖 Historique
           </button>
-          <DateDisplay userName={user.name} onContinue={handleDateContinue} />
+          <DateDisplay
+            userName={user.name}
+            humanDesign={user.humanDesign}
+            onContinue={handleDateContinue}
+          />
         </div>
       )}
 

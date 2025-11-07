@@ -1,14 +1,11 @@
 import './DateDisplay.css';
-import type { HumanDesign } from '../types';
-import { getHumanDesignSignature } from '../utils/humanDesign';
 
 interface DateDisplayProps {
   userName: string;
-  humanDesign?: HumanDesign;
   onContinue: () => void;
 }
 
-export default function DateDisplay({ userName, humanDesign, onContinue }: DateDisplayProps) {
+export default function DateDisplay({ userName, onContinue }: DateDisplayProps) {
   const today = new Date();
 
   const options: Intl.DateTimeFormatOptions = {
@@ -41,12 +38,6 @@ export default function DateDisplay({ userName, humanDesign, onContinue }: DateD
         <div className="date-main">
           <p className="date-text">{capitalizedDate}</p>
         </div>
-
-        {humanDesign && (
-          <div className="human-design-signature">
-            <p className="signature-text">{getHumanDesignSignature(humanDesign)}</p>
-          </div>
-        )}
 
         <p className="date-subtitle">
           Prenons un moment pour honorer ce jour et votre état d'esprit.
