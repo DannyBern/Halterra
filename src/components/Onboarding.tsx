@@ -130,11 +130,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           <>
             <div className="onboarding-icon">✨</div>
 
-            <h2 className="onboarding-title">Votre Design Énergétique</h2>
+            <h2 className="onboarding-title">Votre Profil Personnel</h2>
 
             <p className="onboarding-text">
-              Découvrez votre type Human Design pour des méditations encore plus personnalisées.
-              Ces informations nous permettront d'adapter le contenu à votre nature unique.
+              Ces informations nous permettent de mieux comprendre votre personnalité et d'adapter les méditations à votre manière d'être.
+              Basé sur votre astrologie et numérologie personnelles.
             </p>
 
             <form onSubmit={handleFinalSubmit} className="onboarding-form">
@@ -184,7 +184,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   className="onboarding-button"
                   disabled={!isBirthInfoValid}
                 >
-                  Découvrir mon design
+                  Créer mon profil
                 </button>
 
                 <button

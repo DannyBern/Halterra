@@ -283,27 +283,27 @@ export function calculateEnergyType(
 export function generateSignature(profile: AstrologicalProfile): string {
   const { sunSign, moonSign, ascendant, chineseZodiac, dominantElement, energyType } = profile;
 
-  // Signatures uniques basées sur combinaisons
+  // Signatures pragmatiques basées sur traits de personnalité concrets
   const signatures: Record<string, string> = {
-    // Feu dominant
-    'Feu-Extravertie': 'Votre flamme intérieure illumine le chemin. Embrasez le monde de votre passion.',
-    'Feu-Introvertie': 'Votre feu brûle en silence. Canalisez cette puissance vers vos rêves profonds.',
-    'Feu-Ambivertie': 'Vous dansez entre flamme vive et braise calme. Votre feu s\'adapte à chaque moment.',
+    // Feu dominant - Action, initiative, spontanéité
+    'Feu-Extravertie': 'Vous êtes une personne d\'action qui inspire les autres. Vous avancez avec confiance et spontanéité.',
+    'Feu-Introvertie': 'Votre motivation vient de l\'intérieur. Vous poursuivez vos objectifs avec détermination et indépendance.',
+    'Feu-Ambivertie': 'Vous alternez entre moments d\'action intense et réflexion personnelle, adaptant votre approche selon le contexte.',
 
-    // Terre dominant
-    'Terre-Extravertie': 'Vos racines sont profondes, votre présence solide. Vous bâtissez avec les autres.',
-    'Terre-Introvertie': 'Ancré dans votre essence, vous cultivez la patience. Votre force est tranquille.',
-    'Terre-Ambivertie': 'Entre stabilité et mouvement, vous êtes la montagne qui respire.',
+    // Terre dominant - Stabilité, pragmatisme, constance
+    'Terre-Extravertie': 'Vous êtes une personne fiable qui construit du concret. Vous aimez collaborer sur des projets tangibles.',
+    'Terre-Introvertie': 'Vous prenez votre temps pour analyser et planifier. Votre approche méthodique est votre atout.',
+    'Terre-Ambivertie': 'Vous équilibrez patience et sociabilité, sachant quand persévérer seul ou demander de l\'aide.',
 
-    // Air dominant
-    'Air-Extravertie': 'Vos idées voyagent loin. Vous connectez les esprits et inspirez le changement.',
-    'Air-Introvertie': 'Votre pensée plane dans les hauteurs. Observer le monde est votre méditation.',
-    'Air-Ambivertie': 'Vous êtes la brise qui tantôt murmure, tantôt fait danser les feuilles.',
+    // Air dominant - Réflexion, communication, curiosité
+    'Air-Extravertie': 'Vous aimez échanger des idées et connecter avec les gens. La communication est votre force.',
+    'Air-Introvertie': 'Vous êtes un penseur qui observe et analyse. Vous comprenez les situations avec recul et clarté.',
+    'Air-Ambivertie': 'Vous savez quand partager vos réflexions et quand prendre du recul pour mieux comprendre.',
 
-    // Eau dominant
-    'Eau-Extravertie': 'Vos émotions nourrissent le monde. Vous êtes la rivière qui unit les âmes.',
-    'Eau-Introvertie': 'Profond comme l\'océan, vous ressentez tout. Votre intuition est votre guide.',
-    'Eau-Ambivertie': 'Vous êtes la vague qui caresse et se retire. Fluide et insaisissable.'
+    // Eau dominant - Empathie, intuition, sensibilité
+    'Eau-Extravertie': 'Vous ressentez les autres profondément et créez des liens authentiques. Votre empathie est naturelle.',
+    'Eau-Introvertie': 'Vous écoutez vos émotions et suivez votre intuition. Votre vie intérieure est riche et profonde.',
+    'Eau-Ambivertie': 'Vous alternez entre connexion émotionnelle avec les autres et introspection personnelle.'
   };
 
   const key = `${dominantElement}-${energyType}`;
@@ -316,34 +316,34 @@ export function generateSignature(profile: AstrologicalProfile): string {
 export function generateDescription(profile: AstrologicalProfile): string {
   const parts: string[] = [];
 
-  // Intro avec les 3 signes principaux
-  parts.push(`Vous êtes ${profile.sunSign} Soleil, ${profile.moonSign} Lune, et ${profile.ascendant} Ascendant.`);
+  // Intro avec les 3 signes principaux - ton pragmatique
+  parts.push(`Votre profil: ${profile.sunSign} (personnalité), ${profile.moonSign} (émotions), ${profile.ascendant} (apparence sociale).`);
 
-  // Animal chinois + élément
-  parts.push(`Le ${profile.chineseZodiac} de ${profile.chineseElement} en vous apporte une dimension ${profile.yinYang === 'Yang' ? 'Yang (active, expansive)' : 'Yin (réceptive, introspective)'}.`);
+  // Animal chinois + élément - explication concrète
+  parts.push(`Né sous le signe du ${profile.chineseZodiac} ${profile.chineseElement}, vous avez une approche ${profile.yinYang === 'Yang' ? 'active et directe' : 'réflexive et réceptive'}.`);
 
-  // Élément dominant
+  // Élément dominant - traits de personnalité concrets
   const elementDescriptions = {
-    'Feu': 'passion, créativité et spontanéité',
-    'Terre': 'stabilité, pragmatisme et persévérance',
-    'Air': 'intellect, communication et curiosité',
-    'Eau': 'émotion, intuition et sensibilité'
+    'Feu': 'de l\'initiative, de l\'optimisme et de la spontanéité dans vos actions',
+    'Terre': 'du pragmatisme, de la constance et une approche méthodique',
+    'Air': 'de la curiosité intellectuelle, des compétences sociales et de l\'adaptabilité',
+    'Eau': 'de l\'empathie, de l\'intuition et une conscience émotionnelle développée'
   };
-  parts.push(`Votre élément dominant, le ${profile.dominantElement}, vous donne ${elementDescriptions[profile.dominantElement]}.`);
+  parts.push(`Votre tendance dominante ${profile.dominantElement} vous apporte ${elementDescriptions[profile.dominantElement]}.`);
 
-  // Qualité dominante
+  // Qualité dominante - comportements observables
   const qualityDescriptions = {
-    'Cardinal': 'Vous initiez le changement et ouvrez de nouveaux chemins.',
-    'Fixe': 'Vous apportez stabilité et détermination à tout ce que vous entreprenez.',
-    'Mutable': 'Vous vous adaptez avec grâce et fluidité aux changements de la vie.'
+    'Cardinal': 'Vous prenez naturellement l\'initiative et aimez démarrer de nouveaux projets.',
+    'Fixe': 'Vous êtes persévérant et apportez de la stabilité dans ce que vous entreprenez.',
+    'Mutable': 'Vous vous adaptez facilement aux changements et restez flexible.'
   };
   parts.push(qualityDescriptions[profile.dominantQuality]);
 
-  // Énergie
+  // Énergie - préférences sociales concrètes
   const energyDescriptions = {
-    'Extravertie': 'Votre énergie rayonne vers l\'extérieur, vous nourrissant des interactions et des échanges.',
-    'Introvertie': 'Vous puisez votre force dans l\'introspection et la connexion avec votre monde intérieur.',
-    'Ambivertie': 'Vous naviguez naturellement entre solitude ressourçante et connexion sociale.'
+    'Extravertie': 'Vous vous ressourcez dans les interactions sociales et aimez partager vos expériences.',
+    'Introvertie': 'Vous préférez la réflexion personnelle et avez besoin de moments seul pour vous ressourcer.',
+    'Ambivertie': 'Vous appréciez autant les moments sociaux que la solitude, selon vos besoins du moment.'
   };
   parts.push(energyDescriptions[profile.energyType]);
 
@@ -419,19 +419,27 @@ export function formatProfileForMeditation(profile: {
   energyType: string;
   description?: string;
 }): string {
-  return `Profil Astrologique:
-☀️ Soleil: ${profile.sunSign}
-🌙 Lune: ${profile.moonSign}
-⬆️ Ascendant: ${profile.ascendant}
-🐉 Zodiaque Chinois: ${profile.chineseZodiac} de ${profile.chineseElement} (${profile.yinYang})
-🔢 Chemin de Vie: ${profile.lifePath}
+  return `Profil de personnalité de l'utilisateur:
 
-Analyse Croisée:
-🔥 Élément Dominant: ${profile.dominantElement}
-⚡ Qualité Dominante: ${profile.dominantQuality}
-💫 Énergie: ${profile.energyType}
+Signes astrologiques:
+- Soleil (personnalité): ${profile.sunSign}
+- Lune (émotions): ${profile.moonSign}
+- Ascendant (apparence sociale): ${profile.ascendant}
+
+Astrologie chinoise:
+- Signe: ${profile.chineseZodiac}
+- Élément: ${profile.chineseElement}
+- Polarité: ${profile.yinYang}
+
+Numérologie:
+- Chemin de vie: ${profile.lifePath}
+
+Traits dominants:
+- Tempérament: ${profile.dominantElement}
+- Style d'action: ${profile.dominantQuality}
+- Préférence sociale: ${profile.energyType}
 
 ${profile.description}
 
-Lors de la création de cette méditation, tiens compte de ces archétypes astrologiques pour personnaliser le langage, les métaphores et les thèmes abordés.`;
+Utilise ces informations pour adapter le ton, les exemples et le style de la méditation à sa personnalité. Par exemple: une personne Feu-Extravertie appréciera un langage dynamique et motivant, tandis qu'une personne Eau-Introvertie préférera un ton plus doux et introspectif.`;
 }
