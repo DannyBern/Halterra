@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  padding-top: 5rem; /* Space for back button */
+  padding-top: 5rem !important; /* Space for back button - override mobile-override */
   position: relative;
 }
 
