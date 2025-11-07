@@ -417,7 +417,7 @@ export default function Meditation({
           }}></div>
 
           <div className="meditation-text-premium">
-            {meditationText.split('\\n\\n').map((paragraph, index) => (
+            {meditationText.split('\n\n').map((paragraph, index) => (
               <p key={index} className="meditation-paragraph-premium">
                 {paragraph}
               </p>
