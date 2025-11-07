@@ -1,23 +1,61 @@
 import { useState } from 'react';
 import type { User } from '../types';
 import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
+import { calculateHumanDesign } from '../utils/humanDesign';
 import './Onboarding.css';
 
 interface OnboardingProps {
   onComplete: (user: User) => void;
 }
 
-export default function Onboarding({ onComplete }: OnboardingProps) {
-  const [name, setName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+type OnboardingStep = 'name' | 'birth-info';
 
-  const backgroundImage = `${import.meta.env.BASE_URL}ultra_detailed_cinematic_mobile_app_background_minimalistic_and.jpeg`;
+export default function Onboarding({ onComplete }: OnboardingProps) {
+  const [step, setStep] = useState<OnboardingStep>('name');
+  const [name, setName] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [birthTime, setBirthTime] = useState('');
+  const [birthLocation, setBirthLocation] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [skipHumanDesign, setSkipHumanDesign] = useState(false);
+
+  const backgroundImage = `${import.meta.env.BASE_URL}macro_close_up_of_a_fern_leaf_unfolding.jpeg`;
   const { FullscreenViewer, handlePressStart, handlePressEnd } = useFullscreenBackground(backgroundImage);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
-      setIsSubmitting(true);
+      setStep('birth-info');
+    }
+  };
+
+  const handleFinalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setIsSubmitting(true);
+
+    try {
+      const user: User = {
+        name: name.trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      // Calculate Human Design if data provided
+      if (!skipHumanDesign && birthDate && birthTime && birthLocation) {
+        const humanDesign = await calculateHumanDesign({
+          date: birthDate,
+          time: birthTime,
+          location: birthLocation
+        });
+        user.humanDesign = humanDesign;
+      }
+
+      setTimeout(() => {
+        onComplete(user);
+      }, 400);
+    } catch (error) {
+      console.error('Error calculating Human Design:', error);
+      // Continue without Human Design data
       setTimeout(() => {
         onComplete({
           name: name.trim(),
@@ -26,6 +64,20 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       }, 400);
     }
   };
+
+  const handleSkip = () => {
+    setSkipHumanDesign(true);
+    setIsSubmitting(true);
+    setTimeout(() => {
+      onComplete({
+        name: name.trim(),
+        createdAt: new Date().toISOString()
+      });
+    }, 400);
+  };
+
+  const isNameValid = name.trim().length > 0;
+  const isBirthInfoValid = birthDate && birthTime && birthLocation.trim();
 
   return (
     <div
@@ -38,37 +90,117 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       onTouchCancel={handlePressEnd}
     >
       <div className="onboarding-content fade-in">
-        <div className="onboarding-icon">🌱</div>
+        {step === 'name' && (
+          <>
+            <div className="onboarding-icon">🌱</div>
 
-        <h2 className="onboarding-title">Bienvenue</h2>
+            <h2 className="onboarding-title">Bienvenue</h2>
 
-        <p className="onboarding-text">
-          Pour personnaliser votre expérience et créer un espace qui vous est propre,
-          comment aimeriez-vous être appelé ?
-        </p>
+            <p className="onboarding-text">
+              Pour personnaliser votre expérience et créer un espace qui vous est propre,
+              comment aimeriez-vous être appelé ?
+            </p>
 
-        <form onSubmit={handleSubmit} className="onboarding-form">
-          <div className="input-wrapper">
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Votre prénom"
-              className="onboarding-input"
-              autoFocus
-              maxLength={30}
-            />
-            <div className="input-underline"></div>
-          </div>
+            <form onSubmit={handleNameSubmit} className="onboarding-form">
+              <div className="input-wrapper">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Votre prénom"
+                  className="onboarding-input"
+                  autoFocus
+                  maxLength={30}
+                />
+                <div className="input-underline"></div>
+              </div>
 
-          <button
-            type="submit"
-            className="onboarding-button"
-            disabled={!name.trim()}
-          >
-            Continuer
-          </button>
-        </form>
+              <button
+                type="submit"
+                className="onboarding-button"
+                disabled={!isNameValid}
+              >
+                Continuer
+              </button>
+            </form>
+          </>
+        )}
+
+        {step === 'birth-info' && (
+          <>
+            <div className="onboarding-icon">✨</div>
+
+            <h2 className="onboarding-title">Votre Design Énergétique</h2>
+
+            <p className="onboarding-text">
+              Découvrez votre type Human Design pour des méditations encore plus personnalisées.
+              Ces informations nous permettront d'adapter le contenu à votre nature unique.
+            </p>
+
+            <form onSubmit={handleFinalSubmit} className="onboarding-form">
+              <div className="input-group">
+                <label className="input-label">Date de naissance</label>
+                <div className="input-wrapper">
+                  <input
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className="onboarding-input"
+                    autoFocus
+                    max={new Date().toISOString().split('T')[0]}
+                  />
+                  <div className="input-underline"></div>
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Heure de naissance</label>
+                <div className="input-wrapper">
+                  <input
+                    type="time"
+                    value={birthTime}
+                    onChange={(e) => setBirthTime(e.target.value)}
+                    className="onboarding-input"
+                  />
+                  <div className="input-underline"></div>
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Lieu de naissance</label>
+                <div className="input-wrapper">
+                  <input
+                    type="text"
+                    value={birthLocation}
+                    onChange={(e) => setBirthLocation(e.target.value)}
+                    placeholder="Ville, Pays"
+                    className="onboarding-input"
+                    maxLength={100}
+                  />
+                  <div className="input-underline"></div>
+                </div>
+              </div>
+
+              <div className="button-group">
+                <button
+                  type="submit"
+                  className="onboarding-button"
+                  disabled={!isBirthInfoValid}
+                >
+                  Découvrir mon design
+                </button>
+
+                <button
+                  type="button"
+                  className="onboarding-button-secondary"
+                  onClick={handleSkip}
+                >
+                  Passer cette étape
+                </button>
+              </div>
+            </form>
+          </>
+        )}
 
         <p className="onboarding-note">
           Vos données restent privées et sont stockées localement sur votre appareil.

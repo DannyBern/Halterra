@@ -5,7 +5,7 @@
   justify-content: center;
   padding: 2rem;
   position: relative;
-  background-image: url('/ultra_detailed_cinematic_mobile_app_background_minimalistic_and.jpeg');
+  background-image: url('/macro_close_up_of_a_fern_leaf_unfolding.jpeg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -130,6 +130,66 @@
   font-style: italic;
 }
 
+.input-group {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.input-label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.onboarding-button-secondary {
+  padding: 1rem 2.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-light);
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.onboarding-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.onboarding-button-secondary:active {
+  transform: translateY(0);
+}
+
+/* Date and time input styling */
+.onboarding-input[type="date"],
+.onboarding-input[type="time"] {
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+.onboarding-input[type="date"]::-webkit-calendar-picker-indicator,
+.onboarding-input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.7;
+  cursor: pointer;
+}
+
 @media (max-width: 768px) {
   .onboarding-title {
     font-size: 2rem;
@@ -141,5 +201,9 @@
 
   .onboarding-input {
     font-size: 1.1rem;
+  }
+
+  .input-label {
+    font-size: 0.8rem;
   }
 }

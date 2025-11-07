@@ -284,6 +284,7 @@ function App() {
           generateAudio={generateAudio}
           anthropicApiKey={anthropicApiKey}
           elevenlabsApiKey={elevenlabsApiKey}
+          humanDesign={user.humanDesign}
           onComplete={handleMeditationComplete}
           onBack={handleMeditationBack}
         />

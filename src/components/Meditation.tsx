@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import type { Mood } from '../types';
+import type { Mood, HumanDesign } from '../types';
 import { generateMeditation, generateAudio as generateAudioAPI } from '../services/api';
 import './Meditation.css';
 import './Meditation_Premium.css';
@@ -14,6 +14,7 @@ interface MeditationProps {
   generateAudio: boolean;
   anthropicApiKey: string;
   elevenlabsApiKey?: string;
+  humanDesign?: HumanDesign;
   onComplete: (meditationText: string, audioBase64?: string) => void;
   onBack: () => void;
 }
@@ -44,6 +45,7 @@ export default function Meditation({
   duration,
   generateAudio,
   anthropicApiKey,
+  humanDesign,
   onComplete,
   onBack
 }: MeditationProps) {
@@ -80,7 +82,7 @@ export default function Meditation({
     try {
       setStatus('generating-text');
 
-      const { displayText, audioText, dailyInspiration: inspiration } = await generateMeditation(anthropicApiKey, userName, mood, category, intention, guideType, duration);
+      const { displayText, audioText, dailyInspiration: inspiration } = await generateMeditation(anthropicApiKey, userName, mood, category, intention, guideType, duration, humanDesign);
       setMeditationText(displayText);
       setDailyInspiration(inspiration);
 
