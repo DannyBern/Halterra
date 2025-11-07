@@ -21,17 +21,28 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
-  animation: videoFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: scale(1.08);
+  filter: blur(8px) brightness(0.7);
 }
 
-@keyframes videoFadeIn {
+.intro-video.fade-in {
+  animation: videoFadeInPremium 2.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+@keyframes videoFadeInPremium {
   0% {
     opacity: 0;
-    transform: scale(1.05);
+    transform: scale(1.08);
+    filter: blur(8px) brightness(0.7);
+  }
+  40% {
+    opacity: 0.3;
   }
   100% {
     opacity: 1;
     transform: scale(1);
+    filter: blur(0px) brightness(1);
   }
 }
 

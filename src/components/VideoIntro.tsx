@@ -42,6 +42,7 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
       setTimeout(async () => {
         setShowBlackScreen(false);
         video.currentTime = 0;
+        video.classList.add('fade-in');
         await video.play();
         console.log('Vidéo démarrée après 2s d\'écran noir');
 

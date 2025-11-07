@@ -139,7 +139,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
             <form onSubmit={handleFinalSubmit} className="onboarding-form">
               <div className="input-group">
-                <label className="input-label">Date de naissance</label>
+                <label className="input-label">📅 Date de naissance</label>
                 <div className="input-wrapper">
                   <input
                     type="date"
@@ -149,12 +149,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     autoFocus
                     max={new Date().toISOString().split('T')[0]}
                   />
-                  <div className="input-underline"></div>
                 </div>
               </div>
 
               <div className="input-group">
-                <label className="input-label">Heure de naissance</label>
+                <label className="input-label">🕐 Heure de naissance</label>
                 <div className="input-wrapper">
                   <input
                     type="time"
@@ -162,22 +161,20 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     onChange={(e) => setBirthTime(e.target.value)}
                     className="onboarding-input"
                   />
-                  <div className="input-underline"></div>
                 </div>
               </div>
 
               <div className="input-group">
-                <label className="input-label">Lieu de naissance</label>
+                <label className="input-label">📍 Lieu de naissance</label>
                 <div className="input-wrapper">
                   <input
                     type="text"
                     value={birthLocation}
                     onChange={(e) => setBirthLocation(e.target.value)}
-                    placeholder="Ville, Pays"
+                    placeholder="Ex: Montréal, Canada"
                     className="onboarding-input"
                     maxLength={100}
                   />
-                  <div className="input-underline"></div>
                 </div>
               </div>
 
