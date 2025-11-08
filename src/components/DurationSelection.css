@@ -50,12 +50,6 @@
   max-width: 800px;
   width: 100%;
   margin-top: 4rem;
-  pointer-events: none;
-}
-
-/* Only interactive elements should capture pointer events */
-.duration-content button {
-  pointer-events: auto;
 }
 
 .duration-title {
