@@ -23,7 +23,7 @@ export const moods: Mood[] = [
     name: 'Anxieux / Inquiet',
     description: 'En alerte, anticipation négative',
     icon: '😰',
-    color: '#95A5A6'
+    color: '#6B7678'
   },
   {
     id: 'exhausted',
