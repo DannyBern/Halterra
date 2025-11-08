@@ -48,8 +48,20 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
-      onClick={handleBackgroundClick}
     >
+      {/* Clickable background overlay for fullscreen toggle */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 0
+        }}
+        onClick={handleBackgroundClick}
+      />
+
       <button className="back-button" onClick={onBack}>
         ← Retour
       </button>
