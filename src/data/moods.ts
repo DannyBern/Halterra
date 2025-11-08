@@ -30,7 +30,7 @@ export const moods: Mood[] = [
     name: 'Épuisé / Vidé',
     description: 'Réservoirs vides, besoin de repos',
     icon: '😴',
-    color: '#7F8C8D'
+    color: '#B8C5C9'
   },
   {
     id: 'sad',
