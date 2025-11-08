@@ -53,7 +53,8 @@
   pointer-events: none;
 }
 
-.duration-content > * {
+/* Only interactive elements should capture pointer events */
+.duration-content button {
   pointer-events: auto;
 }
 
