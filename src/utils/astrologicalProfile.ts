@@ -296,66 +296,66 @@ export function generateSignature(profile: AstrologicalProfile): string {
   // Descriptions de personnalité basées sur l'élément + énergie + yin/yang
   const personalityCore: Record<string, string> = {
     // FEU
-    'Feu-Extravertie-Yang': 'Vous êtes un catalyseur naturel qui transforme l\'énergie collective en action concrète',
-    'Feu-Extravertie-Yin': 'Votre flamme intérieure rayonne subtilement, inspirant les autres sans les consumer',
-    'Feu-Introvertie-Yang': 'Vous portez une forge intérieure qui forge vos convictions en acier trempé',
-    'Feu-Introvertie-Yin': 'Comme une braise qui couve, votre intensité se révèle dans la durée et la profondeur',
-    'Feu-Ambivertie-Yang': 'Vous alternez entre l\'éclair qui frappe et le feu qui réchauffe, selon le besoin du moment',
-    'Feu-Ambivertie-Yin': 'Votre chaleur s\'adapte : brasier collectif ou flamme solitaire, vous maîtrisez les deux',
+    'Feu-Extravertie-Yang': 'Vous mobilisez naturellement l\'énergie des groupes pour passer à l\'action',
+    'Feu-Extravertie-Yin': 'Votre motivation intérieure inspire les autres de manière subtile et durable',
+    'Feu-Introvertie-Yang': 'Vous développez vos convictions avec intensité et détermination personnelle',
+    'Feu-Introvertie-Yin': 'Votre force se construit progressivement et se révèle dans la constance',
+    'Feu-Ambivertie-Yang': 'Vous alternez entre action rapide et réflexion selon les circonstances',
+    'Feu-Ambivertie-Yin': 'Vous adaptez votre intensité entre engagement collectif et recentrage personnel',
 
     // TERRE
-    'Terre-Extravertie-Yang': 'Vous êtes un bâtisseur de ponts, créant des structures tangibles qui relient les gens',
-    'Terre-Extravertie-Yin': 'Tel un jardin partagé, vous cultivez la croissance collective avec patience et douceur',
-    'Terre-Introvertie-Yang': 'Vous êtes la montagne silencieuse dont la présence solide façonne le paysage',
-    'Terre-Introvertie-Yin': 'Comme une graine qui germe en secret, votre force se développe dans le silence fertile',
-    'Terre-Ambivertie-Yang': 'Vous savez quand planter en communauté et quand labourer votre propre terre',
-    'Terre-Ambivertie-Yin': 'Votre sagesse s\'ancre dans l\'équilibre entre enracinement solitaire et croissance partagée',
+    'Terre-Extravertie-Yang': 'Vous construisez activement des projets concrets qui rassemblent les gens',
+    'Terre-Extravertie-Yin': 'Vous développez patiemment des initiatives collectives avec méthode',
+    'Terre-Introvertie-Yang': 'Votre stabilité et votre présence structurent votre environnement',
+    'Terre-Introvertie-Yin': 'Vous cultivez votre développement personnel avec patience et discrétion',
+    'Terre-Ambivertie-Yang': 'Vous savez quand collaborer activement et quand avancer seul',
+    'Terre-Ambivertie-Yin': 'Vous équilibrez naturellement autonomie personnelle et engagement collectif',
 
     // AIR
-    'Air-Extravertie-Yang': 'Vous êtes le vent qui propage les idées et fait danser les esprits ensemble',
-    'Air-Extravertie-Yin': 'Tel un murmure qui porte loin, vos pensées circulent et touchent avec subtilité',
-    'Air-Introvertie-Yang': 'Vous êtes l\'architecte de cathédrales mentales, construisant en altitude et en solitude',
-    'Air-Introvertie-Yin': 'Comme l\'air rare des sommets, votre clarté d\'esprit se nourrit d\'espace et de silence',
-    'Air-Ambivertie-Yang': 'Vous oscillez entre le tourbillon social et l\'œil du cyclone, maître des deux altitudes',
-    'Air-Ambivertie-Yin': 'Votre intelligence navigue entre la légèreté du partage et la profondeur de la contemplation',
+    'Air-Extravertie-Yang': 'Vous partagez activement vos idées et stimulez les échanges intellectuels',
+    'Air-Extravertie-Yin': 'Vos réflexions circulent avec fluidité et influencent subtilement votre entourage',
+    'Air-Introvertie-Yang': 'Vous développez des analyses approfondies dans la solitude et la concentration',
+    'Air-Introvertie-Yin': 'Votre clarté mentale se nourrit d\'espace de réflexion et de recul',
+    'Air-Ambivertie-Yang': 'Vous alternez efficacement entre débats animés et réflexion solitaire',
+    'Air-Ambivertie-Yin': 'Votre pensée s\'adapte entre partage d\'idées et contemplation intérieure',
 
     // EAU
-    'Eau-Extravertie-Yang': 'Vous êtes la vague qui porte les autres, créant des courants d\'empathie collective',
-    'Eau-Extravertie-Yin': 'Tel un lac qui reflète chaque visage, vous absorbez et rendez la beauté émotionnelle',
-    'Eau-Introvertie-Yang': 'Vous plongez dans vos propres abysses avec le courage d\'un explorateur solitaire',
-    'Eau-Introvertie-Yin': 'Comme une source cachée, votre profondeur émotionnelle irrigue votre monde intérieur',
-    'Eau-Ambivertie-Yang': 'Vous êtes à la fois la rivière qui rejoint l\'océan et le puits qui creuse en soi',
-    'Eau-Ambivertie-Yin': 'Votre sensibilité fluide sait quand se répandre et quand se recueillir'
+    'Eau-Extravertie-Yang': 'Vous créez activement des liens émotionnels profonds avec votre entourage',
+    'Eau-Extravertie-Yin': 'Votre sensibilité perçoit et reflète les émotions des autres avec justesse',
+    'Eau-Introvertie-Yang': 'Vous explorez courageusement vos profondeurs émotionnelles en solitaire',
+    'Eau-Introvertie-Yin': 'Votre vie intérieure riche se développe dans l\'intimité et l\'introspection',
+    'Eau-Ambivertie-Yang': 'Vous savez quand vous connecter aux autres et quand explorer votre intériorité',
+    'Eau-Ambivertie-Yin': 'Votre sensibilité s\'ajuste entre connexion empathique et ressourcement personnel'
   };
 
   // Style d'action basé sur la qualité
   const actionStyle: Record<string, string> = {
-    'Cardinal': 'Vous êtes celui qui ouvre les portes que les autres hésitent à pousser',
-    'Fixe': 'Vous transformez l\'intention en réalité par la force tranquille de la persistance',
-    'Mutable': 'Vous dansez avec le changement, transformant chaque obstacle en opportunité'
+    'Cardinal': 'Vous prenez naturellement l\'initiative et lancez de nouveaux projets',
+    'Fixe': 'Vous menez vos projets à terme avec persévérance et stabilité',
+    'Mutable': 'Vous vous adaptez facilement aux changements et ajustez votre approche'
   };
 
   // Mission de vie basée sur le chemin de vie (sans le nommer)
   const lifeMission: Record<number, string> = {
-    1: 'Votre destinée vous appelle à tracer de nouveaux chemins là où d\'autres voient des impasses',
-    2: 'Vous êtes né pour tisser des liens là où règne la division',
-    3: 'Votre essence même est de transformer la vie en art et l\'ordinaire en célébration',
-    4: 'Vous êtes ici pour ériger ce qui durera bien après votre passage',
-    5: 'Votre âme réclame l\'exploration perpétuelle et la libération des conventions',
-    6: 'Vous portez le don de guérir les cœurs et d\'harmoniser les dissonances',
-    7: 'Vous êtes appelé à percer les mystères que d\'autres effleurent à peine',
-    8: 'Votre chemin consiste à maîtriser les forces du monde matériel et spirituel',
-    9: 'Vous êtes ici pour servir une cause plus grande que votre propre existence',
-    11: 'Vous portez une lumière qui peut éveiller la conscience collective',
-    22: 'Votre mission est de matérialiser des visions que d\'autres jugent impossibles',
-    33: 'Vous incarnez l\'amour en action et la sagesse au service de tous'
+    1: 'Vous êtes fait pour créer de nouvelles opportunités et ouvrir des voies inexplorées',
+    2: 'Votre rôle naturel est de créer des ponts et faciliter la coopération',
+    3: 'Vous êtes doué pour exprimer votre créativité et apporter de la joie',
+    4: 'Votre force est de construire des bases solides et durables',
+    5: 'Vous avez besoin de liberté, de variété et d\'exploration constante',
+    6: 'Vous excellez dans le soin aux autres et la création d\'harmonie',
+    7: 'Vous êtes attiré par l\'analyse profonde et la compréhension des mystères',
+    8: 'Vous avez le potentiel de maîtriser à la fois l\'abondance matérielle et spirituelle',
+    9: 'Votre accomplissement vient du service à une cause plus large',
+    11: 'Vous avez la capacité d\'inspirer et d\'éveiller les autres',
+    22: 'Vous pouvez concrétiser des projets d\'envergure considérable',
+    33: 'Votre mission combine enseignement, guérison et service universel'
   };
 
   // Construction de la signature fluide
   const coreKey = `${dominantElement}-${energyType}-${yinYang}`;
-  const core = personalityCore[coreKey] || 'Vous portez en vous une alchimie unique qui défie les catégories';
+  const core = personalityCore[coreKey] || 'Vous avez une approche unique qui combine plusieurs influences';
   const action = actionStyle[dominantQuality];
-  const mission = lifeMission[lifePath] || 'Votre chemin se révèle à chaque pas conscient';
+  const mission = lifeMission[lifePath] || 'Votre potentiel se révèle progressivement';
 
   return `${core}. ${action}. ${mission}.`;
 }
