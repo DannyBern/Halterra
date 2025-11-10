@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Mood, AstrologicalProfile } from '../types';
-import { generateMeditation, generateAudio as generateAudioAPI } from '../services/api';
+import { generateMeditation, generateAudio as generateAudioAPI, fetchLoadingQuote as fetchQuoteAPI } from '../services/api';
 import './Meditation.css';
 import './Meditation_Premium.css';
 
@@ -67,10 +67,7 @@ export default function Meditation({
 
   const fetchLoadingQuote = async () => {
     try {
-      const response = await fetch('https://halterra-backend-i3s4okq80-dannys-projects-ff6db2ea.vercel.app/api/quote', {
-        cache: 'no-cache'
-      });
-      const data = await response.json();
+      const data = await fetchQuoteAPI();
       setLoadingQuote(data);
     } catch (error) {
       console.warn('Failed to fetch loading quote');

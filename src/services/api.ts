@@ -71,3 +71,26 @@ export async function generateAudio(
   // Retourner directement le base64 comme data URL
   return `data:audio/mpeg;base64,${data.audio}`;
 }
+
+export async function fetchLoadingQuote(): Promise<{ quote: string; author: string }> {
+  // Récupère une citation inspirante pour l'écran de chargement
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/quote`, {
+      cache: 'no-cache'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch loading quote');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.warn('Failed to fetch loading quote, using fallback');
+    // Fallback local si l'API ne répond pas
+    return {
+      quote: "Respire profondément et laisse le moment se déployer",
+      author: "Halterra"
+    };
+  }
+}
