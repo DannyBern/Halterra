@@ -279,77 +279,85 @@ export function calculateEnergyType(
 
 /**
  * Génère une signature personnalisée basée sur l'analyse croisée complète
- * Utilise TOUTES les informations du profil pour créer une description riche et nuancée
+ * Crée une description surprenante et fluide de l'utilisateur sans nommer les signes
  */
 export function generateSignature(profile: AstrologicalProfile): string {
   const {
-    sunSign,
-    moonSign,
-    ascendant,
-    chineseZodiac,
-    chineseElement,
-    yinYang,
-    lifePath,
     dominantElement,
     dominantQuality,
-    energyType
+    energyType,
+    yinYang,
+    lifePath
   } = profile;
 
-  // Construction d'une signature riche et personnalisée
-  const parts: string[] = [];
+  // Signatures complexes basées sur la combinaison de TOUS les attributs
+  // Format: Element-Quality-Energy-YinYang-LifePath
 
-  // 1. Intro basée sur l'élément dominant + énergie (phrase principale)
-  const coreSignatures: Record<string, string> = {
-    'Feu-Extravertie': 'Vous êtes une personne d\'action qui inspire les autres',
-    'Feu-Introvertie': 'Votre motivation vient de l\'intérieur, vous poursuivez vos objectifs avec détermination',
-    'Feu-Ambivertie': 'Vous alternez entre moments d\'action intense et réflexion personnelle',
-    'Terre-Extravertie': 'Vous êtes une personne fiable qui construit du concret avec les autres',
-    'Terre-Introvertie': 'Vous prenez votre temps pour analyser et planifier méthodiquement',
-    'Terre-Ambivertie': 'Vous équilibrez patience et sociabilité avec sagesse',
-    'Air-Extravertie': 'Vous aimez échanger des idées et connecter avec les gens',
-    'Air-Introvertie': 'Vous êtes un penseur qui observe et analyse avec recul',
-    'Air-Ambivertie': 'Vous savez quand partager vos réflexions et quand prendre du recul',
-    'Eau-Extravertie': 'Vous ressentez les autres profondément et créez des liens authentiques',
-    'Eau-Introvertie': 'Vous écoutez vos émotions et suivez votre intuition profonde',
-    'Eau-Ambivertie': 'Vous alternez entre connexion émotionnelle et introspection'
+  // Descriptions de personnalité basées sur l'élément + énergie + yin/yang
+  const personalityCore: Record<string, string> = {
+    // FEU
+    'Feu-Extravertie-Yang': 'Vous êtes un catalyseur naturel qui transforme l\'énergie collective en action concrète',
+    'Feu-Extravertie-Yin': 'Votre flamme intérieure rayonne subtilement, inspirant les autres sans les consumer',
+    'Feu-Introvertie-Yang': 'Vous portez une forge intérieure qui forge vos convictions en acier trempé',
+    'Feu-Introvertie-Yin': 'Comme une braise qui couve, votre intensité se révèle dans la durée et la profondeur',
+    'Feu-Ambivertie-Yang': 'Vous alternez entre l\'éclair qui frappe et le feu qui réchauffe, selon le besoin du moment',
+    'Feu-Ambivertie-Yin': 'Votre chaleur s\'adapte : brasier collectif ou flamme solitaire, vous maîtrisez les deux',
+
+    // TERRE
+    'Terre-Extravertie-Yang': 'Vous êtes un bâtisseur de ponts, créant des structures tangibles qui relient les gens',
+    'Terre-Extravertie-Yin': 'Tel un jardin partagé, vous cultivez la croissance collective avec patience et douceur',
+    'Terre-Introvertie-Yang': 'Vous êtes la montagne silencieuse dont la présence solide façonne le paysage',
+    'Terre-Introvertie-Yin': 'Comme une graine qui germe en secret, votre force se développe dans le silence fertile',
+    'Terre-Ambivertie-Yang': 'Vous savez quand planter en communauté et quand labourer votre propre terre',
+    'Terre-Ambivertie-Yin': 'Votre sagesse s\'ancre dans l\'équilibre entre enracinement solitaire et croissance partagée',
+
+    // AIR
+    'Air-Extravertie-Yang': 'Vous êtes le vent qui propage les idées et fait danser les esprits ensemble',
+    'Air-Extravertie-Yin': 'Tel un murmure qui porte loin, vos pensées circulent et touchent avec subtilité',
+    'Air-Introvertie-Yang': 'Vous êtes l\'architecte de cathédrales mentales, construisant en altitude et en solitude',
+    'Air-Introvertie-Yin': 'Comme l\'air rare des sommets, votre clarté d\'esprit se nourrit d\'espace et de silence',
+    'Air-Ambivertie-Yang': 'Vous oscillez entre le tourbillon social et l\'œil du cyclone, maître des deux altitudes',
+    'Air-Ambivertie-Yin': 'Votre intelligence navigue entre la légèreté du partage et la profondeur de la contemplation',
+
+    // EAU
+    'Eau-Extravertie-Yang': 'Vous êtes la vague qui porte les autres, créant des courants d\'empathie collective',
+    'Eau-Extravertie-Yin': 'Tel un lac qui reflète chaque visage, vous absorbez et rendez la beauté émotionnelle',
+    'Eau-Introvertie-Yang': 'Vous plongez dans vos propres abysses avec le courage d\'un explorateur solitaire',
+    'Eau-Introvertie-Yin': 'Comme une source cachée, votre profondeur émotionnelle irrigue votre monde intérieur',
+    'Eau-Ambivertie-Yang': 'Vous êtes à la fois la rivière qui rejoint l\'océan et le puits qui creuse en soi',
+    'Eau-Ambivertie-Yin': 'Votre sensibilité fluide sait quand se répandre et quand se recueillir'
   };
 
-  const coreKey = `${dominantElement}-${energyType}`;
-  parts.push(coreSignatures[coreKey] || 'Vous avez une approche unique de la vie');
-
-  // 2. Nuance apportée par la qualité dominante (style d'action)
-  const qualityNuances: Record<string, string> = {
-    'Cardinal': 'avec une capacité naturelle à initier et diriger',
-    'Fixe': 'avec une persévérance et une stabilité remarquables',
-    'Mutable': 'en adaptant votre approche selon le contexte'
+  // Style d'action basé sur la qualité
+  const actionStyle: Record<string, string> = {
+    'Cardinal': 'Vous êtes celui qui ouvre les portes que les autres hésitent à pousser',
+    'Fixe': 'Vous transformez l\'intention en réalité par la force tranquille de la persistance',
+    'Mutable': 'Vous dansez avec le changement, transformant chaque obstacle en opportunité'
   };
-  parts.push(qualityNuances[dominantQuality]);
 
-  // 3. Influence de l'astrologie chinoise (approche philosophique)
-  const yinYangInfluence = yinYang === 'Yang' ? 'de manière active et directe' : 'avec réceptivité et subtilité';
-  parts.push(`Votre nature de ${chineseZodiac} ${chineseElement} ${yinYang} vous pousse à agir ${yinYangInfluence}`);
-
-  // 4. Ajout du trio occidental (personnalité/émotions/apparence)
-  parts.push(`Votre ${sunSign} solaire guide votre identité, votre ${moonSign} lunaire colore vos émotions, et votre ${ascendant} ascendant façonne comment vous apparaissez au monde`);
-
-  // 5. Chemin de vie (direction spirituelle)
-  const lifePathMeanings: Record<number, string> = {
-    1: 'En tant que chemin de vie 1, vous êtes appelé à développer votre leadership et votre indépendance',
-    2: 'En tant que chemin de vie 2, vous êtes appelé à cultiver l\'harmonie et la coopération',
-    3: 'En tant que chemin de vie 3, vous êtes appelé à exprimer votre créativité et votre joie',
-    4: 'En tant que chemin de vie 4, vous êtes appelé à construire des fondations solides et durables',
-    5: 'En tant que chemin de vie 5, vous êtes appelé à embrasser le changement et la liberté',
-    6: 'En tant que chemin de vie 6, vous êtes appelé à nourrir et harmoniser votre entourage',
-    7: 'En tant que chemin de vie 7, vous êtes appelé à approfondir votre sagesse intérieure',
-    8: 'En tant que chemin de vie 8, vous êtes appelé à maîtriser l\'abondance et le pouvoir personnel',
-    9: 'En tant que chemin de vie 9, vous êtes appelé à servir l\'humanité avec compassion',
-    11: 'En tant que chemin de vie 11, vous êtes appelé à inspirer et illuminer les autres',
-    22: 'En tant que chemin de vie 22, vous êtes appelé à manifester des visions grandioses',
-    33: 'En tant que chemin de vie 33, vous êtes appelé à enseigner et guérir avec amour universel'
+  // Mission de vie basée sur le chemin de vie (sans le nommer)
+  const lifeMission: Record<number, string> = {
+    1: 'Votre destinée vous appelle à tracer de nouveaux chemins là où d\'autres voient des impasses',
+    2: 'Vous êtes né pour tisser des liens là où règne la division',
+    3: 'Votre essence même est de transformer la vie en art et l\'ordinaire en célébration',
+    4: 'Vous êtes ici pour ériger ce qui durera bien après votre passage',
+    5: 'Votre âme réclame l\'exploration perpétuelle et la libération des conventions',
+    6: 'Vous portez le don de guérir les cœurs et d\'harmoniser les dissonances',
+    7: 'Vous êtes appelé à percer les mystères que d\'autres effleurent à peine',
+    8: 'Votre chemin consiste à maîtriser les forces du monde matériel et spirituel',
+    9: 'Vous êtes ici pour servir une cause plus grande que votre propre existence',
+    11: 'Vous portez une lumière qui peut éveiller la conscience collective',
+    22: 'Votre mission est de matérialiser des visions que d\'autres jugent impossibles',
+    33: 'Vous incarnez l\'amour en action et la sagesse au service de tous'
   };
-  parts.push(lifePathMeanings[lifePath] || `Votre chemin de vie ${lifePath} guide votre destinée`);
 
-  return parts.join('. ') + '.';
+  // Construction de la signature fluide
+  const coreKey = `${dominantElement}-${energyType}-${yinYang}`;
+  const core = personalityCore[coreKey] || 'Vous portez en vous une alchimie unique qui défie les catégories';
+  const action = actionStyle[dominantQuality];
+  const mission = lifeMission[lifePath] || 'Votre chemin se révèle à chaque pas conscient';
+
+  return `${core}. ${action}. ${mission}.`;
 }
 
 /**
