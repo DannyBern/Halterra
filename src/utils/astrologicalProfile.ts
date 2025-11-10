@@ -279,35 +279,77 @@ export function calculateEnergyType(
 
 /**
  * Génère une signature personnalisée basée sur l'analyse croisée complète
+ * Utilise TOUTES les informations du profil pour créer une description riche et nuancée
  */
 export function generateSignature(profile: AstrologicalProfile): string {
-  const { sunSign, moonSign, ascendant, chineseZodiac, dominantElement, energyType } = profile;
+  const {
+    sunSign,
+    moonSign,
+    ascendant,
+    chineseZodiac,
+    chineseElement,
+    yinYang,
+    lifePath,
+    dominantElement,
+    dominantQuality,
+    energyType
+  } = profile;
 
-  // Signatures pragmatiques basées sur traits de personnalité concrets
-  const signatures: Record<string, string> = {
-    // Feu dominant - Action, initiative, spontanéité
-    'Feu-Extravertie': 'Vous êtes une personne d\'action qui inspire les autres. Vous avancez avec confiance et spontanéité.',
-    'Feu-Introvertie': 'Votre motivation vient de l\'intérieur. Vous poursuivez vos objectifs avec détermination et indépendance.',
-    'Feu-Ambivertie': 'Vous alternez entre moments d\'action intense et réflexion personnelle, adaptant votre approche selon le contexte.',
+  // Construction d'une signature riche et personnalisée
+  const parts: string[] = [];
 
-    // Terre dominant - Stabilité, pragmatisme, constance
-    'Terre-Extravertie': 'Vous êtes une personne fiable qui construit du concret. Vous aimez collaborer sur des projets tangibles.',
-    'Terre-Introvertie': 'Vous prenez votre temps pour analyser et planifier. Votre approche méthodique est votre atout.',
-    'Terre-Ambivertie': 'Vous équilibrez patience et sociabilité, sachant quand persévérer seul ou demander de l\'aide.',
-
-    // Air dominant - Réflexion, communication, curiosité
-    'Air-Extravertie': 'Vous aimez échanger des idées et connecter avec les gens. La communication est votre force.',
-    'Air-Introvertie': 'Vous êtes un penseur qui observe et analyse. Vous comprenez les situations avec recul et clarté.',
-    'Air-Ambivertie': 'Vous savez quand partager vos réflexions et quand prendre du recul pour mieux comprendre.',
-
-    // Eau dominant - Empathie, intuition, sensibilité
-    'Eau-Extravertie': 'Vous ressentez les autres profondément et créez des liens authentiques. Votre empathie est naturelle.',
-    'Eau-Introvertie': 'Vous écoutez vos émotions et suivez votre intuition. Votre vie intérieure est riche et profonde.',
-    'Eau-Ambivertie': 'Vous alternez entre connexion émotionnelle avec les autres et introspection personnelle.'
+  // 1. Intro basée sur l'élément dominant + énergie (phrase principale)
+  const coreSignatures: Record<string, string> = {
+    'Feu-Extravertie': 'Vous êtes une personne d\'action qui inspire les autres',
+    'Feu-Introvertie': 'Votre motivation vient de l\'intérieur, vous poursuivez vos objectifs avec détermination',
+    'Feu-Ambivertie': 'Vous alternez entre moments d\'action intense et réflexion personnelle',
+    'Terre-Extravertie': 'Vous êtes une personne fiable qui construit du concret avec les autres',
+    'Terre-Introvertie': 'Vous prenez votre temps pour analyser et planifier méthodiquement',
+    'Terre-Ambivertie': 'Vous équilibrez patience et sociabilité avec sagesse',
+    'Air-Extravertie': 'Vous aimez échanger des idées et connecter avec les gens',
+    'Air-Introvertie': 'Vous êtes un penseur qui observe et analyse avec recul',
+    'Air-Ambivertie': 'Vous savez quand partager vos réflexions et quand prendre du recul',
+    'Eau-Extravertie': 'Vous ressentez les autres profondément et créez des liens authentiques',
+    'Eau-Introvertie': 'Vous écoutez vos émotions et suivez votre intuition profonde',
+    'Eau-Ambivertie': 'Vous alternez entre connexion émotionnelle et introspection'
   };
 
-  const key = `${dominantElement}-${energyType}`;
-  return signatures[key] || `${sunSign} Soleil, ${moonSign} Lune, ${ascendant} Ascendant. ${chineseZodiac} de ${profile.chineseElement}. Honorez votre unicité.`;
+  const coreKey = `${dominantElement}-${energyType}`;
+  parts.push(coreSignatures[coreKey] || 'Vous avez une approche unique de la vie');
+
+  // 2. Nuance apportée par la qualité dominante (style d'action)
+  const qualityNuances: Record<string, string> = {
+    'Cardinal': 'avec une capacité naturelle à initier et diriger',
+    'Fixe': 'avec une persévérance et une stabilité remarquables',
+    'Mutable': 'en adaptant votre approche selon le contexte'
+  };
+  parts.push(qualityNuances[dominantQuality]);
+
+  // 3. Influence de l'astrologie chinoise (approche philosophique)
+  const yinYangInfluence = yinYang === 'Yang' ? 'de manière active et directe' : 'avec réceptivité et subtilité';
+  parts.push(`Votre nature de ${chineseZodiac} ${chineseElement} ${yinYang} vous pousse à agir ${yinYangInfluence}`);
+
+  // 4. Ajout du trio occidental (personnalité/émotions/apparence)
+  parts.push(`Votre ${sunSign} solaire guide votre identité, votre ${moonSign} lunaire colore vos émotions, et votre ${ascendant} ascendant façonne comment vous apparaissez au monde`);
+
+  // 5. Chemin de vie (direction spirituelle)
+  const lifePathMeanings: Record<number, string> = {
+    1: 'En tant que chemin de vie 1, vous êtes appelé à développer votre leadership et votre indépendance',
+    2: 'En tant que chemin de vie 2, vous êtes appelé à cultiver l\'harmonie et la coopération',
+    3: 'En tant que chemin de vie 3, vous êtes appelé à exprimer votre créativité et votre joie',
+    4: 'En tant que chemin de vie 4, vous êtes appelé à construire des fondations solides et durables',
+    5: 'En tant que chemin de vie 5, vous êtes appelé à embrasser le changement et la liberté',
+    6: 'En tant que chemin de vie 6, vous êtes appelé à nourrir et harmoniser votre entourage',
+    7: 'En tant que chemin de vie 7, vous êtes appelé à approfondir votre sagesse intérieure',
+    8: 'En tant que chemin de vie 8, vous êtes appelé à maîtriser l\'abondance et le pouvoir personnel',
+    9: 'En tant que chemin de vie 9, vous êtes appelé à servir l\'humanité avec compassion',
+    11: 'En tant que chemin de vie 11, vous êtes appelé à inspirer et illuminer les autres',
+    22: 'En tant que chemin de vie 22, vous êtes appelé à manifester des visions grandioses',
+    33: 'En tant que chemin de vie 33, vous êtes appelé à enseigner et guérir avec amour universel'
+  };
+  parts.push(lifePathMeanings[lifePath] || `Votre chemin de vie ${lifePath} guide votre destinée`);
+
+  return parts.join('. ') + '.';
 }
 
 /**
