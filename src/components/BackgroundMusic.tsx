@@ -10,6 +10,7 @@ export default function BackgroundMusic({ shouldFadeOut, onFadeComplete, isMuted
   const audioRef = useRef<HTMLAudioElement>(null);
   const [volume, setVolume] = useState(0.3); // Volume initial à 30% pour ne pas être trop fort
   const fadeIntervalRef = useRef<number | null>(null);
+  const [hasStarted, setHasStarted] = useState(false);
 
   // Sélectionner aléatoirement l'une des deux musiques au montage
   const [musicTrack] = useState(() => {
@@ -26,22 +27,43 @@ export default function BackgroundMusic({ shouldFadeOut, onFadeComplete, isMuted
     audio.loop = true;
     audio.preload = 'auto';
 
-    // Démarrer la lecture automatiquement
-    const playPromise = audio.play();
+    // Fonction pour démarrer la musique lors de la première interaction
+    const startMusic = async () => {
+      if (!hasStarted) {
+        try {
+          await audio.play();
+          setHasStarted(true);
+          console.log('🎵 Musique d\'ambiance démarrée');
+          // Retirer les listeners après le premier succès
+          document.removeEventListener('click', startMusic);
+          document.removeEventListener('touchstart', startMusic);
+          document.removeEventListener('keydown', startMusic);
+        } catch (error) {
+          console.log('Tentative de lecture échouée, nouvelle tentative à la prochaine interaction');
+        }
+      }
+    };
 
-    if (playPromise !== undefined) {
-      playPromise.catch(error => {
-        console.log('Autoplay bloqué, attente interaction utilisateur:', error);
-      });
-    }
+    // Ajouter les listeners pour toutes les interactions possibles
+    document.addEventListener('click', startMusic);
+    document.addEventListener('touchstart', startMusic);
+    document.addEventListener('keydown', startMusic);
+
+    // Tenter autoplay immédiat (fonctionne sur certains navigateurs)
+    audio.play().catch(() => {
+      console.log('Autoplay bloqué, musique démarrera à la première interaction');
+    });
 
     return () => {
+      document.removeEventListener('click', startMusic);
+      document.removeEventListener('touchstart', startMusic);
+      document.removeEventListener('keydown', startMusic);
       if (fadeIntervalRef.current) {
         clearInterval(fadeIntervalRef.current);
       }
       audio.pause();
     };
-  }, [volume]); // Dépendance: volume initial
+  }, [volume, hasStarted]); // Dépendances: volume initial + hasStarted
 
   // Handle mute/unmute
   useEffect(() => {
@@ -137,6 +159,7 @@ export default function BackgroundMusic({ shouldFadeOut, onFadeComplete, isMuted
       ref={audioRef}
       src={musicTrack}
       preload="auto"
+      crossOrigin="anonymous"
     />
   );
 }
