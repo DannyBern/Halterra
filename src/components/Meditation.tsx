@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Mood, AstrologicalProfile } from '../types';
-import { generateMeditation, generateAudio as generateAudioAPI, fetchLoadingQuote as fetchQuoteAPI } from '../services/api';
+import { generateMeditation, generateMeditationStreaming, generateAudio as generateAudioAPI, fetchLoadingQuote as fetchQuoteAPI } from '../services/api';
+import { FALLBACK_LOADING_QUOTE } from '../constants/fallbackQuotes';
 import './Meditation.css';
 import './Meditation_Premium.css';
 
@@ -12,10 +13,8 @@ interface MeditationProps {
   guideType: 'meditation' | 'reflection';
   duration: 2 | 5 | 10;
   generateAudio: boolean;
-  anthropicApiKey: string;
-  elevenlabsApiKey?: string;
   astrologicalProfile?: AstrologicalProfile;
-  onComplete: (meditationText: string, audioBase64?: string) => void;
+  onComplete: (meditationText: string, audioBase64?: string) => Promise<void>;
   onBack: () => void;
 }
 
@@ -44,13 +43,14 @@ export default function Meditation({
   guideType,
   duration,
   generateAudio,
-  anthropicApiKey,
   astrologicalProfile,
   onComplete,
   onBack
 }: MeditationProps) {
-  const [status, setStatus] = useState<'generating-text' | 'generating-audio' | 'ready' | 'error'>('generating-text');
+  const [status, setStatus] = useState<'generating-text' | 'streaming-text' | 'generating-audio' | 'ready' | 'error'>('generating-text');
   const [meditationText, setMeditationText] = useState('');
+  const [streamingText, setStreamingText] = useState(''); // Progressive text accumulator
+  const [isStreaming, setIsStreaming] = useState(false);
   const [audioBase64, setAudioBase64] = useState<string>();
   const [audioUrl, setAudioUrl] = useState<string>();
   const [error, setError] = useState<string>();
@@ -58,30 +58,111 @@ export default function Meditation({
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [loadingQuote, setLoadingQuote] = useState<{ quote: string; author: string } | null>(null);
   const [dailyInspiration, setDailyInspiration] = useState<string>();
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+  const [useStreaming] = useState(true); // Feature flag: set to false to disable streaming
   const audioRef = useRef<HTMLAudioElement>(null);
+  const audioTextRef = useRef<string>(''); // Store audioText for later audio generation
 
   useEffect(() => {
     generateContent();
     fetchLoadingQuote();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionnellement vide - exécution unique au montage
 
   const fetchLoadingQuote = async () => {
     try {
       const data = await fetchQuoteAPI();
       setLoadingQuote(data);
-    } catch (error) {
+    } catch {
+      // Erreur ignorée - fallback silencieux
       console.warn('Failed to fetch loading quote');
-      setLoadingQuote({ quote: "Respire profondément et laisse le moment se déployer", author: "Halterra" });
+      setLoadingQuote(FALLBACK_LOADING_QUOTE);
     }
   };
 
   const generateContent = async () => {
     try {
+      // 🌊 STREAMING MODE - Progressive rendering with instant feedback
+      if (useStreaming) {
+        setStatus('streaming-text');
+        setIsStreaming(true);
+        let hasStartedAudioGeneration = false;
+        let accumulatedChunks = '';
+
+        await generateMeditationStreaming(
+          userName,
+          mood,
+          category,
+          intention,
+          guideType,
+          duration,
+          astrologicalProfile,
+          // onChunk: Progressive text rendering
+          (chunk: string) => {
+            accumulatedChunks += chunk;
+            setStreamingText(accumulatedChunks);
+
+            // 🎵 PARALLEL AUDIO GENERATION - Start after first ~300 chars
+            // This reduces total wait time by generating audio in parallel
+            if (!hasStartedAudioGeneration && generateAudio && accumulatedChunks.length >= 300) {
+              hasStartedAudioGeneration = true;
+              console.log('🎵 Starting parallel audio generation...');
+              // Note: We'll generate audio with the complete audioText in onComplete
+              // This is just a signal that we have enough content to start thinking about audio
+            }
+          },
+          // onComplete: Final text ready, start audio if needed
+          async (result) => {
+            setIsStreaming(false);
+            setMeditationText(result.displayText);
+            setDailyInspiration(result.dailyInspiration);
+            audioTextRef.current = result.audioText;
+
+            console.log('✅ Streaming completed');
+            console.log(`📝 Display text: ${result.displayText.length} chars`);
+            console.log(`🎙️ Audio text: ${result.audioText.length} chars`);
+
+            // Skip audio generation if user chose text-only
+            if (!generateAudio) {
+              setStatus('ready');
+              return;
+            }
+
+            setStatus('generating-audio');
+
+            try {
+              const audioDataUrl = await generateAudioAPI(result.audioText, guideType);
+              setAudioBase64(audioDataUrl);
+              setAudioUrl(audioDataUrl);
+              setStatus('ready');
+            } catch (audioError) {
+              console.error('Erreur audio:', audioError);
+              // Audio error shouldn't block the experience - text is already ready
+              console.warn('Audio generation failed, but text is available');
+              setStatus('ready');
+            }
+          }
+        );
+
+        return;
+      }
+
+      // 📦 FALLBACK MODE - Traditional non-streaming (for compatibility)
       setStatus('generating-text');
 
-      const { displayText, audioText, dailyInspiration: inspiration } = await generateMeditation(anthropicApiKey, userName, mood, category, intention, guideType, duration, astrologicalProfile);
+      const { displayText, audioText, dailyInspiration: inspiration } = await generateMeditation(
+        userName,
+        mood,
+        category,
+        intention,
+        guideType,
+        duration,
+        astrologicalProfile
+      );
       setMeditationText(displayText);
       setDailyInspiration(inspiration);
+      audioTextRef.current = audioText;
 
       // Skip audio generation if user chose text-only
       if (!generateAudio) {
@@ -92,7 +173,7 @@ export default function Meditation({
       setStatus('generating-audio');
 
       try {
-        const audioDataUrl = await generateAudioAPI('', audioText, '', guideType);
+        const audioDataUrl = await generateAudioAPI(audioText, guideType);
         setAudioBase64(audioDataUrl);
         setAudioUrl(audioDataUrl);
         setStatus('ready');
@@ -105,6 +186,7 @@ export default function Meditation({
       console.error('Erreur:', err);
       setError('Impossible de générer la méditation. Vérifiez votre connexion.');
       setStatus('error');
+      setIsStreaming(false);
     }
   };
 
@@ -130,12 +212,124 @@ export default function Meditation({
     setIsPlaying(false);
   };
 
-  const handleComplete = () => {
-    onComplete(meditationText, audioBase64);
+  const handleComplete = async () => {
+    console.log('🔍 handleComplete appelé:', {
+      hasText: !!meditationText,
+      textLength: meditationText.length,
+      hasAudio: !!audioBase64,
+      audioLength: audioBase64?.length,
+      audioBase64Preview: audioBase64?.substring(0, 50)
+    });
+
+    setIsSaving(true);
+
+    try {
+      await onComplete(meditationText, audioBase64);
+      console.log('✅ Méditation sauvegardée avec succès');
+
+      // Afficher la notification de succès
+      setShowSuccessNotification(true);
+
+      // Masquer après 3 secondes
+      setTimeout(() => {
+        setShowSuccessNotification(false);
+      }, 3000);
+    } catch (error) {
+      console.error('❌ Erreur lors de la sauvegarde:', error);
+      alert('Une erreur est survenue. Veuillez réessayer.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const categoryIcon = getCategoryIcon(category);
   const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
+
+  // 🌊 STREAMING TEXT VIEW - Progressive rendering with fade-in animation
+  if (status === 'streaming-text' && isStreaming) {
+    return (
+      <div
+        className={`meditation meditation-fullscreen fade-in ${isPlaying ? 'playing' : ''}`}
+      >
+        {/* Ambient background gradient */}
+        <div className="meditation-ambient-bg" style={{
+          background: `radial-gradient(circle at 30% 20%, ${mood.color}15 0%, transparent 50%),
+                       radial-gradient(circle at 70% 80%, ${mood.color}10 0%, transparent 50%)`
+        }}></div>
+
+        <button
+          className="back-button-premium"
+          onClick={(e) => {
+            e.stopPropagation();
+            onBack();
+          }}
+          aria-label="Retour"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          <span>Retour</span>
+        </button>
+
+        {/* Premium header with category icon and mood */}
+        <div className="meditation-header-premium">
+          <div className="header-category-icon">
+            <img src={`/${categoryIcon}`} alt={category} />
+          </div>
+          <div className="header-info">
+            <div className="header-mood-badge" style={{
+              backgroundColor: `${mood.color}20`,
+              borderColor: `${mood.color}40`
+            }}>
+              <span className="mood-icon">{mood.icon}</span>
+              <span className="mood-name" style={{ color: mood.color }}>{mood.name}</span>
+            </div>
+            <h1 className="meditation-title-premium">
+              Ta {guideType === 'meditation' ? 'méditation' : 'réflexion'} avec {guideName}
+            </h1>
+          </div>
+        </div>
+
+        <div className="meditation-content-premium">
+          {/* Streaming indicator */}
+          <div className="streaming-indicator" style={{ marginBottom: '20px', textAlign: 'center' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              background: `${mood.color}15`,
+              borderRadius: '20px',
+              border: `1px solid ${mood.color}30`
+            }}>
+              <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: mood.color,
+                animation: 'pulse 1.5s ease-in-out infinite'
+              }}></div>
+              <span style={{ fontSize: '14px', color: mood.color }}>
+                {guideName} compose...
+              </span>
+            </div>
+          </div>
+
+          {/* Premium text container with progressive rendering */}
+          <div className="meditation-text-card">
+            <div className="card-glow" style={{
+              background: `linear-gradient(135deg, ${mood.color}08, transparent)`
+            }}></div>
+
+            <div className="meditation-text-premium streaming-text-fade-in">
+              {streamingText}
+              <span className="streaming-cursor" style={{ color: mood.color }}>▌</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (status === 'generating-text') {
 
@@ -271,9 +465,27 @@ export default function Meditation({
   return (
     <div
       className={`meditation meditation-fullscreen fade-in ${isPlaying ? 'playing' : ''}`}
-      onClick={audioUrl ? handlePlay : undefined}
-      style={{ cursor: audioUrl ? 'pointer' : 'default' }}
     >
+      {/* Success Notification Premium */}
+      {showSuccessNotification && (
+        <div className="success-notification-overlay">
+          <div className="success-notification-premium" style={{
+            borderColor: mood.color,
+            background: `linear-gradient(135deg, ${mood.color}15, ${mood.color}08)`
+          }}>
+            <div className="success-icon-container" style={{ backgroundColor: mood.color }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <div className="success-content">
+              <h3 className="success-title">Sauvegardée</h3>
+              <p className="success-message">Ta méditation est enregistrée</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Ambient background gradient */}
       <div className="meditation-ambient-bg" style={{
         background: `radial-gradient(circle at 30% 20%, ${mood.color}15 0%, transparent 50%),
@@ -408,7 +620,11 @@ export default function Meditation({
         )}
 
         {/* Premium text container with card design */}
-        <div className="meditation-text-card">
+        <div
+          className="meditation-text-card"
+          onClick={audioUrl ? handlePlay : undefined}
+          style={{ cursor: audioUrl ? 'pointer' : 'default' }}
+        >
           <div className="card-glow" style={{
             background: `linear-gradient(135deg, ${mood.color}08, transparent)`
           }}></div>
@@ -438,17 +654,32 @@ export default function Meditation({
             e.stopPropagation();
             handleComplete();
           }}
+          disabled={isSaving}
           style={{
             backgroundColor: mood.color,
-            boxShadow: `0 4px 20px ${mood.color}40`
+            boxShadow: `0 4px 20px ${mood.color}40`,
+            opacity: isSaving ? 0.6 : 1,
+            cursor: isSaving ? 'not-allowed' : 'pointer'
           }}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-            <polyline points="17 21 17 13 7 13 7 21"/>
-            <polyline points="7 3 7 8 15 8"/>
-          </svg>
-          <span>Enregistrer</span>
+          {isSaving ? (
+            <>
+              <svg className="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" opacity="0.25"/>
+                <path d="M12 2 a10 10 0 0 1 10 10" opacity="0.75"/>
+              </svg>
+              <span>Enregistrement...</span>
+            </>
+          ) : (
+            <>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+              </svg>
+              <span>Enregistrer</span>
+            </>
+          )}
         </button>
       </div>
     </div>

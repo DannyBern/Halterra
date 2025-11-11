@@ -576,3 +576,64 @@
     padding: 1.15rem 2rem;
   }
 }
+
+/* ============================================
+   STREAMING MODE - Progressive Rendering
+   ============================================ */
+
+/* Streaming text with smooth fade-in */
+.streaming-text-fade-in {
+  animation: streamTextFadeIn 0.6s ease-out;
+}
+
+@keyframes streamTextFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Blinking cursor for streaming effect */
+.streaming-cursor {
+  display: inline-block;
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+  font-weight: 300;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Streaming indicator pulse animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+/* Smooth appearance of streaming container */
+.streaming-indicator {
+  animation: slideDown 0.4s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,10 +1,127 @@
 import type { Mood, AstrologicalProfile } from '../types';
+import { FALLBACK_LOADING_QUOTE } from '../constants/fallbackQuotes';
 
 // URL du backend Vercel sécurisé - Utilise l'alias principal
 const BACKEND_URL = 'https://halterra-backend.vercel.app';
 
+/**
+ * Audio Request Cache
+ *
+ * Prevents duplicate API calls when the same audio is requested multiple times.
+ * Stores in-flight promises to deduplicate concurrent requests.
+ * TTL: 5 minutes (after which cache entries are automatically cleared)
+ */
+const audioCache = new Map<string, Promise<string>>();
+
+/**
+ * Generates a cache key from audio generation parameters
+ * Uses first 100 chars of text + guideType to balance uniqueness and key length
+ */
+function generateAudioCacheKey(text: string, guideType: string): string {
+  return `${text.substring(0, 100)}_${guideType}`;
+}
+
+/**
+ * Generates meditation content with progressive streaming
+ * Provides real-time text rendering as tokens arrive from Claude
+ *
+ * @param onChunk - Callback invoked for each text chunk (progressive rendering)
+ * @param onComplete - Callback invoked when generation completes with full text
+ * @returns Promise that resolves when streaming completes
+ */
+export async function generateMeditationStreaming(
+  userName: string,
+  mood: Mood,
+  category: string,
+  intention: string,
+  guideType: 'meditation' | 'reflection' = 'meditation',
+  duration: 2 | 5 | 10 = 5,
+  astrologicalProfile: AstrologicalProfile | undefined,
+  onChunk: (chunk: string) => void,
+  onComplete: (result: { displayText: string; audioText: string; dailyInspiration?: string }) => void
+): Promise<void> {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/meditation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userName,
+        mood,
+        category,
+        intention,
+        guideType,
+        duration,
+        astrologicalProfile,
+        stream: true  // Enable streaming mode
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la génération de la méditation');
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('Streaming not supported');
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      // Decode chunk and add to buffer
+      buffer += decoder.decode(value, { stream: true });
+
+      // Process complete SSE messages (delimited by \n\n)
+      const messages = buffer.split('\n\n');
+      buffer = messages.pop() || ''; // Keep incomplete message in buffer
+
+      for (const message of messages) {
+        if (!message.trim() || !message.startsWith('data: ')) {
+          continue;
+        }
+
+        try {
+          const jsonData = message.replace(/^data: /, '');
+          const parsed = JSON.parse(jsonData);
+
+          if (parsed.type === 'chunk') {
+            // Progressive text chunk - send to UI
+            onChunk(parsed.content);
+          } else if (parsed.type === 'complete') {
+            // Generation complete - send final data
+            onComplete({
+              displayText: parsed.displayText,
+              audioText: parsed.audioText,
+              dailyInspiration: parsed.dailyInspiration
+            });
+          } else if (parsed.type === 'error') {
+            throw new Error(parsed.message || 'Streaming error');
+          }
+        } catch (parseError) {
+          console.warn('Failed to parse SSE message:', message.substring(0, 100));
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Streaming error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Generates meditation content (non-streaming mode)
+ * Maintained for backward compatibility and as fallback
+ */
 export async function generateMeditation(
-  _apiKey: string, // Paramètre conservé pour compatibilité mais non utilisé
   userName: string,
   mood: Mood,
   category: string,
@@ -26,7 +143,8 @@ export async function generateMeditation(
       intention,
       guideType,
       duration,
-      astrologicalProfile
+      astrologicalProfile,
+      stream: false  // Explicitly disable streaming
     })
   });
 
@@ -42,11 +160,13 @@ export async function generateMeditation(
   };
 }
 
-export async function generateAudio(
-  _apiKey: string, // Paramètre conservé pour compatibilité mais non utilisé
+/**
+ * Internal function that performs the actual audio generation API call
+ * Separated to allow caching logic to wrap around it
+ */
+async function generateAudioInternal(
   text: string,
-  _voiceId: string = 'xsNzdCmWJpYoa80FaXJi', // Voix personnalisée Danny
-  guideType: 'meditation' | 'reflection' = 'meditation'
+  guideType: 'meditation' | 'reflection'
 ): Promise<string> {
   // Appel au backend Vercel qui gère les clés API de manière sécurisée
   // Le backend utilise ElevenLabs v3 avec qualité maximale : 44.1kHz, 128kbps
@@ -72,6 +192,52 @@ export async function generateAudio(
   return `data:audio/mpeg;base64,${data.audio}`;
 }
 
+/**
+ * Generates audio narration with request deduplication
+ *
+ * If the same audio is requested multiple times (e.g., user navigates back/forth),
+ * returns the cached promise instead of making duplicate API calls.
+ *
+ * Cache expires after 5 minutes to prevent stale data.
+ *
+ * @param text - The meditation text to narrate
+ * @param guideType - The guide voice type (meditation = Iza, reflection = Dann)
+ * @returns Promise resolving to audio data URL
+ */
+export async function generateAudio(
+  text: string,
+  guideType: 'meditation' | 'reflection' = 'meditation'
+): Promise<string> {
+  const cacheKey = generateAudioCacheKey(text, guideType);
+
+  // Check if request is already in-flight or cached
+  if (audioCache.has(cacheKey)) {
+    console.log('🔄 Audio cache HIT - returning cached promise');
+    return audioCache.get(cacheKey)!;
+  }
+
+  console.log('🆕 Audio cache MISS - generating new audio');
+
+  // Create new promise and store it immediately (deduplicates concurrent requests)
+  const promise = generateAudioInternal(text, guideType);
+  audioCache.set(cacheKey, promise);
+
+  // Clear cache entry after 5 minutes
+  const timeoutId = setTimeout(() => {
+    audioCache.delete(cacheKey);
+    console.log('🧹 Audio cache entry expired and removed');
+  }, 5 * 60 * 1000);
+
+  // If promise fails, remove from cache immediately
+  promise.catch(() => {
+    clearTimeout(timeoutId);
+    audioCache.delete(cacheKey);
+    console.log('❌ Audio generation failed - removed from cache');
+  });
+
+  return promise;
+}
+
 export async function fetchLoadingQuote(): Promise<{ quote: string; author: string }> {
   // Récupère une citation inspirante pour l'écran de chargement
   try {
@@ -85,12 +251,9 @@ export async function fetchLoadingQuote(): Promise<{ quote: string; author: stri
 
     const data = await response.json();
     return data;
-  } catch (error) {
+  } catch {
+    // Erreur ignorée intentionnellement - fallback silencieux
     console.warn('Failed to fetch loading quote, using fallback');
-    // Fallback local si l'API ne répond pas
-    return {
-      quote: "Respire profondément et laisse le moment se déployer",
-      author: "Halterra"
-    };
+    return FALLBACK_LOADING_QUOTE;
   }
 }
