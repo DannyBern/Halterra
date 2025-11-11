@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import type { Mood } from '../types';
 import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
+import { getMoodBackgroundUrl } from '../constants/moodImages';
+import { CustomIntentionInput } from './CustomIntentionInput';
 import './CategorySelection.css';
 
 interface Category {
@@ -184,6 +186,12 @@ const categories: Category[] = [
       'S\'endormir et améliorer la qualité du sommeil',
       'Gérer l\'insomnie et les réveils nocturnes'
     ]
+  },
+  {
+    id: 'intention-libre',
+    name: 'Intention Libre',
+    icon: 'Intention Libre icon.jpeg',
+    intentions: [] // Special category - user provides custom intention
   }
 ];
 
@@ -194,8 +202,15 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
   onBack
 }) => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [showCustomInput, setShowCustomInput] = useState(false);
 
   const handleCategoryClick = (categoryId: string) => {
+    // Special handling for "Intention Libre" category
+    if (categoryId === 'intention-libre') {
+      setShowCustomInput(true);
+      return;
+    }
+
     if (expandedCategory === categoryId) {
       setExpandedCategory(null);
     } else {
@@ -203,25 +218,18 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
     }
   };
 
-  const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
-
-  // Get mood background image
-  const moodImageMap: Record<string, string> = {
-    'aligned': 'Aligné  En flow.jpeg',
-    'motivated': 'Motivé  Inspiré.jpeg',
-    'anxious': 'Anxieux  Inquiet.jpeg',
-    'exhausted': 'Épuisé  Vidé.jpeg',
-    'sad': 'Triste  Découragé.jpeg',
-    'frustrated': 'Frustré  En colère.jpeg',
-    'lost': 'Perdu  Confus.jpeg',
-    'alone': 'Seul  Isolé.jpeg',
-    'overwhelmed': 'Submergé  Sous pression.jpeg',
-    'calm': 'Calme  Serein.jpeg'
+  const handleCustomIntentionSubmit = (customIntention: string) => {
+    onSelectIntention('intention-libre', customIntention);
+    setShowCustomInput(false);
   };
 
-  const moodImage = moodImageMap[mood.id] || '';
-  const backgroundImageUrl = moodImage ? `${import.meta.env.BASE_URL}${encodeURIComponent(moodImage)}` : '';
+  const handleCustomIntentionCancel = () => {
+    setShowCustomInput(false);
+  };
 
+  const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
+
+  const backgroundImageUrl = getMoodBackgroundUrl(mood.id, import.meta.env.BASE_URL);
   const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImageUrl);
 
   return (
@@ -308,6 +316,15 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
 
       {/* Fullscreen Background Viewer */}
       <FullscreenViewer />
+
+      {/* Custom Intention Input Modal */}
+      {showCustomInput && (
+        <CustomIntentionInput
+          mood={mood}
+          onSubmit={handleCustomIntentionSubmit}
+          onCancel={handleCustomIntentionCancel}
+        />
+      )}
     </div>
   );
 };

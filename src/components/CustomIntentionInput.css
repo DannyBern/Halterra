@@ -1,0 +1,254 @@
+/* ============================================
+   CUSTOM INTENTION INPUT - Premium Modal
+   ============================================ */
+
+.custom-intention-input-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.custom-intention-input-modal {
+  max-width: 600px;
+  width: 100%;
+  padding: 2.5rem;
+  border-radius: 24px;
+  border: 1px solid;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+/* Header */
+.custom-intention-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.custom-intention-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: white;
+  letter-spacing: -0.02em;
+}
+
+.custom-intention-subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+/* Textarea Container */
+.custom-intention-textarea-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.custom-intention-textarea {
+  width: 100%;
+  padding: 1.25rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: white;
+  border: 1px solid;
+  border-radius: 16px;
+  resize: vertical;
+  min-height: 140px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.custom-intention-textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.custom-intention-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.character-count {
+  position: absolute;
+  bottom: -1.5rem;
+  right: 0;
+  font-size: 0.85rem;
+}
+
+/* Voice Input Button */
+.voice-input-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border: 2px solid;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.voice-input-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.voice-input-button.listening {
+  animation: voicePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes voicePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  50% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+.voice-pulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  animation: pulsate 1.5s ease-in-out infinite;
+}
+
+@keyframes pulsate {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Error Message */
+.custom-intention-error {
+  padding: 0.75rem 1rem;
+  background: rgba(255, 107, 107, 0.15);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* Action Buttons */
+.custom-intention-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.custom-intention-cancel,
+.custom-intention-submit {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid;
+}
+
+.custom-intention-cancel {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.custom-intention-cancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.custom-intention-submit {
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.custom-intention-submit:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.custom-intention-submit:disabled {
+  cursor: not-allowed;
+}
+
+/* Fade-in Animation */
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .custom-intention-input-overlay {
+    padding: 1rem;
+  }
+
+  .custom-intention-input-modal {
+    padding: 2rem 1.5rem;
+  }
+
+  .custom-intention-title {
+    font-size: 1.5rem;
+  }
+
+  .custom-intention-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .custom-intention-textarea {
+    font-size: 0.95rem;
+    padding: 1rem;
+    min-height: 120px;
+  }
+
+  .voice-input-button {
+    font-size: 0.95rem;
+    padding: 0.875rem 1.25rem;
+  }
+
+  .custom-intention-actions {
+    flex-direction: column;
+  }
+
+  .custom-intention-cancel,
+  .custom-intention-submit {
+    width: 100%;
+  }
+}
