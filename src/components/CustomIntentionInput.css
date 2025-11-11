@@ -19,7 +19,7 @@
   padding: 2rem;
 }
 
-/* Dark overlay for better text readability - reduced intensity by 50% */
+/* Dark overlay for better text readability - NO blur for clear background */
 .custom-intention-input-overlay::before {
   content: '';
   position: absolute;
@@ -28,7 +28,6 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(4px);
   z-index: -1;
 }
 
@@ -48,6 +47,20 @@
 .custom-intention-header {
   text-align: center;
   margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.custom-intention-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .custom-intention-title {

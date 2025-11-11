@@ -128,18 +128,11 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
   const isValid = intention.trim().length >= 5 && intention.trim().length <= 300;
 
   const backgroundImageUrl = `${import.meta.env.BASE_URL}cinematic_night_landscape_showing_the_milky_way.jpeg`;
+  const categoryIcon = `${import.meta.env.BASE_URL}Intention Libre icon.jpeg`;
   const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImageUrl);
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    // If clicking directly on overlay (not modal), either show fullscreen or close
-    if (e.target === e.currentTarget) {
-      // For now, just open fullscreen - user can use Cancel button to close
-      handleBackgroundClick(e);
-    }
-  };
-
   return (
-    <div className="custom-intention-input-overlay" onClick={handleOverlayClick}>
+    <div className="custom-intention-input-overlay" onClick={handleBackgroundClick}>
       <div
         className="custom-intention-input-modal fade-in"
         onClick={(e) => e.stopPropagation()}
@@ -150,6 +143,12 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
       >
         {/* Header */}
         <div className="custom-intention-header">
+          <div
+            className="custom-intention-icon"
+            style={{
+              backgroundImage: `url(${categoryIcon})`
+            }}
+          />
           <h2 className="custom-intention-title">
             Exprime ton intention
           </h2>
