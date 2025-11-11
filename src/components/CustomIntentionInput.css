@@ -19,7 +19,7 @@
   padding: 2rem;
 }
 
-/* Dark overlay for better text readability */
+/* Dark overlay for better text readability - reduced intensity by 50% */
 .custom-intention-input-overlay::before {
   content: '';
   position: absolute;
@@ -27,8 +27,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
   z-index: -1;
 }
 
@@ -38,8 +38,10 @@
   padding: 2.5rem;
   border-radius: 24px;
   border: 1px solid;
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(10px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 1;
 }
 
 /* Header */

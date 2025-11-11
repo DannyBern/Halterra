@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Mood } from '../types';
+import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
 import './CustomIntentionInput.css';
 
 interface CustomIntentionInputProps {
@@ -126,8 +127,19 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
 
   const isValid = intention.trim().length >= 5 && intention.trim().length <= 300;
 
+  const backgroundImageUrl = `${import.meta.env.BASE_URL}cinematic_night_landscape_showing_the_milky_way.jpeg`;
+  const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImageUrl);
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    // If clicking directly on overlay (not modal), either show fullscreen or close
+    if (e.target === e.currentTarget) {
+      // For now, just open fullscreen - user can use Cancel button to close
+      handleBackgroundClick(e);
+    }
+  };
+
   return (
-    <div className="custom-intention-input-overlay" onClick={onCancel}>
+    <div className="custom-intention-input-overlay" onClick={handleOverlayClick}>
       <div
         className="custom-intention-input-modal fade-in"
         onClick={(e) => e.stopPropagation()}
@@ -229,6 +241,9 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Fullscreen Background Viewer */}
+      <FullscreenViewer />
     </div>
   );
 };
