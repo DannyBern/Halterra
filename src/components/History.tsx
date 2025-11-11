@@ -22,9 +22,9 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
     loadSessions();
   }, []);
 
-  const loadSessions = () => {
-    const allSessions = storage.getAllSessions();
-    // Trier par date décroissante (plus récent en premier)
+  const loadSessions = async () => {
+    const allSessions = await storage.getAllSessions();
+    // Tri déjà effectué par IndexedDB, mais on s'assure pour compatibilité
     const sorted = allSessions.sort((a, b) => b.timestamp - a.timestamp);
     setSessions(sorted);
   };
@@ -34,15 +34,21 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
     setSessionToDelete(sessionId);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (sessionToDelete) {
       setIsDeleting(true);
       // Petit délai pour l'animation
-      setTimeout(() => {
-        storage.deleteSession(sessionToDelete);
-        loadSessions();
-        setSessionToDelete(null);
-        setIsDeleting(false);
+      setTimeout(async () => {
+        try {
+          await storage.deleteSession(sessionToDelete);
+          await loadSessions();
+          setSessionToDelete(null);
+          setIsDeleting(false);
+        } catch (error) {
+          console.error('Failed to delete session:', error);
+          setIsDeleting(false);
+          setSessionToDelete(null);
+        }
       }, 300);
     }
   };

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Mood } from '../types';
 import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
+import { getMoodBackgroundUrl } from '../constants/moodImages';
 import './DurationSelection.css';
 
 interface DurationSelectionProps {
@@ -20,23 +21,7 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
   const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
   const guideTitle = guideType === 'meditation' ? 'Méditation' : 'Réflexion';
 
-  // Get mood background image
-  const moodImageMap: Record<string, string> = {
-    'aligned': 'Aligné  En flow.jpeg',
-    'motivated': 'Motivé  Inspiré.jpeg',
-    'anxious': 'Anxieux  Inquiet.jpeg',
-    'exhausted': 'Épuisé  Vidé.jpeg',
-    'sad': 'Triste  Découragé.jpeg',
-    'frustrated': 'Frustré  En colère.jpeg',
-    'lost': 'Perdu  Confus.jpeg',
-    'alone': 'Seul  Isolé.jpeg',
-    'overwhelmed': 'Submergé  Sous pression.jpeg',
-    'calm': 'Calme  Serein.jpeg'
-  };
-
-  const moodImage = moodImageMap[mood.id] || '';
-  const backgroundImageUrl = moodImage ? `${import.meta.env.BASE_URL}${encodeURIComponent(moodImage)}` : '';
-
+  const backgroundImageUrl = getMoodBackgroundUrl(mood.id, import.meta.env.BASE_URL);
   const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImageUrl);
 
   return (

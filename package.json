@@ -17,7 +17,7 @@
     "vercel": "vercel --prod --yes"
   },
   "dependencies": {
-    "lucide-react": "^0.552.0",
+    "idb": "^8.0.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },

@@ -18,6 +18,7 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const silenceTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     // Check if browser supports Web Speech API
@@ -26,24 +27,51 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
     if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.lang = 'fr-FR'; // French language
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
+      recognitionRef.current.continuous = true; // Keep listening continuously
+      recognitionRef.current.interimResults = true; // Get interim results to detect pauses
       recognitionRef.current.maxAlternatives = 1;
 
       recognitionRef.current.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setIntention(prev => prev + (prev ? ' ' : '') + transcript);
-        setIsListening(false);
+        // Clear existing silence timer
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+        }
+
+        // Get the latest transcript
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+
+        // Update intention with final results only
+        if (event.results[event.results.length - 1].isFinal) {
+          setIntention(prev => prev + (prev ? ' ' : '') + transcript);
+        }
+
+        // Set new silence timer (5 seconds)
+        silenceTimerRef.current = setTimeout(() => {
+          if (recognitionRef.current && isListening) {
+            recognitionRef.current.stop();
+          }
+        }, 5000); // 5 seconds of silence before auto-stop
       };
 
       recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
-        setError('Erreur de reconnaissance vocale. Veuillez réessayer.');
+        if (event.error !== 'no-speech' && event.error !== 'aborted') {
+          setError('Erreur de reconnaissance vocale. Veuillez réessayer.');
+        }
         setIsListening(false);
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+        }
       };
 
       recognitionRef.current.onend = () => {
         setIsListening(false);
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+        }
       };
     }
 
@@ -51,8 +79,11 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
     };
-  }, []);
+  }, [isListening]);
 
   const startListening = () => {
     if (!recognitionRef.current) {
@@ -68,6 +99,9 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
   const stopListening = () => {
     if (recognitionRef.current) {
       recognitionRef.current.stop();
+    }
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
     }
     setIsListening(false);
   };

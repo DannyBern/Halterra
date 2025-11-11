@@ -14,11 +14,15 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
 
   useEffect(() => {
     console.log('VideoIntro chargé');
+
+    // Capturer la ref pour le cleanup (bonne pratique React)
+    const audioElement = audioRef.current;
+
     return () => {
-      // Cleanup
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
+      // Cleanup avec la valeur capturée
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.currentTime = 0;
       }
     };
   }, []);

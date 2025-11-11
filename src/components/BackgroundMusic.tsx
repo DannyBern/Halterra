@@ -41,7 +41,7 @@ export default function BackgroundMusic({ shouldFadeOut, onFadeComplete, isMuted
       }
       audio.pause();
     };
-  }, []);
+  }, [volume]); // Dépendance: volume initial
 
   // Handle mute/unmute
   useEffect(() => {
@@ -130,7 +130,7 @@ export default function BackgroundMusic({ shouldFadeOut, onFadeComplete, isMuted
         clearInterval(fadeIntervalRef.current);
       }
     };
-  }, [shouldFadeOut]);
+  }, [shouldFadeOut, volume, onFadeComplete]); // Dépendances: fade, volume, callback
 
   return (
     <audio

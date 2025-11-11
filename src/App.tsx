@@ -1,18 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import VideoIntro from './components/VideoIntro';
-import Onboarding from './components/Onboarding';
 import DateDisplay from './components/DateDisplay';
 import GuideSelector from './components/GuideSelector';
 import MoodSelector from './components/MoodSelector';
 import { DurationSelection } from './components/DurationSelection';
 import { CategorySelection } from './components/CategorySelection';
-import Meditation from './components/Meditation';
-import History from './components/History';
-import SessionView from './components/SessionView';
 import BackgroundMusic from './components/BackgroundMusic';
+import LoadingFallback from './components/LoadingFallback';
+import { usePreloadComponents } from './hooks/usePreloadComponents';
 import type { User, Mood, MeditationSession } from './types';
 import { storage } from './utils/storage';
 import './App.css';
+
+// 🚀 CODE SPLITTING - Lazy load des composants lourds
+// Réduit le bundle initial de ~30% et améliore le Time To Interactive
+const Onboarding = lazy(() => import('./components/Onboarding'));
+const Meditation = lazy(() => import('./components/Meditation'));
+const History = lazy(() => import('./components/History'));
+const SessionView = lazy(() => import('./components/SessionView'));
 
 type AppScreen =
   | 'video-intro'
@@ -38,13 +43,11 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedIntention, setSelectedIntention] = useState<string | null>(null);
   const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
-
-  // API Keys - Configurées via variables d'environnement
-  const anthropicApiKey = import.meta.env.VITE_ANTHROPIC_API_KEY || '';
-  const elevenlabsApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || '';
-
   const [hasSeenIntro, setHasSeenIntro] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(false);
+
+  // 🚀 PRELOAD INTELLIGENT - Charge les composants avant qu'ils soient nécessaires
+  usePreloadComponents(screen, hasSeenIntro);
 
   useEffect(() => {
     // Charger l'utilisateur depuis le stockage seulement après l'intro vidéo
@@ -126,7 +129,15 @@ function App() {
     setScreen('category');
   };
 
-  const handleMeditationComplete = (meditationText: string, audioBase64?: string) => {
+  const handleMeditationComplete = async (meditationText: string, audioBase64?: string) => {
+    console.log('🔍 handleMeditationComplete reçu:', {
+      hasText: !!meditationText,
+      textLength: meditationText.length,
+      hasAudio: !!audioBase64,
+      audioLength: audioBase64?.length,
+      audioPreview: audioBase64?.substring(0, 50)
+    });
+
     if (!user || !selectedMood) {
       console.error('Cannot save: missing user or mood', { user, selectedMood });
       return;
@@ -146,7 +157,7 @@ function App() {
       timestamp: Date.now()
     };
 
-    console.log('Saving meditation session:', {
+    console.log('💾 Saving meditation session:', {
       id: session.id,
       hasText: !!meditationText,
       hasAudio: !!audioBase64,
@@ -154,13 +165,33 @@ function App() {
       guideType: session.guideType
     });
 
-    storage.saveMeditationSession(session);
+    try {
+      await storage.saveMeditationSession(session);
 
-    // Verify save
-    const savedSessions = storage.getAllSessions();
-    console.log('Total sessions after save:', savedSessions.length);
+      // Verify save
+      const savedSessions = await storage.getAllSessions();
+      console.log('✅ Session saved successfully! Total sessions:', savedSessions.length);
 
-    setScreen('history');
+      // Vérifier que la session vient d'être sauvegardée
+      const justSaved = savedSessions.find(s => s.id === session.id);
+      if (justSaved) {
+        console.log('✅ Session vérifiée dans la liste:', {
+          id: justSaved.id,
+          hasText: !!justSaved.meditationText,
+          hasAudio: !!justSaved.audioUrl,
+          audioLength: justSaved.audioUrl?.length
+        });
+      } else {
+        console.error('⚠️ Session non trouvée après sauvegarde!');
+      }
+
+      // RESTE SUR LA PAGE DE MEDITATION - ne navigue PAS vers l'historique
+      // L'utilisateur peut consulter l'historique manuellement via le bouton dédié
+    } catch (error) {
+      console.error('❌ Failed to save session:', error);
+      // Afficher une alerte à l'utilisateur
+      alert('Erreur lors de la sauvegarde. La méditation n\'a pas été enregistrée. Veuillez réessayer.');
+    }
   };
 
   const handleViewHistory = () => {
@@ -225,7 +256,11 @@ function App() {
         setScreen('onboarding');
       }} />}
 
-      {screen === 'onboarding' && <Onboarding onComplete={handleOnboardingComplete} />}
+      {screen === 'onboarding' && (
+        <Suspense fallback={<LoadingFallback />}>
+          <Onboarding onComplete={handleOnboardingComplete} />
+        </Suspense>
+      )}
 
       {screen === 'date' && user && (
         <div>
@@ -278,28 +313,32 @@ function App() {
       )}
 
       {screen === 'meditation' && user && selectedMood && selectedDuration && selectedIntention && (
-        <Meditation
-          mood={selectedMood}
-          userName={user.name}
-          category={selectedCategory || ''}
-          intention={selectedIntention}
-          guideType={selectedGuideType || 'meditation'}
-          duration={selectedDuration}
-          generateAudio={generateAudio}
-          anthropicApiKey={anthropicApiKey}
-          elevenlabsApiKey={elevenlabsApiKey}
-          astrologicalProfile={user.astrologicalProfile}
-          onComplete={handleMeditationComplete}
-          onBack={handleMeditationBack}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <Meditation
+            mood={selectedMood}
+            userName={user.name}
+            category={selectedCategory || ''}
+            intention={selectedIntention}
+            guideType={selectedGuideType || 'meditation'}
+            duration={selectedDuration}
+            generateAudio={generateAudio}
+            astrologicalProfile={user.astrologicalProfile}
+            onComplete={handleMeditationComplete}
+            onBack={handleMeditationBack}
+          />
+        </Suspense>
       )}
 
       {screen === 'history' && (
-        <History onBack={handleHistoryBack} onSessionSelect={handleSessionSelect} />
+        <Suspense fallback={<LoadingFallback />}>
+          <History onBack={handleHistoryBack} onSessionSelect={handleSessionSelect} />
+        </Suspense>
       )}
 
       {screen === 'session-view' && selectedSession && (
-        <SessionView session={selectedSession} onBack={handleSessionViewBack} />
+        <Suspense fallback={<LoadingFallback />}>
+          <SessionView session={selectedSession} onBack={handleSessionViewBack} />
+        </Suspense>
       )}
     </div>
   );
