@@ -312,7 +312,7 @@ export default function Meditation({
         {/* 🎙️ AUDIO GENERATION PROGRESS BAR - Premium design */}
         <div className="audio-progress-banner" style={{
           background: `linear-gradient(135deg, ${mood.color}15, ${mood.color}08)`,
-          borderBottom: `1px solid ${mood.color}30`
+          border: `1px solid ${mood.color}30`
         }}>
           <div className="audio-progress-content">
             <div className="audio-progress-icon" style={{ color: mood.color }}>
@@ -338,7 +338,7 @@ export default function Meditation({
         </div>
 
         {/* Premium header with category icon and mood */}
-        <div className="meditation-header-premium" style={{ paddingTop: '7rem' }}>
+        <div className="meditation-header-premium">
           <div className="header-category-icon">
             <img src={`/${categoryIcon}`} alt={category} />
           </div>
