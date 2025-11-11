@@ -20,6 +20,11 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
   const recognitionRef = useRef<any>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const silenceTimerRef = useRef<number | null>(null);
+  const isListeningRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    isListeningRef.current = isListening;
+  }, [isListening]);
 
   useEffect(() => {
     // Check if browser supports Web Speech API
@@ -27,49 +32,73 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
 
     if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.lang = 'fr-FR'; // French language
-      recognitionRef.current.continuous = true; // Keep listening continuously
-      recognitionRef.current.interimResults = true; // Get interim results to detect pauses
+      recognitionRef.current.lang = 'fr-FR';
+      recognitionRef.current.continuous = false; // Will restart manually
+      recognitionRef.current.interimResults = false; // Only final results
       recognitionRef.current.maxAlternatives = 1;
 
       recognitionRef.current.onresult = (event: any) => {
+        // Get the transcript from the last result
+        const transcript = event.results[event.results.length - 1][0].transcript;
+
+        console.log('📝 Received transcript:', transcript);
+
+        // Add to intention
+        setIntention(prev => {
+          const newValue = prev + (prev ? ' ' : '') + transcript;
+          console.log('✍️ New intention:', newValue);
+          return newValue;
+        });
+
         // Clear existing silence timer
         if (silenceTimerRef.current) {
           clearTimeout(silenceTimerRef.current);
         }
 
-        // Get the latest transcript
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
-        }
-
-        // Update intention with final results only
-        if (event.results[event.results.length - 1].isFinal) {
-          setIntention(prev => prev + (prev ? ' ' : '') + transcript);
-        }
-
         // Set new silence timer (5 seconds)
         silenceTimerRef.current = setTimeout(() => {
-          if (recognitionRef.current && isListening) {
+          if (recognitionRef.current && isListeningRef.current) {
+            console.log('⏱️ Silence timer - stopping recognition');
             recognitionRef.current.stop();
+            setIsListening(false);
           }
-        }, 5000); // 5 seconds of silence before auto-stop
+        }, 5000);
+      };
+
+      recognitionRef.current.onend = () => {
+        console.log('🛑 Recognition ended, isListening:', isListeningRef.current);
+
+        // If still in listening mode, wait a bit then restart recognition
+        if (isListeningRef.current) {
+          // Small delay to avoid rapid restarts
+          setTimeout(() => {
+            if (isListeningRef.current) {
+              try {
+                console.log('🔄 Restarting recognition...');
+                recognitionRef.current.start();
+              } catch (err) {
+                console.log('Failed to restart recognition:', err);
+              }
+            }
+          }, 300); // 300ms delay before restart
+        }
       };
 
       recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
-        if (event.error !== 'no-speech' && event.error !== 'aborted') {
+        if (event.error === 'no-speech') {
+          // No speech detected, just restart if still listening
+          if (isListeningRef.current) {
+            try {
+              recognitionRef.current.start();
+            } catch (err) {
+              console.log('Failed to restart after no-speech:', err);
+            }
+          }
+        } else if (event.error !== 'aborted') {
           setError('Erreur de reconnaissance vocale. Veuillez réessayer.');
+          setIsListening(false);
         }
-        setIsListening(false);
-        if (silenceTimerRef.current) {
-          clearTimeout(silenceTimerRef.current);
-        }
-      };
-
-      recognitionRef.current.onend = () => {
-        setIsListening(false);
         if (silenceTimerRef.current) {
           clearTimeout(silenceTimerRef.current);
         }
@@ -78,13 +107,17 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
 
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.stop();
+        } catch (err) {
+          // Ignore errors on cleanup
+        }
       }
       if (silenceTimerRef.current) {
         clearTimeout(silenceTimerRef.current);
       }
     };
-  }, [isListening]);
+  }, []);
 
   const startListening = () => {
     if (!recognitionRef.current) {
@@ -94,7 +127,11 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
 
     setError(null);
     setIsListening(true);
-    recognitionRef.current.start();
+    try {
+      recognitionRef.current.start();
+    } catch (err) {
+      console.log('Failed to start recognition:', err);
+    }
   };
 
   const stopListening = () => {
@@ -128,7 +165,7 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
   const isValid = intention.trim().length >= 5 && intention.trim().length <= 300;
 
   const backgroundImageUrl = `${import.meta.env.BASE_URL}cinematic_night_landscape_showing_the_milky_way.jpeg`;
-  const categoryIcon = `${import.meta.env.BASE_URL}Intention Libre icon.jpeg`;
+  const categoryIcon = '/Intention Libre icon.jpeg';
   const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImageUrl);
 
   return (
@@ -143,12 +180,18 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
       >
         {/* Header */}
         <div className="custom-intention-header">
-          <div
-            className="custom-intention-icon"
-            style={{
-              backgroundImage: `url(${categoryIcon})`
-            }}
-          />
+          <div className="custom-intention-icon">
+            <img
+              src={categoryIcon}
+              alt="Intention Libre"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: '12px'
+              }}
+            />
+          </div>
           <h2 className="custom-intention-title">
             Exprime ton intention
           </h2>
@@ -180,15 +223,16 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
         </div>
 
         {/* Voice Input Button */}
-        <button
-          className={`voice-input-button ${isListening ? 'listening' : ''}`}
-          onClick={isListening ? stopListening : startListening}
-          style={{
-            backgroundColor: isListening ? mood.color : `${mood.color}15`,
-            borderColor: mood.color,
-            color: isListening ? 'white' : mood.color
-          }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+          <button
+            className={`voice-input-button ${isListening ? 'listening' : ''}`}
+            onClick={isListening ? stopListening : startListening}
+            style={{
+              backgroundColor: isListening ? mood.color : `${mood.color}15`,
+              borderColor: mood.color,
+              color: isListening ? 'white' : mood.color
+            }}
+          >
           {isListening ? (
             <>
               <div className="voice-pulse"></div>
@@ -208,7 +252,8 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
               <span>Dicter ton intention</span>
             </>
           )}
-        </button>
+          </button>
+        </div>
 
         {/* Error Message */}
         {error && (
