@@ -47,10 +47,8 @@ export default function Meditation({
   onComplete,
   onBack
 }: MeditationProps) {
-  const [status, setStatus] = useState<'generating-text' | 'streaming-text' | 'generating-audio' | 'ready' | 'error'>('generating-text');
+  const [status, setStatus] = useState<'generating-text' | 'generating-audio' | 'ready' | 'error'>('generating-text');
   const [meditationText, setMeditationText] = useState('');
-  const [streamingText, setStreamingText] = useState(''); // Progressive text accumulator
-  const [isStreaming, setIsStreaming] = useState(false);
   const [audioBase64, setAudioBase64] = useState<string>();
   const [audioUrl, setAudioUrl] = useState<string>();
   const [error, setError] = useState<string>();
@@ -85,10 +83,7 @@ export default function Meditation({
     try {
       // 🌊 STREAMING MODE - Progressive rendering with instant feedback
       if (useStreaming) {
-        setStatus('streaming-text');
-        setIsStreaming(true);
-        let hasStartedAudioGeneration = false;
-        let accumulatedChunks = '';
+        setStatus('generating-text');
 
         await generateMeditationStreaming(
           userName,
@@ -98,23 +93,14 @@ export default function Meditation({
           guideType,
           duration,
           astrologicalProfile,
-          // onChunk: Progressive text rendering
-          (chunk: string) => {
-            accumulatedChunks += chunk;
-            setStreamingText(accumulatedChunks);
-
-            // 🎵 PARALLEL AUDIO GENERATION - Start after first ~300 chars
-            // This reduces total wait time by generating audio in parallel
-            if (!hasStartedAudioGeneration && generateAudio && accumulatedChunks.length >= 300) {
-              hasStartedAudioGeneration = true;
-              console.log('🎵 Starting parallel audio generation...');
-              // Note: We'll generate audio with the complete audioText in onComplete
-              // This is just a signal that we have enough content to start thinking about audio
-            }
+          // onChunk: Accumulate but don't display (contains JSON)
+          () => {
+            // Chunks contain raw JSON - we'll parse and display on complete
+            // Just show loading for now
           },
-          // onComplete: Final text ready, start audio if needed
+          // onComplete: Display text immediately, generate audio in background
           async (result) => {
-            setIsStreaming(false);
+            // ✅ Display the clean text immediately
             setMeditationText(result.displayText);
             setDailyInspiration(result.dailyInspiration);
             audioTextRef.current = result.audioText;
@@ -129,6 +115,7 @@ export default function Meditation({
               return;
             }
 
+            // 🎵 Generate audio IN BACKGROUND without hiding the text
             setStatus('generating-audio');
 
             try {
@@ -186,7 +173,6 @@ export default function Meditation({
       console.error('Erreur:', err);
       setError('Impossible de générer la méditation. Vérifiez votre connexion.');
       setStatus('error');
-      setIsStreaming(false);
     }
   };
 
@@ -245,92 +231,6 @@ export default function Meditation({
   const categoryIcon = getCategoryIcon(category);
   const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
 
-  // 🌊 STREAMING TEXT VIEW - Progressive rendering with fade-in animation
-  if (status === 'streaming-text' && isStreaming) {
-    return (
-      <div
-        className={`meditation meditation-fullscreen fade-in ${isPlaying ? 'playing' : ''}`}
-      >
-        {/* Ambient background gradient */}
-        <div className="meditation-ambient-bg" style={{
-          background: `radial-gradient(circle at 30% 20%, ${mood.color}15 0%, transparent 50%),
-                       radial-gradient(circle at 70% 80%, ${mood.color}10 0%, transparent 50%)`
-        }}></div>
-
-        <button
-          className="back-button-premium"
-          onClick={(e) => {
-            e.stopPropagation();
-            onBack();
-          }}
-          aria-label="Retour"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-          <span>Retour</span>
-        </button>
-
-        {/* Premium header with category icon and mood */}
-        <div className="meditation-header-premium">
-          <div className="header-category-icon">
-            <img src={`/${categoryIcon}`} alt={category} />
-          </div>
-          <div className="header-info">
-            <div className="header-mood-badge" style={{
-              backgroundColor: `${mood.color}20`,
-              borderColor: `${mood.color}40`
-            }}>
-              <span className="mood-icon">{mood.icon}</span>
-              <span className="mood-name" style={{ color: mood.color }}>{mood.name}</span>
-            </div>
-            <h1 className="meditation-title-premium">
-              Ta {guideType === 'meditation' ? 'méditation' : 'réflexion'} avec {guideName}
-            </h1>
-          </div>
-        </div>
-
-        <div className="meditation-content-premium">
-          {/* Streaming indicator */}
-          <div className="streaming-indicator" style={{ marginBottom: '20px', textAlign: 'center' }}>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              background: `${mood.color}15`,
-              borderRadius: '20px',
-              border: `1px solid ${mood.color}30`
-            }}>
-              <div style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: mood.color,
-                animation: 'pulse 1.5s ease-in-out infinite'
-              }}></div>
-              <span style={{ fontSize: '14px', color: mood.color }}>
-                {guideName} compose...
-              </span>
-            </div>
-          </div>
-
-          {/* Premium text container with progressive rendering */}
-          <div className="meditation-text-card">
-            <div className="card-glow" style={{
-              background: `linear-gradient(135deg, ${mood.color}08, transparent)`
-            }}></div>
-
-            <div className="meditation-text-premium streaming-text-fade-in">
-              {streamingText}
-              <span className="streaming-cursor" style={{ color: mood.color }}>▌</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (status === 'generating-text') {
 
     return (
@@ -383,63 +283,102 @@ export default function Meditation({
     );
   }
 
+  // 🎵 GENERATING AUDIO - Show text with premium progress bar
   if (status === 'generating-audio') {
-    const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
-
     return (
-      <div className="meditation">
-        <div className="meditation-loading-premium fade-in">
-          {/* Audio wave visualization */}
-          <div className="audio-wave-container">
-            <div className="audio-wave-bars">
-              {[...Array(5)].map((_, i) => (
-                <div
-                  key={i}
-                  className="wave-bar-modern"
-                  style={{
-                    backgroundColor: mood.color,
-                    animationDelay: `${i * 0.1}s`
-                  }}
-                ></div>
-              ))}
-            </div>
-            <div className="audio-icon-modern">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <div
+        className={`meditation meditation-fullscreen fade-in`}
+      >
+        {/* Ambient background gradient */}
+        <div className="meditation-ambient-bg" style={{
+          background: `radial-gradient(circle at 30% 20%, ${mood.color}15 0%, transparent 50%),
+                       radial-gradient(circle at 70% 80%, ${mood.color}10 0%, transparent 50%)`
+        }}></div>
+
+        <button
+          className="back-button-premium"
+          onClick={(e) => {
+            e.stopPropagation();
+            onBack();
+          }}
+          aria-label="Retour"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          <span>Retour</span>
+        </button>
+
+        {/* 🎙️ AUDIO GENERATION PROGRESS BAR - Premium design */}
+        <div className="audio-progress-banner" style={{
+          background: `linear-gradient(135deg, ${mood.color}15, ${mood.color}08)`,
+          borderBottom: `1px solid ${mood.color}30`
+        }}>
+          <div className="audio-progress-content">
+            <div className="audio-progress-icon" style={{ color: mood.color }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
                 <line x1="12" x2="12" y1="19" y2="22"/>
               </svg>
             </div>
-          </div>
-
-          {/* Progress indicators */}
-          <div className="loading-phases-modern">
-            <div className="phase-step completed">
-              <div className="phase-dot" style={{ backgroundColor: mood.color }}></div>
-              <span className="phase-label">Préparation</span>
-            </div>
-            <div className="phase-connector completed" style={{ backgroundColor: mood.color }}></div>
-            <div className="phase-step completed">
-              <div className="phase-dot" style={{ backgroundColor: mood.color }}></div>
-              <span className="phase-label">Création</span>
-            </div>
-            <div className="phase-connector"></div>
-            <div className="phase-step current">
-              <div className="phase-dot pulsing" style={{ backgroundColor: mood.color }}></div>
-              <span className="phase-label">Narration</span>
+            <div className="audio-progress-text">
+              <span className="audio-progress-label">La voix de {guideName} se prépare...</span>
+              <div className="audio-progress-bar-container">
+                <div
+                  className="audio-progress-bar-fill"
+                  style={{
+                    backgroundColor: mood.color,
+                    boxShadow: `0 0 10px ${mood.color}60`
+                  }}
+                ></div>
+              </div>
             </div>
           </div>
+        </div>
 
-          <h2 className="loading-title-modern">La voix de {guideName} prend vie</h2>
-          <p className="loading-subtitle-modern">
-            Narration de votre {guideType === 'meditation' ? 'méditation' : 'réflexion'} en haute qualité
-          </p>
+        {/* Premium header with category icon and mood */}
+        <div className="meditation-header-premium" style={{ paddingTop: '7rem' }}>
+          <div className="header-category-icon">
+            <img src={`/${categoryIcon}`} alt={category} />
+          </div>
+          <div className="header-info">
+            <div className="header-mood-badge" style={{
+              backgroundColor: `${mood.color}20`,
+              borderColor: `${mood.color}40`
+            }}>
+              <span className="mood-icon">{mood.icon}</span>
+              <span className="mood-name" style={{ color: mood.color }}>{mood.name}</span>
+            </div>
+            <h1 className="meditation-title-premium">
+              Ta {guideType === 'meditation' ? 'méditation' : 'réflexion'} avec {guideName}
+            </h1>
+          </div>
+        </div>
 
-          {loadingQuote && (
-            <div className="loading-quote-modern fade-in">
-              <div className="quote-icon">✦</div>
-              <p className="quote-text-modern">"{loadingQuote.quote}"</p>
-              <p className="quote-author-modern">— {loadingQuote.author}</p>
+        <div className="meditation-content-premium">
+          {/* Premium text container - text is visible during audio generation */}
+          <div className="meditation-text-card">
+            <div className="card-glow" style={{
+              background: `linear-gradient(135deg, ${mood.color}08, transparent)`
+            }}></div>
+
+            <div className="meditation-text-premium">
+              {meditationText.split('\n\n').map((paragraph, index) => (
+                <p key={index} className="meditation-paragraph-premium">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </div>
+
+          {dailyInspiration && (
+            <div className="daily-inspiration-premium">
+              <div className="inspiration-header">
+                <div className="inspiration-icon-premium">✦</div>
+                <span className="inspiration-label-premium">Inspiration du jour</span>
+              </div>
+              <p className="inspiration-text-premium">{dailyInspiration}</p>
             </div>
           )}
         </div>
