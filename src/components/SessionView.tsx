@@ -60,17 +60,16 @@ export default function SessionView({ session, onBack }: SessionViewProps) {
   return (
     <div className="session-view fade-in">
       <div className="session-view-header">
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <button className="back-button" onClick={onBack}>
             ← Retour à l'historique
           </button>
 
           <button
-            className="back-button"
+            className="back-button share-button-session"
             onClick={() => setShareModalOpen(true)}
-            style={{ background: 'rgba(102, 126, 234, 0.15)', borderColor: 'rgba(102, 126, 234, 0.3)' }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '0.5rem' }}>
               <circle cx="18" cy="5" r="3"/>
               <circle cx="6" cy="12" r="3"/>
               <circle cx="18" cy="19" r="3"/>

@@ -40,6 +40,22 @@
   font-family: var(--font-serif);
 }
 
+/* Share button in SessionView */
+.share-button-session {
+  background: rgba(102, 126, 234, 0.15) !important;
+  border-color: rgba(102, 126, 234, 0.3) !important;
+  color: #667eea !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.share-button-session:hover {
+  background: rgba(102, 126, 234, 0.25) !important;
+  border-color: rgba(102, 126, 234, 0.6) !important;
+  transform: translateX(4px);
+}
+
 .session-view-content {
   max-width: 800px;
   margin: 0 auto;

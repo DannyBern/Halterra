@@ -234,13 +234,12 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
                             </div>
                           )}
                         </button>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <div className="session-actions">
                           <button
-                            className="delete-button"
+                            className="share-button"
                             onClick={(e) => handleShareClick(e, session)}
                             aria-label="Partager cette méditation"
                             title="Partager cette méditation"
-                            style={{ background: 'rgba(102, 126, 234, 0.15)', borderColor: 'rgba(102, 126, 234, 0.3)', color: '#667eea' }}
                           >
                             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" strokeWidth="2">
                               <circle cx="18" cy="5" r="3"/>
