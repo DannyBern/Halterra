@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { Mood, AstrologicalProfile } from '../types';
 import { generateMeditation, generateMeditationStreaming, generateAudio as generateAudioAPI, fetchLoadingQuote as fetchQuoteAPI } from '../services/api';
 import { FALLBACK_LOADING_QUOTE } from '../constants/fallbackQuotes';
+import MoodIcon from './MoodIcon';
 import './Meditation.css';
 import './Meditation_Premium.css';
 
@@ -339,17 +340,15 @@ export default function Meditation({
 
         {/* Premium header with category icon and mood */}
         <div className="meditation-header-premium">
-          <div className="header-category-icon">
-            <img src={`/${categoryIcon}`} alt={category} />
+          <div className="header-icons-container">
+            <div className="header-category-icon">
+              <img src={`/${categoryIcon}`} alt={category} />
+            </div>
+            <div className="header-mood-icon" style={{ color: mood.color }}>
+              <MoodIcon moodId={mood.id} />
+            </div>
           </div>
           <div className="header-info">
-            <div className="header-mood-badge" style={{
-              backgroundColor: `${mood.color}20`,
-              borderColor: `${mood.color}40`
-            }}>
-              <span className="mood-icon">{mood.icon}</span>
-              <span className="mood-name" style={{ color: mood.color }}>{mood.name}</span>
-            </div>
             <h1 className="meditation-title-premium">
               Ta {guideType === 'meditation' ? 'méditation' : 'réflexion'} avec {guideName}
             </h1>
@@ -447,17 +446,15 @@ export default function Meditation({
 
       {/* Premium header with category icon and mood */}
       <div className="meditation-header-premium">
-        <div className="header-category-icon">
-          <img src={`/${categoryIcon}`} alt={category} />
+        <div className="header-icons-container">
+          <div className="header-category-icon">
+            <img src={`/${categoryIcon}`} alt={category} />
+          </div>
+          <div className="header-mood-icon" style={{ color: mood.color }}>
+            <MoodIcon moodId={mood.id} />
+          </div>
         </div>
         <div className="header-info">
-          <div className="header-mood-badge" style={{
-            backgroundColor: `${mood.color}20`,
-            borderColor: `${mood.color}40`
-          }}>
-            <span className="mood-icon">{mood.icon}</span>
-            <span className="mood-name" style={{ color: mood.color }}>{mood.name}</span>
-          </div>
           <h1 className="meditation-title-premium">
             Ta {guideType === 'meditation' ? 'méditation' : 'réflexion'} avec {guideName}
           </h1>

@@ -10,6 +10,23 @@ interface HistoryProps {
   onSessionSelect: (session: MeditationSession) => void;
 }
 
+// Category icons mapping - using category IDs as keys
+const categoryIcons: { [key: string]: string } = {
+  'sante-corps': 'Santé & Corps icon.jpeg',
+  'changement-habitudes': 'Changement & Habitudes icon.jpeg',
+  'eveil-preparation': 'Éveil & Préparation icon.jpeg',
+  'attention-cognition': 'Attention & Cognition icon.jpeg',
+  'performance-action': 'Performance & Action icon.jpeg',
+  'regulation-resilience': 'Régulation & Résilience icon.jpeg',
+  'flexibilite-psychologique': 'Flexibilité Psychologique icon.jpeg',
+  'relations-connexion': 'Relations & Connexion icon.jpeg',
+  'bien-etre-etats-positifs': 'Bien-être & États Positifs icon.jpeg',
+  'soi-developpement': 'Soi & Développement icon.jpeg',
+  'sens-valeurs': 'Sens & Valeurs icon.jpeg',
+  'sommeil-repos': 'Sommeil & Repos icon.jpeg',
+  'intention-libre': 'Intention Libre icon.jpeg'
+};
+
 export default function History({ onBack, onSessionSelect }: HistoryProps) {
   const [sessions, setSessions] = useState<MeditationSession[]>([]);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
@@ -144,6 +161,18 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
                 <div className="sessions-grid">
                   {groupedSessions[date].map(session => {
                     const mood = getMoodById(session.mood);
+                    const categoryIcon = session.category ? categoryIcons[session.category] : null;
+                    const displayIntention = session.intention || 'Méditation personnalisée';
+
+                    // Debug logging
+                    console.log('Session debug:', {
+                      hasCategory: !!session.category,
+                      category: session.category,
+                      hasCategoryIcon: !!categoryIcon,
+                      categoryIcon: categoryIcon,
+                      intention: session.intention
+                    });
+
                     return (
                       <div key={session.id} className="session-card-wrapper">
                         <button
@@ -152,8 +181,23 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
                           style={{ borderLeftColor: mood?.color || 'var(--color-accent)' }}
                         >
                           <div className="session-mood">
-                            <span className="session-icon">{mood?.icon || '🌟'}</span>
-                            <span className="session-mood-name">{mood?.name || session.mood}</span>
+                            {categoryIcon ? (
+                              <div className="session-category-icon">
+                                <img
+                                  src={`/${categoryIcon}`}
+                                  alt={session.category || 'Intention'}
+                                  style={{
+                                    width: '40px',
+                                    height: '40px',
+                                    objectFit: 'cover',
+                                    borderRadius: '8px'
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              <span className="session-icon">{mood?.icon || '🌟'}</span>
+                            )}
+                            <span className="session-mood-name">{displayIntention}</span>
                           </div>
                           <p className="session-preview">
                             {session.meditationText.substring(0, 120)}...

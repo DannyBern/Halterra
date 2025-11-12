@@ -6,7 +6,7 @@ interface MoodIconProps {
   className?: string;
 }
 
-export default function MoodIcon({ moodId, size = 48, className = '' }: MoodIconProps) {
+export default function MoodIcon({ moodId, size = 64, className = '' }: MoodIconProps) {
   const icons: Record<string, React.ReactElement> = {
     // Aligné / En flow - Vagues fluides harmonieuses
     aligned: (
@@ -326,18 +326,27 @@ export default function MoodIcon({ moodId, size = 48, className = '' }: MoodIcon
     ),
   };
 
+  const icon = icons[moodId] || icons.calm;
+
+  // Clone the SVG element and add width/height props to make it responsive
+  const styledIcon = React.cloneElement(icon as React.ReactElement<any>, {
+    width: '100%',
+    height: '100%',
+    style: { display: 'block' }
+  });
+
   return (
     <div
       className={className}
       style={{
         width: size,
         height: size,
-        display: 'inline-flex',
+        display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      {icons[moodId] || icons.calm}
+      {styledIcon}
     </div>
   );
 }
