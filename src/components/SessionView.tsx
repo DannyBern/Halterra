@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import type { MeditationSession } from '../types';
+import type { ShareableSession } from '../types/share';
 import { moods } from '../data/moods';
+import ShareModal from './ShareModal';
 import './SessionView.css';
 
 interface SessionViewProps {
@@ -10,9 +12,27 @@ interface SessionViewProps {
 
 export default function SessionView({ session, onBack }: SessionViewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const mood = moods.find(m => m.id === session.mood || m.name === session.mood);
+
+  // Préparer les données pour le partage
+  const shareableSession: ShareableSession = {
+    id: session.id,
+    meditationText: session.meditationText,
+    mood: {
+      id: mood?.id || 'calm',
+      name: mood?.name || session.mood,
+      icon: mood?.icon || '🌟',
+      color: mood?.color || '#667eea',
+    },
+    category: session.category,
+    intention: session.intention,
+    userName: session.userName,
+    date: session.date,
+    guideType: 'meditation',
+  };
 
   const handlePlay = () => {
     if (audioRef.current) {
@@ -40,9 +60,26 @@ export default function SessionView({ session, onBack }: SessionViewProps) {
   return (
     <div className="session-view fade-in">
       <div className="session-view-header">
-        <button className="back-button" onClick={onBack}>
-          ← Retour à l'historique
-        </button>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <button className="back-button" onClick={onBack}>
+            ← Retour à l'historique
+          </button>
+
+          <button
+            className="back-button"
+            onClick={() => setShareModalOpen(true)}
+            style={{ background: 'rgba(102, 126, 234, 0.15)', borderColor: 'rgba(102, 126, 234, 0.3)' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            Partager
+          </button>
+        </div>
 
         <div className="session-info">
           <div
@@ -119,6 +156,13 @@ export default function SessionView({ session, onBack }: SessionViewProps) {
           </div>
         </div>
       </div>
+
+      {/* Modal de partage */}
+      <ShareModal
+        session={shareableSession}
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+      />
     </div>
   );
 }

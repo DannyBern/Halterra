@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import type { MeditationSession } from '../types';
+import type { ShareableSession } from '../types/share';
 import { storage } from '../utils/storage';
 import { moods } from '../data/moods';
 import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
+import ShareModal from './ShareModal';
 import './History.css';
 
 interface HistoryProps {
@@ -31,6 +33,7 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
   const [sessions, setSessions] = useState<MeditationSession[]>([]);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [sessionToShare, setSessionToShare] = useState<ShareableSession | null>(null);
 
   const backgroundImage = `${import.meta.env.BASE_URL}professional_photograph_of_a_modern_home_library.jpeg`;
   const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImage);
@@ -49,6 +52,29 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
   const handleDeleteClick = (e: React.MouseEvent, sessionId: string) => {
     e.stopPropagation(); // Empêcher l'ouverture de la session
     setSessionToDelete(sessionId);
+  };
+
+  const handleShareClick = (e: React.MouseEvent, session: MeditationSession) => {
+    e.stopPropagation(); // Empêcher l'ouverture de la session
+    const mood = getMoodById(session.mood);
+
+    const shareableSession: ShareableSession = {
+      id: session.id,
+      meditationText: session.meditationText,
+      mood: {
+        id: mood?.id || 'calm',
+        name: mood?.name || session.mood,
+        icon: mood?.icon || '🌟',
+        color: mood?.color || '#667eea',
+      },
+      category: session.category,
+      intention: session.intention,
+      userName: session.userName,
+      date: session.date,
+      guideType: 'meditation',
+    };
+
+    setSessionToShare(shareableSession);
   };
 
   const confirmDelete = async () => {
@@ -208,16 +234,33 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
                             </div>
                           )}
                         </button>
-                        <button
-                          className="delete-button"
-                          onClick={(e) => handleDeleteClick(e, session.id)}
-                          aria-label="Supprimer cette méditation"
-                          title="Supprimer cette méditation"
-                        >
-                          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" strokeWidth="2">
-                            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
-                          </svg>
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            className="delete-button"
+                            onClick={(e) => handleShareClick(e, session)}
+                            aria-label="Partager cette méditation"
+                            title="Partager cette méditation"
+                            style={{ background: 'rgba(102, 126, 234, 0.15)', borderColor: 'rgba(102, 126, 234, 0.3)', color: '#667eea' }}
+                          >
+                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" strokeWidth="2">
+                              <circle cx="18" cy="5" r="3"/>
+                              <circle cx="6" cy="12" r="3"/>
+                              <circle cx="18" cy="19" r="3"/>
+                              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                            </svg>
+                          </button>
+                          <button
+                            className="delete-button"
+                            onClick={(e) => handleDeleteClick(e, session.id)}
+                            aria-label="Supprimer cette méditation"
+                            title="Supprimer cette méditation"
+                          >
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" strokeWidth="2">
+                              <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
+                            </svg>
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -251,6 +294,15 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
 
       {/* Fullscreen Background Viewer */}
       <FullscreenViewer />
+
+      {/* Modal de partage */}
+      {sessionToShare && (
+        <ShareModal
+          session={sessionToShare}
+          isOpen={true}
+          onClose={() => setSessionToShare(null)}
+        />
+      )}
     </div>
   );
 }
