@@ -1,0 +1,26 @@
+{
+  "name": "halterra-test-server",
+  "version": "1.0.0",
+  "description": "Serveur de test local pour la fonctionnalité de partage social Halterra Lite",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "halterra",
+    "test",
+    "share",
+    "mock",
+    "api"
+  ],
+  "author": "Halterra Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

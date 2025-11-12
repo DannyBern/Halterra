@@ -1,0 +1,339 @@
+/**
+ * Styles ShareModal - Design premium glassmorphism
+ */
+
+/* Overlay */
+.share-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 14, 26, 0.85);
+  backdrop-filter: blur(8px);
+  animation: share-fadeIn 0.3s ease-out;
+  padding: 1rem;
+}
+
+@keyframes share-fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal */
+.share-modal {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  animation: share-slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes share-slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header */
+.share-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.75rem 2rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.share-modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.share-modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.share-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Aperçu session */
+.share-preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  margin: 0;
+}
+
+.share-preview-mood {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.share-preview-icon {
+  font-size: 2rem;
+}
+
+.share-preview-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.share-preview-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 0.25rem 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.share-preview-mood-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* Status message */
+.share-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  margin: 0 2rem 1rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  animation: share-slideDown 0.3s ease-out;
+}
+
+@keyframes share-slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.share-status-success {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #86efac;
+}
+
+.share-status-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.share-status-icon {
+  font-size: 1.25rem;
+}
+
+.share-status-message {
+  flex: 1;
+}
+
+/* Grid de plateformes */
+.share-platforms-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 0 2rem 2rem;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.share-platform-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.25rem 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.share-platform-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--platform-color);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.share-platform-btn:hover::before {
+  opacity: 0.08;
+}
+
+.share-platform-btn:hover {
+  transform: translateY(-4px);
+  border-color: var(--platform-color);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.share-platform-btn:active {
+  transform: translateY(-2px);
+}
+
+.share-platform-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.share-platform-btn-loading {
+  animation: share-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes share-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.share-platform-icon {
+  font-size: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.share-platform-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* Footer */
+.share-modal-footer {
+  padding: 1.25rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.share-tip {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Responsive mobile */
+@media (max-width: 768px) {
+  .share-modal {
+    max-width: 100%;
+    border-radius: 24px 24px 0 0;
+    align-self: flex-end;
+    max-height: 85vh;
+  }
+
+  .share-modal-header {
+    padding: 1.5rem 1.5rem 1rem;
+  }
+
+  .share-modal-title {
+    font-size: 1.25rem;
+  }
+
+  .share-preview {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .share-platforms-grid {
+    padding: 0 1.5rem 1.5rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .share-platform-btn {
+    padding: 1rem 0.5rem;
+  }
+
+  .share-platform-icon {
+    font-size: 1.75rem;
+  }
+
+  .share-platform-name {
+    font-size: 0.75rem;
+  }
+
+  .share-modal-footer {
+    padding: 1rem 1.5rem;
+  }
+
+  .share-tip {
+    font-size: 0.85rem;
+  }
+}
+
+/* Touch-friendly sur très petits écrans */
+@media (max-width: 380px) {
+  .share-platforms-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
