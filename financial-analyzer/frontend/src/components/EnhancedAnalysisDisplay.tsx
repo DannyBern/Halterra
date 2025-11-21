@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { CollapsibleSection } from './CollapsibleSection'
 
 interface EnhancedAnalysisDisplayProps {
@@ -15,7 +15,8 @@ interface AnalysisSection {
 }
 
 export function EnhancedAnalysisDisplay({ analysis, processingTime }: EnhancedAnalysisDisplayProps) {
-  const [showAllSections, setShowAllSections] = useState(false)
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set())
+  const [allOpen, setAllOpen] = useState(false)
 
   const sections = useMemo(() => {
     const sectionsList: AnalysisSection[] = []
@@ -28,12 +29,12 @@ export function EnhancedAnalysisDisplay({ analysis, processingTime }: EnhancedAn
     const sectionPatterns = [
       { regex: /ÉTAPE 0.*?CLASSIFICATION/i, id: 'classification', icon: '🔍', title: 'Classification du Type d\'Investissement' },
       { regex: /ÉTAPE 1.*?DONNÉES.*?EXTRAITES/i, id: 'extraction', icon: '📊', title: 'Données Extraites & Validées' },
-      { regex: /ÉTAPE 2.*?ANALYSE QUANTITATIVE/i, id: 'quantitative', icon: '🔢', title: 'Due Diligence Quantitative (Calculs Financiers)' },
-      { regex: /ÉTAPE 3.*?ANALYSE QUALITATIVE/i, id: 'qualitative', icon: '🎓', title: 'Due Diligence Qualitative (Moat & Stratégie)' },
+      { regex: /ÉTAPE 2.*?ANALYSE QUANTITATIVE/i, id: 'quantitative', icon: '🔢', title: 'Due Diligence Quantitative' },
+      { regex: /ÉTAPE 3.*?ANALYSE QUALITATIVE/i, id: 'qualitative', icon: '🎓', title: 'Due Diligence Qualitative' },
       { regex: /ÉTAPE 4.*?ANALYSE.*?RISQUES/i, id: 'risks', icon: '⚠️', title: 'Analyse de Risques' },
-      { regex: /ÉTAPE 5.*?ÉVALUATION COMPARATIVE/i, id: 'comparative', icon: '📊', title: 'Évaluation Comparative & Benchmarking' },
+      { regex: /ÉTAPE 5.*?ÉVALUATION COMPARATIVE/i, id: 'comparative', icon: '📈', title: 'Évaluation Comparative' },
       { regex: /ÉTAPE 6.*?SYNTHÈSE.*?DÉCISION/i, id: 'decision', icon: '✅', title: 'Synthèse Finale & Décision' },
-      { regex: /DONNÉES STRUCTURÉES.*?GRAPHIQUES/i, id: 'visualization', icon: '📈', title: 'Données de Visualisation' }
+      { regex: /DONNÉES STRUCTURÉES.*?GRAPHIQUES/i, id: 'visualization', icon: '📉', title: 'Données de Visualisation' }
     ]
 
     for (let i = 0; i < lines.length; i++) {
@@ -80,58 +81,105 @@ export function EnhancedAnalysisDisplay({ analysis, processingTime }: EnhancedAn
     return sectionsList
   }, [analysis])
 
+  // Initialize open sections with decision section
+  useEffect(() => {
+    const initialOpen = new Set(sections.filter(s => s.defaultOpen).map(s => s.id))
+    setOpenSections(initialOpen)
+  }, [sections])
+
   const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId)
+    const element = document.getElementById(`section-${sectionId}`)
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }
 
-  const decisionSection = sections.find(s => s.id === 'decision')
+  const toggleAllSections = () => {
+    if (allOpen) {
+      // Close all
+      setOpenSections(new Set())
+      setAllOpen(false)
+    } else {
+      // Open all
+      setOpenSections(new Set(sections.map(s => s.id)))
+      setAllOpen(true)
+    }
+  }
+
+  const toggleSection = (sectionId: string) => {
+    const newOpenSections = new Set(openSections)
+    if (newOpenSections.has(sectionId)) {
+      newOpenSections.delete(sectionId)
+    } else {
+      newOpenSections.add(sectionId)
+    }
+    setOpenSections(newOpenSections)
+
+    // Update allOpen state
+    setAllOpen(newOpenSections.size === sections.length)
+  }
 
   return (
-    <div>
-      {/* Quick Navigation Summary */}
-      <div style={{
+    <div style={{
+      display: 'flex',
+      gap: '2rem',
+      position: 'relative',
+      minHeight: '600px'
+    }}>
+      {/* Fixed Sidebar Navigation */}
+      <aside style={{
+        position: 'sticky',
+        top: '2rem',
+        alignSelf: 'flex-start',
+        width: '280px',
+        flexShrink: 0,
         background: 'linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%)',
         border: '2px solid var(--gold)',
         borderRadius: 'var(--radius-lg)',
         padding: '1.5rem',
-        marginBottom: '2rem',
-        boxShadow: 'var(--shadow-gold)'
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+        maxHeight: 'calc(100vh - 4rem)',
+        overflowY: 'auto'
       }}>
         <div style={{
           display: 'flex',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '1rem'
+          gap: '0.5rem',
+          marginBottom: '1rem',
+          paddingBottom: '1rem',
+          borderBottom: '2px solid var(--gold)'
         }}>
+          <span style={{ fontSize: '1.5rem' }}>📋</span>
           <h3 style={{
-            fontSize: '1.25rem',
+            fontSize: '1.125rem',
             fontWeight: '700',
             color: 'var(--gold)',
             margin: 0
           }}>
-            📋 Navigation Rapide
+            Navigation
           </h3>
-          {processingTime && (
-            <span style={{
-              fontSize: '0.875rem',
-              color: 'var(--text-tertiary)',
-              background: 'var(--bg-elevated)',
-              padding: '0.375rem 0.75rem',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--gray-800)'
-            }}>
-              ⚡ Analyse complétée en {processingTime.toFixed(1)}s
-            </span>
-          )}
         </div>
 
+        {processingTime && (
+          <div style={{
+            fontSize: '0.75rem',
+            color: 'var(--text-tertiary)',
+            background: 'var(--bg-elevated)',
+            padding: '0.5rem 0.75rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--gray-800)',
+            marginBottom: '1rem',
+            textAlign: 'center'
+          }}>
+            ⚡ {processingTime.toFixed(1)}s
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '0.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem',
           marginBottom: '1rem'
         }}>
           {sections.map((section) => (
@@ -139,12 +187,19 @@ export function EnhancedAnalysisDisplay({ analysis, processingTime }: EnhancedAn
               key={section.id}
               onClick={() => scrollToSection(section.id)}
               style={{
-                padding: '0.75rem 1rem',
-                background: 'var(--bg-elevated)',
-                border: '1px solid var(--gray-800)',
+                padding: '0.75rem',
+                background: openSections.has(section.id)
+                  ? 'rgba(212, 175, 55, 0.1)'
+                  : 'var(--bg-elevated)',
+                border: openSections.has(section.id)
+                  ? '1px solid var(--gold)'
+                  : '1px solid var(--gray-800)',
                 borderRadius: 'var(--radius-md)',
-                color: 'var(--text-secondary)',
-                fontSize: '0.875rem',
+                color: openSections.has(section.id)
+                  ? 'var(--gold)'
+                  : 'var(--text-secondary)',
+                fontSize: '0.8125rem',
+                fontWeight: openSections.has(section.id) ? '600' : '400',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
                 textAlign: 'left',
@@ -154,59 +209,78 @@ export function EnhancedAnalysisDisplay({ analysis, processingTime }: EnhancedAn
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = 'var(--gold)'
-                e.currentTarget.style.color = 'var(--gold)'
+                e.currentTarget.style.background = 'rgba(212, 175, 55, 0.1)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--gray-800)'
-                e.currentTarget.style.color = 'var(--text-secondary)'
+                if (!openSections.has(section.id)) {
+                  e.currentTarget.style.borderColor = 'var(--gray-800)'
+                  e.currentTarget.style.background = 'var(--bg-elevated)'
+                }
               }}
             >
-              <span>{section.icon}</span>
-              <span style={{ fontSize: '0.8125rem' }}>{section.title.substring(0, 30)}{section.title.length > 30 ? '...' : ''}</span>
+              <span style={{ fontSize: '1rem' }}>{section.icon}</span>
+              <span style={{ flex: 1, lineHeight: '1.3' }}>
+                {section.title}
+              </span>
             </button>
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        {/* Control Buttons */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem',
+          paddingTop: '1rem',
+          borderTop: '1px solid var(--gray-800)'
+        }}>
           <button
             onClick={() => scrollToSection('decision')}
             style={{
-              flex: 1,
-              padding: '0.875rem 1.5rem',
-              background: 'linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%)',
+              padding: '0.875rem',
+              background: 'linear-gradient(135deg, var(--gold) 0%, #b8941f 100%)',
               border: 'none',
               borderRadius: 'var(--radius-md)',
               color: 'var(--bg-primary)',
-              fontSize: '0.9375rem',
+              fontSize: '0.875rem',
               fontWeight: '700',
               cursor: 'pointer',
-              boxShadow: 'var(--shadow-gold)',
-              transition: 'all 0.2s'
+              boxShadow: '0 4px 12px rgba(212, 175, 55, 0.3)',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 0 30px rgba(212, 175, 55, 0.3)'
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(212, 175, 55, 0.4)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-gold)'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 175, 55, 0.3)'
             }}
           >
-            ✅ Aller à la Décision Finale
+            <span>✅</span>
+            <span>Décision Finale</span>
           </button>
 
           <button
-            onClick={() => setShowAllSections(!showAllSections)}
+            onClick={toggleAllSections}
             style={{
-              padding: '0.875rem 1.5rem',
+              padding: '0.75rem',
               background: 'var(--bg-elevated)',
-              border: '2px solid var(--gray-800)',
+              border: '1px solid var(--gray-800)',
               borderRadius: 'var(--radius-md)',
               color: 'var(--text-secondary)',
-              fontSize: '0.9375rem',
+              fontSize: '0.8125rem',
               fontWeight: '600',
               cursor: 'pointer',
-              transition: 'all 0.2s'
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = 'var(--gold)'
@@ -217,13 +291,17 @@ export function EnhancedAnalysisDisplay({ analysis, processingTime }: EnhancedAn
               e.currentTarget.style.color = 'var(--text-secondary)'
             }}
           >
-            {showAllSections ? '📕 Fermer Tout' : '📖 Ouvrir Tout'}
+            <span>{allOpen ? '📕' : '📖'}</span>
+            <span>{allOpen ? 'Fermer Tout' : 'Ouvrir Tout'}</span>
           </button>
         </div>
-      </div>
+      </aside>
 
-      {/* Sections */}
-      <div style={{ marginBottom: '2rem' }}>
+      {/* Main Content */}
+      <main style={{
+        flex: 1,
+        minWidth: 0 // Allows flex item to shrink below content size
+      }}>
         {sections.map((section) => (
           <CollapsibleSection
             key={section.id}
@@ -231,64 +309,11 @@ export function EnhancedAnalysisDisplay({ analysis, processingTime }: EnhancedAn
             title={section.title}
             content={section.content}
             icon={section.icon}
-            defaultOpen={showAllSections || section.defaultOpen}
+            isOpen={openSections.has(section.id)}
+            onToggle={() => toggleSection(section.id)}
           />
         ))}
-      </div>
-
-      {/* Decision Highlight at Bottom */}
-      {decisionSection && (
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%)',
-          border: '2px solid var(--gold)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '1.5rem',
-          marginTop: '2rem'
-        }}>
-          <h3 style={{
-            fontSize: '1.25rem',
-            fontWeight: '700',
-            color: 'var(--gold)',
-            marginBottom: '1rem'
-          }}>
-            💎 Décision Finale
-          </h3>
-          <p style={{
-            color: 'var(--text-secondary)',
-            fontSize: '0.9375rem',
-            lineHeight: '1.6',
-            margin: 0
-          }}>
-            Consultez la section <strong>"Synthèse Finale & Décision"</strong> ci-dessus pour la recommandation complète.
-          </p>
-          <button
-            onClick={() => scrollToSection('decision')}
-            style={{
-              marginTop: '1rem',
-              padding: '0.75rem 1.5rem',
-              background: 'var(--gold)',
-              border: 'none',
-              borderRadius: 'var(--radius-md)',
-              color: 'var(--bg-primary)',
-              fontSize: '0.9375rem',
-              fontWeight: '700',
-              cursor: 'pointer',
-              boxShadow: 'var(--shadow-md)',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-md)'
-            }}
-          >
-            📍 Voir la Décision
-          </button>
-        </div>
-      )}
+      </main>
     </div>
   )
 }
