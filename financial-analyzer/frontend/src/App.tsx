@@ -19,6 +19,7 @@ function App() {
   const [isDragging, setIsDragging] = useState(false)
   const [history, setHistory] = useState<AnalysisHistory[]>([])
   const [showHistory, setShowHistory] = useState(false)
+  const [analysisMode, setAnalysisMode] = useState<'quick' | 'premium'>('premium')
 
   // Load history from localStorage on mount
   useEffect(() => {
@@ -105,7 +106,7 @@ function App() {
     setProcessingTime(undefined)
 
     try {
-      const response = await analyzeFile(uploadedFile.file_id, userQuery)
+      const response = await analyzeFile(uploadedFile.file_id, userQuery, analysisMode)
       setAnalysis(response.analysis)
       setProcessingTime(response.processing_time)
     } catch (err) {
@@ -209,6 +210,68 @@ function App() {
                 />
               </div>
 
+              {/* Analysis Mode Toggle */}
+              <div style={{
+                marginBottom: '1.5rem',
+                padding: '1rem',
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--gray-800)',
+                borderRadius: 'var(--radius-md)'
+              }}>
+                <label style={{
+                  fontSize: '0.875rem',
+                  color: 'var(--text-tertiary)',
+                  marginBottom: '0.75rem',
+                  display: 'block'
+                }}>
+                  🎯 Analysis Mode
+                </label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => setAnalysisMode('quick')}
+                    disabled={isLoading}
+                    style={{
+                      flex: 1,
+                      padding: '0.75rem 1rem',
+                      border: `2px solid ${analysisMode === 'quick' ? 'var(--gold)' : 'var(--gray-800)'}`,
+                      background: analysisMode === 'quick' ? 'var(--gold-subtle)' : 'var(--bg-card)',
+                      color: analysisMode === 'quick' ? 'var(--gold)' : 'var(--text-secondary)',
+                      borderRadius: 'var(--radius-md)',
+                      cursor: isLoading ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s',
+                      fontWeight: analysisMode === 'quick' ? '700' : '500',
+                      fontSize: '0.9375rem'
+                    }}
+                  >
+                    <div>⚡ Quick Mode</div>
+                    <div style={{ fontSize: '0.75rem', marginTop: '0.25rem', opacity: 0.8 }}>
+                      2 stages • ~30-60s
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setAnalysisMode('premium')}
+                    disabled={isLoading}
+                    style={{
+                      flex: 1,
+                      padding: '0.75rem 1rem',
+                      border: `2px solid ${analysisMode === 'premium' ? 'var(--gold)' : 'var(--gray-800)'}`,
+                      background: analysisMode === 'premium' ? 'var(--gold-subtle)' : 'var(--bg-card)',
+                      color: analysisMode === 'premium' ? 'var(--gold)' : 'var(--text-secondary)',
+                      borderRadius: 'var(--radius-md)',
+                      cursor: isLoading ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s',
+                      fontWeight: analysisMode === 'premium' ? '700' : '500',
+                      fontSize: '0.9375rem'
+                    }}
+                  >
+                    <div>🏆 Premium Mode</div>
+                    <div style={{ fontSize: '0.75rem', marginTop: '0.25rem', opacity: 0.8 }}>
+                      7 stages • ~90-180s • Maximum Precision
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <button
                   onClick={handleAnalyze}
@@ -218,11 +281,11 @@ function App() {
                   {isLoading ? (
                     <>
                       <span className="spinner"></span>
-                      Processing...
+                      {analysisMode === 'premium' ? 'Analyzing (7 stages)...' : 'Analyzing...'}
                     </>
                   ) : (
                     <>
-                      🔍 Analyze
+                      {analysisMode === 'premium' ? '🏆 Analyze (Premium)' : '⚡ Analyze (Quick)'}
                     </>
                   )}
                 </button>
@@ -240,7 +303,11 @@ function App() {
           {isLoading && (
             <div className="loading">
               <div className="spinner"></div>
-              <span>Processing your file... This may take 1-3 minutes.</span>
+              <span>
+                {analysisMode === 'premium'
+                  ? '🏆 Premium Analysis in progress (7 institutional-grade stages)... This will take 90-180 seconds.'
+                  : '⚡ Quick Analysis in progress (2 stages)... This will take 30-60 seconds.'}
+              </span>
             </div>
           )}
 

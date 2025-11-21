@@ -9,6 +9,7 @@ from pathlib import Path
 from config import config
 from services.file_handler import file_handler
 from services.claude_service import create_claude_service
+from services.multi_stage_analyzer import create_multi_stage_analyzer
 
 app = FastAPI(title="Financial Analyzer API")
 
@@ -21,8 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize Claude service
-claude_service = create_claude_service(config.ANTHROPIC_API_KEY)
+# Initialize services
+claude_service = create_claude_service(config.ANTHROPIC_API_KEY)  # Quick mode (2 stages)
+multi_stage_analyzer = create_multi_stage_analyzer(config.ANTHROPIC_API_KEY)  # Premium mode (7 stages)
 
 # Create upload directory
 os.makedirs(config.TEMP_UPLOAD_DIR, exist_ok=True)
@@ -34,6 +36,7 @@ uploaded_files = {}
 class AnalyzeRequest(BaseModel):
     file_id: str
     user_query: str
+    analysis_mode: str = "premium"  # "quick" (2 stages) or "premium" (7 stages)
 
 
 @app.get("/")
@@ -161,15 +164,23 @@ async def analyze_file(request: AnalyzeRequest):
             image_base64 = file_handler.image_to_base64(file_path)
             context["image_base64"] = image_base64
 
-        # Analyze with Claude
-        print("Sending to Claude for analysis...")
-        analysis = claude_service.analyze_financial_opportunity(context)
+        # Analyze with appropriate service based on mode
+        mode = request.analysis_mode.lower()
 
-        processing_time = time.time() - start_time
+        if mode == "premium":
+            print("🏆 Using PREMIUM mode (7-stage institutional analysis)...")
+            result = multi_stage_analyzer.analyze(context)
+            analysis = result["analysis"]
+            processing_time = result["processing_time"]
+        else:
+            print("⚡ Using QUICK mode (2-stage fast analysis)...")
+            analysis = claude_service.analyze_financial_opportunity(context)
+            processing_time = time.time() - start_time
 
         return {
             "analysis": analysis,
-            "processing_time": processing_time
+            "processing_time": processing_time,
+            "analysis_mode": mode
         }
 
     except HTTPException:

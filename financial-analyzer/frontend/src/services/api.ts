@@ -31,14 +31,15 @@ export const uploadFile = async (file: File): Promise<UploadResponse> => {
 
 export const analyzeFile = async (
   file_id: string,
-  user_query: string
+  user_query: string,
+  analysis_mode: string = 'premium'
 ): Promise<AnalyzeResponse> => {
   const response = await fetch(`${API_BASE_URL}/api/analyze`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ file_id, user_query }),
+    body: JSON.stringify({ file_id, user_query, analysis_mode }),
   });
 
   if (!response.ok) {
