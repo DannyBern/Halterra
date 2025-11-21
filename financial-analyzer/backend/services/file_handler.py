@@ -27,11 +27,11 @@ class FileHandler:
         except Exception as e:
             raise Exception(f"Error transcribing audio: {str(e)}")
 
-    def extract_video_frames(self, file_path: str, fps: int = 1) -> List[str]:
+    def extract_video_frames(self, file_path: str, fps: int = 2) -> List[str]:
         """
-        Extrait des frames d'une vidéo
-        fps: nombre de frames par seconde à extraire (défaut: 1)
-        Retourne une liste d'images en base64 (max 20 frames)
+        Extrait des frames d'une vidéo avec haute densité pour analyse précise
+        fps: nombre de frames par seconde à extraire (défaut: 2 pour plus de détails)
+        Retourne une liste d'images en base64 (max 40 frames pour capturer plus d'infos)
         """
         try:
             frames_base64 = []
@@ -45,14 +45,14 @@ class FileHandler:
             total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             duration = total_frames / video_fps if video_fps > 0 else 0
 
-            # Calculate frame interval
+            # Calculate frame interval - extract more frames for better analysis
             frame_interval = int(video_fps / fps) if video_fps > 0 else 1
 
-            print(f"Video: {duration:.2f}s, FPS: {video_fps}, extracting every {frame_interval} frames")
+            print(f"Video: {duration:.2f}s, FPS: {video_fps}, extracting every {frame_interval} frames (2 fps)")
 
             frame_count = 0
             extracted_count = 0
-            max_frames = 20
+            max_frames = 40  # Increased from 20 to 40 for better data capture
 
             while True:
                 ret, frame = cap.read()

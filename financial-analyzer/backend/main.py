@@ -141,14 +141,15 @@ async def analyze_file(request: AnalyzeRequest):
             context["transcription"] = transcription
 
         elif file_type == "video":
-            # Extract transcription and frames
+            # Extract transcription and frames with high density
             print("Extracting video transcription...")
             transcription = file_handler.extract_audio_transcription(file_path)
             context["transcription"] = transcription
 
-            print("Extracting video frames...")
-            frames = file_handler.extract_video_frames(file_path, fps=1)
+            print("Extracting video frames (2 fps for detailed analysis)...")
+            frames = file_handler.extract_video_frames(file_path, fps=2)
             context["frames"] = frames
+            print(f"Extracted {len(frames)} frames for analysis")
 
         elif file_type == "image":
             # Extract text via OCR
