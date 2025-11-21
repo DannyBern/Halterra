@@ -1,14 +1,41 @@
-import { useState, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { uploadFile, analyzeFile, UploadResponse } from './services/api'
+import { FileUploadZone } from './components/FileUploadZone'
+import { FileInfo } from './components/FileInfo'
+import { AnalysisResult } from './components/AnalysisResult'
+import { HistoryPanel } from './components/HistoryPanel'
+import { AnalysisHistory } from './types'
+import { exportToPDF } from './utils/exportPDF'
+
+const HISTORY_STORAGE_KEY = 'financial_analyzer_history'
 
 function App() {
   const [uploadedFile, setUploadedFile] = useState<UploadResponse | null>(null)
   const [userQuery, setUserQuery] = useState('')
   const [analysis, setAnalysis] = useState('')
+  const [processingTime, setProcessingTime] = useState<number | undefined>()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [isDragging, setIsDragging] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [history, setHistory] = useState<AnalysisHistory[]>([])
+  const [showHistory, setShowHistory] = useState(false)
+
+  // Load history from localStorage on mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY)
+    if (savedHistory) {
+      try {
+        setHistory(JSON.parse(savedHistory))
+      } catch (e) {
+        console.error('Failed to load history:', e)
+      }
+    }
+  }, [])
+
+  // Save history to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history))
+  }, [history])
 
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault()
@@ -49,15 +76,13 @@ function App() {
     setError('')
     setIsLoading(true)
     setAnalysis('')
+    setProcessingTime(undefined)
 
     try {
-      console.log('Uploading file:', file.name)
       const response = await uploadFile(file)
       setUploadedFile(response)
-      console.log('File uploaded successfully:', response)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
-      console.error('Upload error:', err)
     } finally {
       setIsLoading(false)
     }
@@ -77,145 +102,181 @@ function App() {
     setError('')
     setIsLoading(true)
     setAnalysis('')
+    setProcessingTime(undefined)
 
     try {
-      console.log('Analyzing file:', uploadedFile.file_id)
       const response = await analyzeFile(uploadedFile.file_id, userQuery)
       setAnalysis(response.analysis)
-      console.log(`Analysis completed in ${response.processing_time.toFixed(2)}s`)
+      setProcessingTime(response.processing_time)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Analysis failed')
-      console.error('Analysis error:', err)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return bytes + ' B'
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB'
-    return (bytes / (1024 * 1024)).toFixed(2) + ' MB'
+  const handleSaveToHistory = () => {
+    if (!uploadedFile || !analysis) return
+
+    const newItem: AnalysisHistory = {
+      id: Date.now().toString(),
+      filename: uploadedFile.original_filename,
+      fileType: uploadedFile.file_type,
+      query: userQuery,
+      analysis: analysis,
+      timestamp: Date.now(),
+      processingTime: processingTime || 0
+    }
+
+    setHistory([newItem, ...history])
+    alert('✅ Analysis saved to history!')
+  }
+
+  const handleSelectHistory = (item: AnalysisHistory) => {
+    setUserQuery(item.query)
+    setAnalysis(item.analysis)
+    setProcessingTime(item.processingTime)
+    setShowHistory(false)
+    setTimeout(() => {
+      document.querySelector('.analysis-result')?.scrollIntoView({ behavior: 'smooth' })
+    }, 100)
+  }
+
+  const handleDeleteHistory = (id: string) => {
+    if (confirm('Are you sure you want to delete this analysis?')) {
+      setHistory(history.filter((item) => item.id !== id))
+    }
+  }
+
+  const handleClearHistory = () => {
+    if (confirm('Are you sure you want to clear all history?')) {
+      setHistory([])
+      localStorage.removeItem(HISTORY_STORAGE_KEY)
+    }
+  }
+
+  const handleExportPDF = () => {
+    if (!uploadedFile || !analysis) return
+    exportToPDF(analysis, uploadedFile.original_filename, userQuery)
+  }
+
+  const handleClearFile = () => {
+    setUploadedFile(null)
+    setAnalysis('')
+    setProcessingTime(undefined)
+    setError('')
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1>Financial Analyzer</h1>
-      <p>Upload audio, video, or image files to analyze financial opportunities</p>
+    <div className="app-container">
+      <header className="app-header">
+        <h1 className="app-title">💼 Financial Analyzer</h1>
+        <p className="app-subtitle">
+          AI-powered financial opportunity analysis with Claude
+        </p>
+      </header>
 
-      {/* File Upload Zone */}
-      <div
-        onDragEnter={handleDragEnter}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-        style={{
-          border: isDragging ? '3px dashed #007bff' : '2px dashed #ccc',
-          borderRadius: '8px',
-          padding: '40px',
-          textAlign: 'center',
-          cursor: 'pointer',
-          backgroundColor: isDragging ? '#f0f8ff' : '#fafafa',
-          marginBottom: '20px'
-        }}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          onChange={handleFileSelect}
-          style={{ display: 'none' }}
-          accept="audio/*,video/*,image/*"
-        />
-        <p style={{ fontSize: '18px', margin: 0 }}>
-          {isDragging
-            ? 'Drop file here...'
-            : 'Drag and drop a file here, or click to select'}
-        </p>
-        <p style={{ fontSize: '14px', color: '#666', marginTop: '10px' }}>
-          Supported: Audio (mp3, wav, m4a, etc.), Video (mp4, avi, mov, etc.), Images (jpg, png, etc.)
-        </p>
+      <div style={{ display: 'grid', gridTemplateColumns: showHistory ? '1fr 400px' : '1fr', gap: '1.5rem' }}>
+        <div>
+          <FileUploadZone
+            isDragging={isDragging}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onFileSelect={handleFileSelect}
+            disabled={isLoading}
+          />
+
+          {uploadedFile && (
+            <FileInfo file={uploadedFile} onClear={handleClearFile} />
+          )}
+
+          {uploadedFile && (
+            <div className="card">
+              <div className="input-group">
+                <label htmlFor="query" className="input-label">
+                  💬 Your Financial Question
+                </label>
+                <textarea
+                  id="query"
+                  value={userQuery}
+                  onChange={(e) => setUserQuery(e.target.value)}
+                  placeholder="Ex: Ce duplex à 450k$ est-il un bon investissement? Analyse les risques et opportunités."
+                  className="textarea"
+                  rows={4}
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <button
+                  onClick={handleAnalyze}
+                  disabled={isLoading || !uploadedFile || !userQuery.trim()}
+                  className="btn btn-primary"
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="spinner"></span>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      🔍 Analyze
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => setShowHistory(!showHistory)}
+                  className="btn btn-secondary"
+                >
+                  {showHistory ? '❌ Hide History' : '📜 Show History'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {isLoading && (
+            <div className="loading">
+              <div className="spinner"></div>
+              <span>Processing your file... This may take 1-3 minutes.</span>
+            </div>
+          )}
+
+          {error && (
+            <div className="alert alert-error">
+              <strong>❌ Error:</strong> {error}
+            </div>
+          )}
+
+          {analysis && (
+            <AnalysisResult
+              analysis={analysis}
+              processingTime={processingTime}
+              onExportPDF={handleExportPDF}
+              onSaveToHistory={handleSaveToHistory}
+            />
+          )}
+        </div>
+
+        {showHistory && (
+          <div>
+            <HistoryPanel
+              history={history}
+              onSelect={handleSelectHistory}
+              onDelete={handleDeleteHistory}
+              onClear={handleClearHistory}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Uploaded File Info */}
-      {uploadedFile && (
-        <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#e8f5e9', borderRadius: '4px' }}>
-          <p><strong>File uploaded:</strong> {uploadedFile.original_filename}</p>
-          <p><strong>Type:</strong> {uploadedFile.file_type}</p>
-          <p><strong>Size:</strong> {formatFileSize(uploadedFile.file_size)}</p>
-        </div>
-      )}
-
-      {/* Query Input */}
-      <div style={{ marginBottom: '20px' }}>
-        <label htmlFor="query" style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-          Your Question:
-        </label>
-        <textarea
-          id="query"
-          value={userQuery}
-          onChange={(e) => setUserQuery(e.target.value)}
-          placeholder="Ex: Ce duplex à 450k$ est-il un bon investissement?"
-          rows={4}
-          style={{
-            width: '100%',
-            padding: '10px',
-            fontSize: '14px',
-            borderRadius: '4px',
-            border: '1px solid #ccc',
-            fontFamily: 'inherit'
-          }}
-        />
-      </div>
-
-      {/* Analyze Button */}
-      <button
-        onClick={handleAnalyze}
-        disabled={isLoading || !uploadedFile}
-        style={{
-          padding: '12px 24px',
-          fontSize: '16px',
-          backgroundColor: isLoading || !uploadedFile ? '#ccc' : '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: isLoading || !uploadedFile ? 'not-allowed' : 'pointer',
-          marginBottom: '20px'
-        }}
-      >
-        {isLoading ? 'Processing...' : 'Analyser'}
-      </button>
-
-      {/* Loading Indicator */}
-      {isLoading && (
-        <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#fff3cd', borderRadius: '4px' }}>
-          <p>⏳ Processing your file... This may take a minute.</p>
-        </div>
-      )}
-
-      {/* Error Display */}
-      {error && (
-        <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f8d7da', borderRadius: '4px', color: '#721c24' }}>
-          <p><strong>Error:</strong> {error}</p>
-        </div>
-      )}
-
-      {/* Analysis Result */}
-      {analysis && (
-        <div style={{ marginTop: '20px' }}>
-          <h2>Analysis Result:</h2>
-          <pre style={{
-            backgroundColor: '#f5f5f5',
-            padding: '20px',
-            borderRadius: '4px',
-            whiteSpace: 'pre-wrap',
-            fontSize: '14px',
-            lineHeight: '1.6',
-            border: '1px solid #ddd'
-          }}>
-            {analysis}
-          </pre>
-        </div>
-      )}
+      <footer style={{ marginTop: '3rem', textAlign: 'center', color: 'var(--gray-500)', fontSize: '0.875rem' }}>
+        <p>
+          Powered by Claude AI • Financial Analyzer v1.0
+        </p>
+      </footer>
     </div>
   )
 }
