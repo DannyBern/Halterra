@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { CashFlowChart, ROITimelineChart, ValueComparisonChart, RiskBreakdownChart } from './charts'
+import { EnhancedAnalysisDisplay } from './EnhancedAnalysisDisplay'
 
 interface AnalysisResultProps {
   analysis: string
@@ -48,14 +49,18 @@ export function AnalysisResult({
   onExportPDF,
   onSaveToHistory
 }: AnalysisResultProps) {
-  const { textContent, financialData } = useMemo(() => {
+  const { textContent, financialData, isMultiStage } = useMemo(() => {
+    // Check if this is a multi-stage analysis (7 stages)
+    const isMultiStage = /ÉTAPE \d.*?(CLASSIFICATION|DONNÉES|QUANTITATIVE|QUALITATIVE|RISQUES|COMPARATIVE|SYNTHÈSE)/i.test(analysis)
+
     // Extract JSON block from analysis
     const jsonMatch = analysis.match(/```json\s*([\s\S]*?)\s*```/)
 
     if (!jsonMatch) {
       return {
         textContent: analysis,
-        financialData: null
+        financialData: null,
+        isMultiStage
       }
     }
 
@@ -68,13 +73,15 @@ export function AnalysisResult({
 
       return {
         textContent,
-        financialData: data
+        financialData: data,
+        isMultiStage
       }
     } catch (error) {
       console.error('Failed to parse financial data JSON:', error)
       return {
         textContent: analysis,
-        financialData: null
+        financialData: null,
+        isMultiStage
       }
     }
   }, [analysis])
@@ -89,7 +96,9 @@ export function AnalysisResult({
   return (
     <div className="analysis-result">
       <div className="analysis-header">
-        <h2 className="analysis-title">📊 Analyse Financière Détaillée</h2>
+        <h2 className="analysis-title">
+          {isMultiStage ? '🏆 Analyse Institutionnelle Multi-Étapes' : '📊 Analyse Financière Détaillée'}
+        </h2>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           {onSaveToHistory && (
             <button onClick={onSaveToHistory} className="btn btn-secondary">
@@ -104,19 +113,14 @@ export function AnalysisResult({
         </div>
       </div>
 
-      {processingTime && (
-        <div className="alert alert-info" style={{ marginBottom: '1.5rem' }}>
-          ⚡ Analyse complétée en <strong>{processingTime.toFixed(2)}s</strong> avec vérification triple-couche
-        </div>
-      )}
-
       {/* Financial Summary Cards */}
       {financialData?.summary && (
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           gap: '1rem',
-          marginBottom: '2rem'
+          marginBottom: '2rem',
+          marginTop: '1.5rem'
         }}>
           <div style={{
             background: 'var(--bg-elevated)',
@@ -185,10 +189,17 @@ export function AnalysisResult({
         </div>
       )}
 
-      {/* Text Analysis */}
-      <div className="analysis-content" style={{ marginBottom: '2rem' }}>
-        {textContent}
-      </div>
+      {/* Use Enhanced Display for Multi-Stage Analysis, Regular for Quick */}
+      {isMultiStage ? (
+        <EnhancedAnalysisDisplay
+          analysis={textContent}
+          processingTime={processingTime}
+        />
+      ) : (
+        <div className="analysis-content" style={{ marginBottom: '2rem' }}>
+          {textContent}
+        </div>
+      )}
 
       {/* Interactive Charts */}
       {hasCharts && (
@@ -239,6 +250,7 @@ export function AnalysisResult({
         textAlign: 'center'
       }}>
         Analyse générée par Claude AI avec méthodologie Warren Buffett Value Investing
+        {isMultiStage && ' • Analyse institutionnelle 7 étapes'}
         {financialData && ' • Données structurées et visualisations professionnelles'}
       </div>
     </div>
