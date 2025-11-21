@@ -17,9 +17,43 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # ============================================================
+# STEP 0: GIT PULL - GET LATEST UPDATES
+# ============================================================
+echo -e "${YELLOW}🔄 Step 1/6: Downloading latest updates from Git...${NC}"
+
+cd "$DIR"
+
+# Check if we're in a git repository
+if [ -d ".git" ]; then
+    # Get current branch
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    echo "   • Current branch: $CURRENT_BRANCH"
+
+    # Fetch latest changes
+    echo "   • Fetching latest changes..."
+    git fetch origin "$CURRENT_BRANCH" 2>/dev/null
+
+    # Check if there are updates
+    LOCAL=$(git rev-parse HEAD)
+    REMOTE=$(git rev-parse origin/"$CURRENT_BRANCH" 2>/dev/null)
+
+    if [ "$LOCAL" != "$REMOTE" ]; then
+        echo "   • New updates found! Pulling..."
+        git pull origin "$CURRENT_BRANCH"
+        echo -e "   ${GREEN}✓ Updates downloaded successfully${NC}"
+    else
+        echo -e "   ${GREEN}✓ Already up to date${NC}"
+    fi
+else
+    echo "   • Not a git repository, skipping update check"
+fi
+
+echo ""
+
+# ============================================================
 # STEP 1: KILL OLD PROCESSES
 # ============================================================
-echo -e "${YELLOW}🔄 Step 1/5: Cleaning up old processes...${NC}"
+echo -e "${YELLOW}🔄 Step 2/6: Cleaning up old processes...${NC}"
 
 # Kill backend (port 8000)
 if lsof -Pi :8000 -sTCP:LISTEN -t >/dev/null 2>&1; then
@@ -45,7 +79,7 @@ echo ""
 # ============================================================
 # STEP 2: CHECK PYTHON DEPENDENCIES
 # ============================================================
-echo -e "${YELLOW}🔄 Step 2/5: Checking backend dependencies...${NC}"
+echo -e "${YELLOW}🔄 Step 3/6: Checking backend dependencies...${NC}"
 
 cd "$DIR/backend"
 
@@ -78,7 +112,7 @@ echo ""
 # ============================================================
 # STEP 3: CHECK FRONTEND DEPENDENCIES
 # ============================================================
-echo -e "${YELLOW}🔄 Step 3/5: Checking frontend dependencies...${NC}"
+echo -e "${YELLOW}🔄 Step 4/6: Checking frontend dependencies...${NC}"
 
 cd "$DIR/frontend"
 
@@ -96,7 +130,7 @@ echo ""
 # ============================================================
 # STEP 4: CLEAR CACHE
 # ============================================================
-echo -e "${YELLOW}🔄 Step 4/5: Clearing build cache...${NC}"
+echo -e "${YELLOW}🔄 Step 5/6: Clearing build cache...${NC}"
 
 # Clear Vite cache
 if [ -d "node_modules/.vite" ]; then
@@ -121,7 +155,7 @@ echo ""
 # ============================================================
 # STEP 5: START SERVICES
 # ============================================================
-echo -e "${YELLOW}🔄 Step 5/5: Starting services...${NC}"
+echo -e "${YELLOW}🔄 Step 6/6: Starting services...${NC}"
 
 # Function to cleanup on exit
 cleanup() {
