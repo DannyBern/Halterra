@@ -31,7 +31,7 @@ class MultiStageAnalyzer:
         if not api_key:
             raise ValueError("ANTHROPIC_API_KEY is required")
         self.client = Anthropic(api_key=api_key)
-        self.model = "claude-sonnet-4-20250514"
+        self.model = "claude-sonnet-4-5-20250929"  # Sonnet 4.5 (latest)
         self.analysis_log = []
 
     # ========== ÉTAPE 0: CLASSIFICATION ==========
