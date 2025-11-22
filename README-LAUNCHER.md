@@ -34,11 +34,14 @@ Le script `launch-mac.command` effectue automatiquement:
 
 ### 1. 📥 Mise à jour GitHub
 - Vérifie la branche actuelle
-- Télécharge les dernières mises à jour
+- Télécharge les dernières mises à jour (git fetch)
 - Pull les changements si disponibles
+- **Détecte si du nouveau code a été téléchargé**
 
 ### 2. 🔧 Backend (Python/FastAPI)
 - **Vérifie** si le backend tourne déjà (port 8000)
+- **🆕 SMART RESTART**: Si code mis à jour → redémarre automatiquement le backend
+- **Sinon**: Réutilise le backend existant (plus rapide!)
 - **Crée** un environnement virtuel Python si nécessaire
 - **Installe/Met à jour** toutes les dépendances:
   - FastAPI, Uvicorn
@@ -49,13 +52,96 @@ Le script `launch-mac.command` effectue automatiquement:
 
 ### 3. 🎨 Frontend (React/Vite)
 - **Vérifie** si le frontend tourne déjà (port 5173)
-- **Installe/Met à jour** les dépendances npm
+- **🆕 SMART RESTART**: Si code mis à jour → redémarre automatiquement le frontend
+- **Sinon**: Réutilise le frontend existant (plus rapide!)
+- **Installe/Met à jour** les dépendances npm si nécessaire
 - **Démarre** le serveur de développement Vite
 - **Lance** sur `http://localhost:5173`
 
 ### 4. 🌐 Navigateur
 - **Ouvre automatiquement** l'application dans votre navigateur par défaut
 - Prêt à utiliser immédiatement!
+
+---
+
+## 🎯 Résolution du Problème "Œuf et Poule"
+
+### Le Problème (Avant)
+```
+1. Tu as des serveurs qui tournent avec l'ancien code
+2. Tu fais git pull → nouveau code sur disque
+3. Tu lances l'app → elle voit les serveurs déjà actifs
+4. Les serveurs continuent avec l'ANCIEN code en mémoire
+5. ❌ Tu ne vois pas tes changements!
+```
+
+### La Solution (Maintenant)
+```
+1. Le script détecte si git pull a téléchargé du nouveau code
+2. Si OUI et serveurs actifs → REDÉMARRE automatiquement
+3. Les serveurs chargent le NOUVEAU code
+4. ✅ Tu vois toujours la dernière version!
+```
+
+### Comportement Intelligent
+
+**Scénario 1: Code mis à jour**
+```bash
+$ ./launch-mac.command
+
+📥 Vérification GitHub...
+⚠ Mises à jour disponibles! Téléchargement...
+✓ Mise à jour complétée!
+
+🔧 Backend...
+⚠ Code mis à jour! Redémarrage du backend...
+✓ Backend démarré avec nouveau code!
+
+🎨 Frontend...
+⚠ Code mis à jour! Redémarrage du frontend...
+✓ Frontend démarré avec nouveau code!
+```
+
+**Scénario 2: Pas de changements**
+```bash
+$ ./launch-mac.command
+
+📥 Vérification GitHub...
+✓ Déjà à jour!
+
+🔧 Backend...
+✓ Backend déjà en cours avec code à jour (PID: 1234)
+
+🎨 Frontend...
+✓ Frontend déjà en cours avec code à jour (PID: 5678)
+
+# Rien à redémarrer → Super rapide!
+```
+
+**Scénario 3: Première exécution**
+```bash
+$ ./launch-mac.command
+
+📥 Vérification GitHub...
+✓ Déjà à jour!
+
+🔧 Backend...
+⚠ Backend non démarré. Démarrage...
+(Installation dépendances...)
+✓ Backend démarré!
+
+🎨 Frontend...
+⚠ Frontend non démarré. Démarrage...
+(Installation dépendances...)
+✓ Frontend démarré!
+```
+
+### Résultat
+
+✅ **Plus jamais** de problème "œuf et poule"
+✅ **Toujours** le code le plus récent chargé
+✅ **Redémarrages** automatiques uniquement si nécessaire
+✅ **Performance** optimale (pas de redémarrage inutile)
 
 ---
 

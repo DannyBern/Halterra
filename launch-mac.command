@@ -31,6 +31,10 @@ echo ""
 echo -e "${BLUE}📥 Vérification des mises à jour GitHub...${NC}"
 
 # Check if git repo
+CODE_UPDATED=false
+LOCAL=""
+REMOTE=""
+
 if [ -d ".git" ]; then
     # Get current branch
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -38,21 +42,24 @@ if [ -d ".git" ]; then
 
     # Fetch latest changes
     echo "Récupération des dernières modifications..."
-    git fetch origin
+    git fetch origin 2>/dev/null
 
     # Check if there are updates
-    LOCAL=$(git rev-parse @)
-    REMOTE=$(git rev-parse @{u})
+    LOCAL=$(git rev-parse @ 2>/dev/null)
+    REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "$LOCAL")
 
-    if [ $LOCAL = $REMOTE ]; then
+    if [ "$LOCAL" = "$REMOTE" ]; then
         echo -e "${GREEN}✓ Déjà à jour!${NC}"
+        CODE_UPDATED=false
     else
         echo -e "${YELLOW}⚠ Mises à jour disponibles! Téléchargement...${NC}"
         git pull origin $CURRENT_BRANCH
         echo -e "${GREEN}✓ Mise à jour complétée!${NC}"
+        CODE_UPDATED=true
     fi
 else
     echo -e "${RED}⚠ Pas un dépôt Git. Ignorer les mises à jour.${NC}"
+    CODE_UPDATED=false
 fi
 
 echo ""
@@ -66,8 +73,18 @@ echo -e "${BLUE}🔧 Vérification du Backend (Python/FastAPI)...${NC}"
 BACKEND_PID=$(lsof -ti:8000 2>/dev/null || echo "")
 
 if [ -n "$BACKEND_PID" ]; then
-    echo -e "${GREEN}✓ Backend déjà en cours d'exécution (PID: $BACKEND_PID)${NC}"
-else
+    # Backend is running - check if code changed
+    if [ "$CODE_UPDATED" = true ]; then
+        echo -e "${YELLOW}⚠ Code mis à jour! Redémarrage du backend...${NC}"
+        kill $BACKEND_PID 2>/dev/null
+        sleep 2
+        BACKEND_PID=""
+    else
+        echo -e "${GREEN}✓ Backend déjà en cours d'exécution avec code à jour (PID: $BACKEND_PID)${NC}"
+    fi
+fi
+
+if [ -z "$BACKEND_PID" ]; then
     echo -e "${YELLOW}⚠ Backend non démarré. Démarrage...${NC}"
 
     cd "$SCRIPT_DIR/financial-analyzer/backend"
@@ -146,8 +163,18 @@ echo -e "${BLUE}🎨 Vérification du Frontend (React/Vite)...${NC}"
 FRONTEND_PID=$(lsof -ti:5173 2>/dev/null || echo "")
 
 if [ -n "$FRONTEND_PID" ]; then
-    echo -e "${GREEN}✓ Frontend déjà en cours d'exécution (PID: $FRONTEND_PID)${NC}"
-else
+    # Frontend is running - check if code changed
+    if [ "$CODE_UPDATED" = true ]; then
+        echo -e "${YELLOW}⚠ Code mis à jour! Redémarrage du frontend...${NC}"
+        kill $FRONTEND_PID 2>/dev/null
+        sleep 2
+        FRONTEND_PID=""
+    else
+        echo -e "${GREEN}✓ Frontend déjà en cours d'exécution avec code à jour (PID: $FRONTEND_PID)${NC}"
+    fi
+fi
+
+if [ -z "$FRONTEND_PID" ]; then
     echo -e "${YELLOW}⚠ Frontend non démarré. Démarrage...${NC}"
 
     cd "$SCRIPT_DIR/financial-analyzer/frontend"
