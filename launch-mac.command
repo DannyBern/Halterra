@@ -73,15 +73,11 @@ echo -e "${BLUE}🔧 Vérification du Backend (Python/FastAPI)...${NC}"
 BACKEND_PID=$(lsof -ti:8000 2>/dev/null || echo "")
 
 if [ -n "$BACKEND_PID" ]; then
-    # Backend is running - check if code changed
-    if [ "$CODE_UPDATED" = true ]; then
-        echo -e "${YELLOW}⚠ Code mis à jour! Redémarrage du backend...${NC}"
-        kill $BACKEND_PID 2>/dev/null
-        sleep 2
-        BACKEND_PID=""
-    else
-        echo -e "${GREEN}✓ Backend déjà en cours d'exécution avec code à jour (PID: $BACKEND_PID)${NC}"
-    fi
+    # Backend is running - ALWAYS restart to guarantee latest code
+    echo -e "${YELLOW}⚠ Backend en cours. Redémarrage pour garantir la dernière version...${NC}"
+    kill $BACKEND_PID 2>/dev/null
+    sleep 2
+    BACKEND_PID=""
 fi
 
 if [ -z "$BACKEND_PID" ]; then
@@ -163,15 +159,11 @@ echo -e "${BLUE}🎨 Vérification du Frontend (React/Vite)...${NC}"
 FRONTEND_PID=$(lsof -ti:5173 2>/dev/null || echo "")
 
 if [ -n "$FRONTEND_PID" ]; then
-    # Frontend is running - check if code changed
-    if [ "$CODE_UPDATED" = true ]; then
-        echo -e "${YELLOW}⚠ Code mis à jour! Redémarrage du frontend...${NC}"
-        kill $FRONTEND_PID 2>/dev/null
-        sleep 2
-        FRONTEND_PID=""
-    else
-        echo -e "${GREEN}✓ Frontend déjà en cours d'exécution avec code à jour (PID: $FRONTEND_PID)${NC}"
-    fi
+    # Frontend is running - ALWAYS restart to guarantee latest code
+    echo -e "${YELLOW}⚠ Frontend en cours. Redémarrage pour garantir la dernière version...${NC}"
+    kill $FRONTEND_PID 2>/dev/null
+    sleep 2
+    FRONTEND_PID=""
 fi
 
 if [ -z "$FRONTEND_PID" ]; then
