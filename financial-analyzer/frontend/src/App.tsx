@@ -252,9 +252,10 @@ function App() {
             </div>
           )}
 
-          {analysis && (
+          {analysis && uploadedFile && (
             <AnalysisResult
               analysis={analysis}
+              fileId={uploadedFile.file_id}
               processingTime={processingTime}
               onExportPDF={handleExportPDF}
               onSaveToHistory={handleSaveToHistory}

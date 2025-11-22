@@ -1,7 +1,9 @@
 import { SimpleAnalysisDisplay } from './SimpleAnalysisDisplay'
+import { ChatWithAnalysis } from './ChatWithAnalysis'
 
 interface AnalysisResultProps {
   analysis: string
+  fileId: string
   processingTime?: number
   onExportPDF?: () => void
   onSaveToHistory?: () => void
@@ -9,6 +11,7 @@ interface AnalysisResultProps {
 
 export function AnalysisResult({
   analysis,
+  fileId,
   processingTime,
   onExportPDF,
   onSaveToHistory
@@ -37,6 +40,12 @@ export function AnalysisResult({
       <SimpleAnalysisDisplay
         analysis={analysis}
         processingTime={processingTime}
+      />
+
+      {/* Interactive Chat with Warren Buffett */}
+      <ChatWithAnalysis
+        fileId={fileId}
+        analysis={analysis}
       />
 
       {/* Professional Footer */}

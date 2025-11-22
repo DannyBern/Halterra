@@ -9,6 +9,7 @@ from pathlib import Path
 from config import config
 from services.file_handler import file_handler
 from services.multi_stage_analyzer import create_multi_stage_analyzer
+from services.warren_buffett_chat import create_warren_buffett_chat
 
 app = FastAPI(title="Financial Analyzer API")
 
@@ -24,11 +25,15 @@ app.add_middleware(
 # Initialize multi-stage analyzer (7 institutional-grade stages)
 multi_stage_analyzer = create_multi_stage_analyzer(config.ANTHROPIC_API_KEY)
 
+# Initialize Warren Buffett chat service
+warren_chat = create_warren_buffett_chat(config.ANTHROPIC_API_KEY)
+
 # Create upload directory
 os.makedirs(config.TEMP_UPLOAD_DIR, exist_ok=True)
 
-# In-memory storage for uploaded files
+# In-memory storage for uploaded files and analyses
 uploaded_files = {}
+analysis_cache = {}  # Store analyses for chat access
 
 
 class AnalyzeRequest(BaseModel):
@@ -36,11 +41,17 @@ class AnalyzeRequest(BaseModel):
     user_query: str
 
 
+class ChatRequest(BaseModel):
+    file_id: str
+    question: str
+    chat_history: list = []
+
+
 @app.get("/")
 def read_root():
     return {
         "message": "Financial Analyzer API",
-        "endpoints": ["/api/upload", "/api/analyze"]
+        "endpoints": ["/api/upload", "/api/analyze", "/api/chat"]
     }
 
 
@@ -173,6 +184,14 @@ async def analyze_file(request: AnalyzeRequest):
         analysis = result["analysis"]
         processing_time = result["processing_time"]
 
+        # Store analysis in cache for chat access
+        analysis_cache[request.file_id] = {
+            "analysis": analysis,
+            "context": context,
+            "file_info": file_info,
+            "timestamp": time.time()
+        }
+
         return {
             "analysis": analysis,
             "processing_time": processing_time
@@ -181,6 +200,49 @@ async def analyze_file(request: AnalyzeRequest):
     except HTTPException:
         raise
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/chat")
+async def chat_with_warren(request: ChatRequest):
+    """
+    Chat avec Warren Buffett au sujet de l'analyse
+    Body: { file_id: str, question: str, chat_history: list }
+    Returns: { response: str }
+    """
+    try:
+        # Check if analysis exists for this file
+        if request.file_id not in analysis_cache:
+            raise HTTPException(
+                status_code=404,
+                detail="Analyse non trouvée. Veuillez d'abord analyser le fichier."
+            )
+
+        # Récupérer l'analyse du cache
+        cached_data = analysis_cache[request.file_id]
+        analysis = cached_data["analysis"]
+        context = cached_data.get("context", {})
+
+        print(f"💬 Chat question: {request.question[:100]}...")
+
+        # Appeler le service de chat Warren Buffett
+        response = warren_chat.chat(
+            question=request.question,
+            analysis=analysis,
+            file_context=context,
+            chat_history=request.chat_history
+        )
+
+        print(f"✓ Chat response generated ({len(response)} chars)")
+
+        return {
+            "response": response
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Erreur chat: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
