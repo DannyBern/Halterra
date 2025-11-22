@@ -1,11 +1,11 @@
-interface QuickAnalysisDisplayProps {
+interface PremiumAnalysisDisplayProps {
   analysis: string
   processingTime?: number
 }
 
-export function QuickAnalysisDisplay({ analysis, processingTime }: QuickAnalysisDisplayProps) {
+export function PremiumAnalysisDisplay({ analysis, processingTime }: PremiumAnalysisDisplayProps) {
   // Parse analysis into sections
-  const sections = parseQuickAnalysis(analysis)
+  const sections = parsePremiumAnalysis(analysis)
 
   return (
     <div style={{
@@ -21,27 +21,27 @@ export function QuickAnalysisDisplay({ analysis, processingTime }: QuickAnalysis
           background: 'var(--bg-card)',
           padding: '0.75rem 1.25rem',
           borderRadius: 'var(--radius-lg)',
-          border: '2px solid var(--info)',
+          border: '2px solid var(--gold)',
           marginBottom: '2rem',
           fontWeight: '600'
         }}>
-          ⚡ Analyse rapide complétée en {processingTime.toFixed(1)}s
+          ⚡ Analyse institutionnelle complétée en {processingTime.toFixed(1)}s
         </div>
       )}
 
       {/* Table of Contents */}
       <div style={{
         background: 'linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%)',
-        border: '2px solid var(--info)',
+        border: '2px solid var(--gold)',
         borderRadius: 'var(--radius-lg)',
         padding: '2rem',
         marginBottom: '3rem',
-        boxShadow: '0 8px 32px rgba(59, 130, 246, 0.2)'
+        boxShadow: '0 8px 32px rgba(212, 175, 55, 0.2)'
       }}>
         <h3 style={{
           fontSize: '1.5rem',
           fontWeight: '700',
-          color: 'var(--info)',
+          color: 'var(--gold)',
           marginBottom: '1.5rem',
           display: 'flex',
           alignItems: 'center',
@@ -74,8 +74,8 @@ export function QuickAnalysisDisplay({ analysis, processingTime }: QuickAnalysis
                 fontWeight: '500'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--info)'
-                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)'
+                e.currentTarget.style.borderColor = 'var(--gold)'
+                e.currentTarget.style.background = 'rgba(212, 175, 55, 0.1)'
                 e.currentTarget.style.transform = 'translateX(4px)'
               }}
               onMouseLeave={(e) => {
@@ -84,7 +84,7 @@ export function QuickAnalysisDisplay({ analysis, processingTime }: QuickAnalysis
                 e.currentTarget.style.transform = 'translateX(0)'
               }}
             >
-              <span style={{ fontSize: '1.25rem' }}>{section.title.split(' ')[0]}</span>
+              <span style={{ fontSize: '1.5rem' }}>{section.icon}</span>
               <span>{section.title}</span>
             </a>
           ))}
@@ -97,9 +97,11 @@ export function QuickAnalysisDisplay({ analysis, processingTime }: QuickAnalysis
           key={index}
           id={`section-${index}`}
           title={section.title}
+          icon={section.icon}
           content={section.content}
           isDecision={section.isDecision}
           index={index}
+          total={sections.length}
         />
       ))}
 
@@ -116,23 +118,23 @@ export function QuickAnalysisDisplay({ analysis, processingTime }: QuickAnalysis
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           style={{
             padding: '1rem 2rem',
-            background: 'linear-gradient(135deg, var(--info) 0%, #2563eb 100%)',
+            background: 'linear-gradient(135deg, var(--gold) 0%, #b8941f 100%)',
             border: 'none',
             borderRadius: 'var(--radius-md)',
-            color: 'white',
+            color: 'var(--bg-primary)',
             fontSize: '1rem',
             fontWeight: '700',
             cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+            boxShadow: '0 4px 12px rgba(212, 175, 55, 0.3)',
             transition: 'all 0.2s'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)'
-            e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)'
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(212, 175, 55, 0.4)'
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'translateY(0)'
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)'
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 175, 55, 0.3)'
           }}
         >
           ⬆️ Retour en Haut
@@ -144,45 +146,43 @@ export function QuickAnalysisDisplay({ analysis, processingTime }: QuickAnalysis
 
 interface AnalysisSection {
   title: string
+  icon: string
   content: string
   isDecision: boolean
 }
 
-function parseQuickAnalysis(analysis: string): AnalysisSection[] {
+function parsePremiumAnalysis(analysis: string): AnalysisSection[] {
   const sections: AnalysisSection[] = []
   const lines = analysis.split('\n')
 
   let currentSection: AnalysisSection | null = null
   let currentContent: string[] = []
 
-  // Section patterns to identify
   const sectionPatterns = [
-    { regex: /^(\*\*)?DONNÉES BRUTES EXTRAITES/i, title: '📊 Données Brutes Extraites', isDecision: false },
-    { regex: /^(\*\*)?1\.?\s*VALEUR INTRINSÈQUE/i, title: '💰 Valeur Intrinsèque Estimée', isDecision: false },
-    { regex: /^(\*\*)?2\.?\s*ÉCART PRIX/i, title: '📈 Écart Prix / Valeur', isDecision: false },
-    { regex: /^(\*\*)?3\.?\s*MOAT ÉCONOMIQUE/i, title: '🏰 Moat Économique', isDecision: false },
-    { regex: /^(\*\*)?4\.?\s*RISQUES MAJEURS/i, title: '⚠️ Risques Majeurs', isDecision: false },
-    { regex: /^(\*\*)?5\.?\s*CASH-?FLOW/i, title: '💵 Cash-Flow Réaliste', isDecision: false },
-    { regex: /^(\*\*)?6\.?\s*DÉCISION FINALE/i, title: '✅ Décision Finale', isDecision: true },
-    { regex: /^(\*\*)?7\.?\s*RED FLAGS/i, title: '🚩 Red Flags Critiques', isDecision: false }
+    { regex: /ÉTAPE 0.*?CLASSIFICATION/i, icon: '🔍', title: 'Classification du Type d\'Investissement', isDecision: false },
+    { regex: /ÉTAPE 1.*?DONNÉES.*?EXTRAITES/i, icon: '📊', title: 'Données Extraites & Validées', isDecision: false },
+    { regex: /ÉTAPE 2.*?ANALYSE QUANTITATIVE/i, icon: '🔢', title: 'Due Diligence Quantitative', isDecision: false },
+    { regex: /ÉTAPE 3.*?ANALYSE QUALITATIVE/i, icon: '🎓', title: 'Due Diligence Qualitative', isDecision: false },
+    { regex: /ÉTAPE 4.*?ANALYSE.*?RISQUES/i, icon: '⚠️', title: 'Analyse de Risques', isDecision: false },
+    { regex: /ÉTAPE 5.*?ÉVALUATION COMPARATIVE/i, icon: '📈', title: 'Évaluation Comparative & Benchmarking', isDecision: false },
+    { regex: /ÉTAPE 6.*?SYNTHÈSE.*?DÉCISION/i, icon: '✅', title: 'Synthèse Finale & Décision', isDecision: true },
+    { regex: /DONNÉES STRUCTURÉES.*?GRAPHIQUES/i, icon: '📉', title: 'Données de Visualisation', isDecision: false }
   ]
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
 
-    // Check if line starts a new section
     let foundSection = false
     for (const pattern of sectionPatterns) {
       if (pattern.regex.test(line)) {
-        // Save previous section
         if (currentSection && currentContent.length > 0) {
           currentSection.content = currentContent.join('\n').trim()
           sections.push(currentSection)
         }
 
-        // Start new section
         currentSection = {
           title: pattern.title,
+          icon: pattern.icon,
           content: '',
           isDecision: pattern.isDecision
         }
@@ -193,14 +193,12 @@ function parseQuickAnalysis(analysis: string): AnalysisSection[] {
     }
 
     if (!foundSection && currentSection) {
-      // Skip the original title line
-      if (!line.match(/^(\*\*)?[0-9]\.?\s*[A-Z]/)) {
+      if (!line.match(/^={10,}$/)) {
         currentContent.push(line)
       }
     }
   }
 
-  // Add last section
   if (currentSection && currentContent.length > 0) {
     currentSection.content = currentContent.join('\n').trim()
     sections.push(currentSection)
@@ -212,14 +210,14 @@ function parseQuickAnalysis(analysis: string): AnalysisSection[] {
 interface SectionProps {
   id: string
   title: string
+  icon: string
   content: string
   isDecision: boolean
   index: number
+  total: number
 }
 
-function Section({ id, title, content, isDecision, index }: SectionProps) {
-  const icon = title.split(' ')[0] // Extract emoji from title
-
+function Section({ id, title, icon, content, isDecision, index }: SectionProps) {
   return (
     <div
       id={id}
@@ -231,14 +229,14 @@ function Section({ id, title, content, isDecision, index }: SectionProps) {
       {/* Section Header */}
       <div style={{
         background: isDecision
-          ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.05) 100%)'
+          ? 'linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.05) 100%)'
           : 'linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%)',
-        border: isDecision ? '3px solid var(--success)' : '2px solid var(--gray-800)',
+        border: isDecision ? '3px solid var(--gold)' : '2px solid var(--gray-800)',
         borderRadius: 'var(--radius-lg)',
         padding: '2rem',
         marginBottom: '1.5rem',
         boxShadow: isDecision
-          ? '0 8px 32px rgba(34, 197, 94, 0.3)'
+          ? '0 8px 32px rgba(212, 175, 55, 0.3)'
           : '0 4px 16px rgba(0, 0, 0, 0.2)'
       }}>
         <div style={{
@@ -260,12 +258,12 @@ function Section({ id, title, content, isDecision, index }: SectionProps) {
               fontWeight: '600',
               marginBottom: '0.25rem'
             }}>
-              SECTION {index + 1}
+              ÉTAPE {index}
             </div>
             <h2 style={{
               fontSize: isDecision ? '2rem' : '1.75rem',
               fontWeight: '700',
-              color: isDecision ? 'var(--success)' : 'var(--text-primary)',
+              color: isDecision ? 'var(--gold)' : 'var(--text-primary)',
               margin: 0,
               lineHeight: '1.2'
             }}>
@@ -278,7 +276,7 @@ function Section({ id, title, content, isDecision, index }: SectionProps) {
       {/* Section Content */}
       <div style={{
         background: 'var(--bg-elevated)',
-        border: isDecision ? '2px solid var(--success)' : '1px solid var(--gray-800)',
+        border: isDecision ? '2px solid var(--gold)' : '1px solid var(--gray-800)',
         borderRadius: 'var(--radius-lg)',
         padding: '2.5rem',
         fontSize: '1rem',
@@ -311,11 +309,11 @@ function formatContent(content: string, isDecision: boolean) {
           style={{
             fontSize: level === 1 ? '1.5rem' : level === 2 ? '1.25rem' : '1.125rem',
             fontWeight: '700',
-            color: 'var(--success)',
+            color: 'var(--gold)',
             marginTop: index === 0 ? '0' : '2rem',
             marginBottom: '1rem',
             paddingBottom: '0.75rem',
-            borderBottom: level === 1 ? '2px solid var(--success)' : level === 2 ? '1px solid var(--gray-800)' : 'none',
+            borderBottom: level === 1 ? '2px solid var(--gold)' : level === 2 ? '1px solid var(--gray-800)' : 'none',
             lineHeight: '1.3'
           }}
         >
@@ -338,7 +336,7 @@ function formatContent(content: string, isDecision: boolean) {
           }}
         >
           <span style={{
-            color: 'var(--success)',
+            color: 'var(--gold)',
             fontWeight: '700',
             fontSize: '1.25rem',
             lineHeight: '1.5',
@@ -369,7 +367,7 @@ function formatContent(content: string, isDecision: boolean) {
           }}
         >
           <span style={{
-            color: 'var(--success)',
+            color: 'var(--gold)',
             fontWeight: '700',
             fontSize: '1.125rem',
             minWidth: '2.5rem',
@@ -436,7 +434,7 @@ function formatContent(content: string, isDecision: boolean) {
       )
     }
 
-    // Tables
+    // Tables (simple detection)
     if (trimmedLine.match(/\|.*\|/)) {
       return (
         <div
@@ -482,13 +480,13 @@ function formatInlineStyles(text: string): string {
   // Italic: *text*
   formatted = formatted.replace(
     /(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g,
-    '<em style="color: var(--success); font-style: italic;">$1</em>'
+    '<em style="color: var(--gold); font-style: italic;">$1</em>'
   )
 
   // Code/Formulas: `text`
   formatted = formatted.replace(
     /`([^`]+)`/g,
-    '<code style="background: var(--bg-card); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-family: monospace; color: var(--success); font-size: 0.9375rem; border: 1px solid var(--gray-800);">$1</code>'
+    '<code style="background: var(--bg-card); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-family: monospace; color: var(--gold); font-size: 0.9375rem; border: 1px solid var(--gray-800);">$1</code>'
   )
 
   // Highlight $ amounts

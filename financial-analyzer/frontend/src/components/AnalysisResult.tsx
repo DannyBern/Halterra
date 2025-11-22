@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { CashFlowChart, ROITimelineChart, ValueComparisonChart, RiskBreakdownChart } from './charts'
-import { EnhancedAnalysisDisplay } from './EnhancedAnalysisDisplay'
+import { PremiumAnalysisDisplay } from './PremiumAnalysisDisplay'
 import { QuickAnalysisDisplay } from './QuickAnalysisDisplay'
 
 interface AnalysisResultProps {
@@ -190,9 +190,9 @@ export function AnalysisResult({
         </div>
       )}
 
-      {/* Use Enhanced Display for Multi-Stage Analysis, Quick Display for Quick Mode */}
+      {/* Use Premium Display for Multi-Stage Analysis, Quick Display for Quick Mode */}
       {isMultiStage ? (
-        <EnhancedAnalysisDisplay
+        <PremiumAnalysisDisplay
           analysis={textContent}
           processingTime={processingTime}
         />
