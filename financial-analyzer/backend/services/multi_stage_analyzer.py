@@ -27,6 +27,24 @@ class MultiStageAnalyzer:
     7 étapes spécialisées pour qualité maximale
     """
 
+    # Règles générales applicables à TOUTES les étapes
+    GENERAL_RULES = """
+🚨 RÈGLE CRITIQUE - DONNÉES MANQUANTES :
+**TU DOIS TOUJOURS FAIRE L'ANALYSE, MÊME SI DES DONNÉES MANQUENT.**
+
+Si des informations manquent :
+1. LISTER clairement les données manquantes
+2. FAIRE des hypothèses raisonnables basées sur:
+   - Standards de l'industrie
+   - Moyennes du marché
+   - Fourchettes conservatrices
+3. EXPLIQUER chaque hypothèse
+4. FAIRE l'analyse avec fourchettes LARGES (pessimiste/réaliste/optimiste)
+5. Être TRANSPARENT sur l'incertitude
+
+**NE JAMAIS REFUSER DE FAIRE L'ANALYSE.** Fais le meilleur travail possible avec les données disponibles.
+"""
+
     def __init__(self, api_key: str):
         if not api_key:
             raise ValueError("ANTHROPIC_API_KEY is required")
@@ -411,11 +429,13 @@ SCÉNARIOS: Pessimiste, Réaliste, Optimiste""")
 DONNÉES EXTRAITES:
 {json.dumps(extracted_data, indent=2, ensure_ascii=False)}
 
+{self.GENERAL_RULES}
+
 RÈGLES IMPÉRATIVES:
 - AFFICHER TOUTES LES FORMULES: `Nom = (formule détaillée) = résultat`
 - Montrer CHAQUE ÉTAPE de calcul
 - Justifier CHAQUE hypothèse avec logique
-- Si donnée manque: indiquer et faire hypothèse raisonnable (conservative)
+- Si donnée manque: utiliser hypothèse raisonnable (conservative) et l'expliquer clairement
 - Tableaux année par année
 - Tous les chiffres en format clair
 
@@ -891,13 +911,22 @@ SI PASSER:
    - Liste exhaustive
    - Gravité: 🔴 Bloquant / 🟡 Négociable / 🟢 Mineur
 
+7. **INFORMATIONS À OBTENIR** (si données manquantes)
+   - Liste des données manquantes pour finaliser l'analyse
+   - Impact de chaque donnée manquante sur la décision
+   - Fourchette d'incertitude actuelle (±X%)
+
+{self.GENERAL_RULES}
+
 RÈGLES:
 - Intégrer TOUTES les analyses précédentes
-- Décision tranchée (pas de "peut-être")
-- Protéger l'investisseur (biais = PASSER)
+- Décision tranchée même avec données incomplètes (ajouter "PRÉLIMINAIRE" si besoin)
+- Si données manquent: décision avec réserves + liste de ce qu'il faut obtenir
+- Protéger l'investisseur (biais = PASSER si trop d'incertitude)
 - Zéro langue de bois
+- TOUJOURS donner une décision finale
 
-Ton objectif: Synthèse claire, décision nette.
+Ton objectif: Synthèse claire, décision nette (même préliminaire).
 """
 
         try:
