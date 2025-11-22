@@ -29,20 +29,40 @@ class MultiStageAnalyzer:
 
     # Règles générales applicables à TOUTES les étapes
     GENERAL_RULES = """
-🚨 RÈGLE CRITIQUE - DONNÉES MANQUANTES :
-**TU DOIS TOUJOURS FAIRE L'ANALYSE, MÊME SI DES DONNÉES MANQUENT.**
+🚨 RÈGLES CRITIQUES APPLICABLES À TOUTES LES ÉTAPES :
 
-Si des informations manquent :
-1. LISTER clairement les données manquantes
-2. FAIRE des hypothèses raisonnables basées sur:
-   - Standards de l'industrie
-   - Moyennes du marché
-   - Fourchettes conservatrices
-3. EXPLIQUER chaque hypothèse
-4. FAIRE l'analyse avec fourchettes LARGES (pessimiste/réaliste/optimiste)
-5. Être TRANSPARENT sur l'incertitude
+1. **ZÉRO ERREUR - EXACTITUDE MAXIMALE** :
+   - TOUJOURS vérifier les chiffres en croisant audio ET visuel
+   - Si audio et visuel concordent → haute confiance
+   - Si incohérence → SIGNALER et enquêter
+   - NE JAMAIS inventer ou deviner des chiffres
+   - Utiliser les timestamps pour synchroniser audio-visuel
 
-**NE JAMAIS REFUSER DE FAIRE L'ANALYSE.** Fais le meilleur travail possible avec les données disponibles.
+2. **DONNÉES MANQUANTES - TU DOIS QUAND MÊME ANALYSER** :
+   **TU DOIS TOUJOURS FAIRE L'ANALYSE, MÊME SI DES DONNÉES MANQUENT.**
+
+   Si des informations manquent :
+   - LISTER clairement les données manquantes
+   - FAIRE des hypothèses raisonnables basées sur:
+     * Standards de l'industrie
+     * Moyennes du marché
+     * Fourchettes conservatrices
+   - EXPLIQUER chaque hypothèse
+   - FAIRE l'analyse avec fourchettes LARGES (pessimiste/réaliste/optimiste)
+   - Être TRANSPARENT sur l'incertitude
+
+   **NE JAMAIS REFUSER DE FAIRE L'ANALYSE.** Fais le meilleur travail possible avec les données disponibles.
+
+3. **VÉRIFICATION CROISÉE OBLIGATOIRE** :
+   - Pour chaque donnée critique: vérifier concordance entre sources
+   - Timestamps audio: [XX.Xs - YY.Ys]
+   - Timestamps frames: [timestamp: ZZ.ZZs]
+   - Signaler toute incohérence immédiatement
+
+4. **TRANSPARENCE TOTALE** :
+   - Si incertain: indiquer le niveau de confiance (0.0-1.0)
+   - Si hypothèse: l'expliquer clairement
+   - Si incohérence: la documenter avec timestamps
 """
 
     def __init__(self, api_key: str):
@@ -211,34 +231,62 @@ RÉPONDS AU FORMAT JSON:
 - Garanties/Collatéral
 - Risques mentionnés""")
 
-        full_prompt = f"""Tu es un analyste financier expert en extraction de données.
+        full_prompt = f"""Tu es un analyste financier expert en extraction de données AVEC VÉRIFICATION CROISÉE.
+
+🎯 MISSION CRITIQUE: ZÉRO ERREUR - Vérification audio-visuel OBLIGATOIRE
 
 EXTRAIS UNIQUEMENT LES FAITS ET CHIFFRES (pas d'analyse):
 
 {base_prompt}
 
-Pour CHAQUE donnée:
-1. Valeur exacte extraite
-2. Source précise (audio à XX:XX ou frame #X ou document page Y)
-3. Si ambiguïté: signaler avec ⚠️
+🔍 PROTOCOLE DE VÉRIFICATION CROISÉE (HYPER IMPORTANT):
 
-Si une donnée MANQUE: indiquer "⚠️ DONNÉE MANQUANTE: [quelle donnée]"
-Si INCOHÉRENCE entre sources: "⚠️ INCOHÉRENCE: audio dit X mais visuel montre Y"
+1. **DOUBLE VÉRIFICATION AUDIO-VISUEL**:
+   - Pour CHAQUE chiffre/donnée: vérifier concordance audio ET visuel
+   - Audio timestampé: vérifier à quel moment (XX:XX secondes)
+   - Frames: vérifier dans quelle frame (avec timestamp)
+   - Si les deux sources concordent → confiance 1.0
+   - Si une seule source → confiance 0.7
+   - Si contradiction → signaler ⚠️ INCOHÉRENCE et enquêter
 
-FORMAT JSON:
+2. **TIMESTAMPS SYNCHRONISÉS**:
+   - L'audio a des timestamps précis [XX.Xs - YY.Ys]
+   - Les frames vidéo ont des timestamps [timestamp: XX.XXs]
+   - SYNCHRONISER: quand l'audio dit "$450,000" à 12.5s, vérifier la frame ~12.5s
+   - Si le visuel montre un montant différent → ALERTE INCOHÉRENCE
+
+3. **EXTRACTION AVEC SOURCE PRÉCISE**:
+   Pour CHAQUE donnée extraite, noter:
+   - Valeur exacte
+   - Source audio: [timestamp audio XX.Xs-YY.Ys] "citation exacte"
+   - Source visuelle: [frame à timestamp ZZ.ZZs] description de ce qui est visible
+   - Concordance: OUI/NON/PARTIELLE
+   - Confiance finale: 0.0-1.0
+
+4. **SIGNALEMENT OBLIGATOIRE**:
+   - Donnée MANQUANTE: "⚠️ DONNÉE MANQUANTE: [quelle donnée]"
+   - INCOHÉRENCE détectée: "🚨 INCOHÉRENCE: audio [XX.Xs] dit $X mais frame [YY.Ys] montre $Z"
+   - Ambiguïté: "⚠️ AMBIGUÏTÉ: sources peu claires, besoin clarification"
+
+FORMAT JSON AVEC VÉRIFICATION:
 ```json
 {{
   "donnees": {{
     "nom_donnee": {{
       "valeur": valeur,
-      "source": "description source",
+      "source_audio": "[XX.Xs-YY.Ys] citation exacte",
+      "source_visuelle": "[frame à ZZ.ZZs] description",
+      "concordance": "OUI|NON|PARTIELLE|AUDIO_SEUL|VISUEL_SEUL",
       "confiance": 0.0-1.0
     }}
   }},
-  "donnees_manquantes": ["liste"],
-  "incoherences": ["liste"]
+  "donnees_manquantes": ["liste avec impact"],
+  "incoherences": ["liste détaillée avec timestamps"],
+  "notes_verification": ["observations importantes"]
 }}
 ```
+
+⚠️ RÈGLE ABSOLUE: NE JAMAIS inventer ou deviner. Si incertain, baisser la confiance et signaler.
 """
 
         try:
@@ -247,18 +295,36 @@ FORMAT JSON:
             if context.get("transcription"):
                 content_parts.append({
                     "type": "text",
-                    "text": f"\n\nTRANSCRIPTION COMPLÈTE:\n{context['transcription']}"
+                    "text": f"\n\n📝 TRANSCRIPTION AUDIO COMPLÈTE (avec timestamps pour vérification):\n{context['transcription']}"
                 })
 
             if context.get("ocr_text"):
                 content_parts.append({
                     "type": "text",
-                    "text": f"\n\nTEXTE EXTRAIT:\n{context['ocr_text']}"
+                    "text": f"\n\nTEXTE EXTRAIT D'IMAGE:\n{context['ocr_text']}"
                 })
 
-            # All frames for maximum accuracy
+            # All frames with timestamps for cross-verification
             if context.get("frames"):
-                for frame_base64 in context["frames"]:
+                frame_timestamps = context.get("frame_timestamps", [])
+
+                # Add header explaining frame timestamps
+                if frame_timestamps:
+                    content_parts.append({
+                        "type": "text",
+                        "text": f"\n\n🎥 FRAMES VIDÉO AVEC TIMESTAMPS (pour synchronisation avec audio):\n{len(frame_timestamps)} frames extraites aux timestamps suivants (en secondes): {', '.join([f'{t:.2f}s' for t in frame_timestamps[:10]])}{'...' if len(frame_timestamps) > 10 else ''}\n\nCHAQUE FRAME CI-DESSOUS correspond à un timestamp précis. Utilise ces timestamps pour SYNCHRONISER avec la transcription audio."
+                    })
+
+                for idx, frame_base64 in enumerate(context["frames"]):
+                    timestamp = frame_timestamps[idx] if idx < len(frame_timestamps) else None
+
+                    # Add timestamp label before each frame
+                    if timestamp is not None:
+                        content_parts.append({
+                            "type": "text",
+                            "text": f"\n--- FRAME #{idx+1} à {timestamp:.2f}s ---"
+                        })
+
                     content_parts.append({
                         "type": "image",
                         "source": {
@@ -631,18 +697,28 @@ Format libre, analyse détaillée.
             if context.get("transcription"):
                 content_parts.append({
                     "type": "text",
-                    "text": f"\n\nTRANSCRIPTION (pour contexte qualitatif):\n{context['transcription']}"
+                    "text": f"\n\n📝 TRANSCRIPTION AUDIO (avec timestamps pour contexte temporel):\n{context['transcription']}"
                 })
 
-            # Sample of frames for visual context
+            # Sample of frames for visual context (every 5th frame to avoid overload)
             if context.get("frames"):
-                for frame_base64 in context["frames"][::5]:  # Every 5th frame
+                frame_timestamps = context.get("frame_timestamps", [])
+
+                for idx in range(0, len(context["frames"]), 5):  # Every 5th frame
+                    timestamp = frame_timestamps[idx] if idx < len(frame_timestamps) else None
+
+                    if timestamp is not None:
+                        content_parts.append({
+                            "type": "text",
+                            "text": f"\n--- FRAME échantillon à {timestamp:.2f}s ---"
+                        })
+
                     content_parts.append({
                         "type": "image",
                         "source": {
                             "type": "base64",
                             "media_type": "image/jpeg",
-                            "data": frame_base64
+                            "data": context["frames"][idx]
                         }
                     })
 

@@ -8,7 +8,6 @@ from pathlib import Path
 
 from config import config
 from services.file_handler import file_handler
-from services.claude_service import create_claude_service
 from services.multi_stage_analyzer import create_multi_stage_analyzer
 
 app = FastAPI(title="Financial Analyzer API")
@@ -22,9 +21,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize services
-claude_service = create_claude_service(config.ANTHROPIC_API_KEY)  # Quick mode (2 stages)
-multi_stage_analyzer = create_multi_stage_analyzer(config.ANTHROPIC_API_KEY)  # Premium mode (7 stages)
+# Initialize multi-stage analyzer (7 institutional-grade stages)
+multi_stage_analyzer = create_multi_stage_analyzer(config.ANTHROPIC_API_KEY)
 
 # Create upload directory
 os.makedirs(config.TEMP_UPLOAD_DIR, exist_ok=True)
@@ -36,7 +34,6 @@ uploaded_files = {}
 class AnalyzeRequest(BaseModel):
     file_id: str
     user_query: str
-    analysis_mode: str = "premium"  # "quick" (2 stages) or "premium" (7 stages)
 
 
 @app.get("/")
@@ -144,15 +141,21 @@ async def analyze_file(request: AnalyzeRequest):
             context["transcription"] = transcription
 
         elif file_type == "video":
-            # Extract transcription and frames with high density
-            print("Extracting video transcription...")
+            # Extract transcription and frames with timestamps for cross-verification
+            print("Extracting video transcription with timestamps...")
             transcription = file_handler.extract_audio_transcription(file_path)
             context["transcription"] = transcription
 
-            print("Extracting video frames (2 fps for detailed analysis)...")
-            frames = file_handler.extract_video_frames(file_path, fps=2)
-            context["frames"] = frames
-            print(f"Extracted {len(frames)} frames for analysis")
+            print("Extracting video frames with timestamps (2 fps for detailed analysis)...")
+            frames_with_metadata = file_handler.extract_video_frames(file_path, fps=2)
+
+            # Extract just the base64 data for frames while keeping timestamp info
+            frames_base64 = [f['data'] for f in frames_with_metadata]
+            frame_timestamps = [f['timestamp'] for f in frames_with_metadata]
+
+            context["frames"] = frames_base64
+            context["frame_timestamps"] = frame_timestamps
+            print(f"✓ Extracted {len(frames_base64)} high-quality frames with timestamps for cross-verification")
 
         elif file_type == "image":
             # Extract text via OCR
@@ -164,23 +167,15 @@ async def analyze_file(request: AnalyzeRequest):
             image_base64 = file_handler.image_to_base64(file_path)
             context["image_base64"] = image_base64
 
-        # Analyze with appropriate service based on mode
-        mode = request.analysis_mode.lower()
-
-        if mode == "premium":
-            print("🏆 Using PREMIUM mode (7-stage institutional analysis)...")
-            result = multi_stage_analyzer.analyze(context)
-            analysis = result["analysis"]
-            processing_time = result["processing_time"]
-        else:
-            print("⚡ Using QUICK mode (2-stage fast analysis)...")
-            analysis = claude_service.analyze_financial_opportunity(context)
-            processing_time = time.time() - start_time
+        # Analyze with multi-stage analyzer (7 institutional-grade stages)
+        print("🎯 Starting 7-stage deep analysis...")
+        result = multi_stage_analyzer.analyze(context)
+        analysis = result["analysis"]
+        processing_time = result["processing_time"]
 
         return {
             "analysis": analysis,
-            "processing_time": processing_time,
-            "analysis_mode": mode
+            "processing_time": processing_time
         }
 
     except HTTPException:
