@@ -71,6 +71,7 @@ class MultiStageAnalyzer:
         self.client = Anthropic(api_key=api_key)
         self.model = "claude-sonnet-4-5-20250929"  # Sonnet 4.5 (latest)
         self.analysis_log = []
+        self.progress_callback = None  # Callback pour progression en temps réel
 
     # ========== ÉTAPE 0: CLASSIFICATION ==========
 
@@ -1152,11 +1153,27 @@ RÈGLES:
 
     # ========== ORCHESTRATION PRINCIPALE ==========
 
-    def analyze(self, context: Dict) -> Dict:
+    def _emit_progress(self, stage: int, total: int, name: str, status: str = "in_progress"):
+        """Émet un événement de progression si callback défini"""
+        if self.progress_callback:
+            self.progress_callback({
+                "stage": stage,
+                "total": total,
+                "name": name,
+                "status": status,
+                "progress_pct": int((stage / total) * 100)
+            })
+
+    def analyze(self, context: Dict, progress_callback=None) -> Dict:
         """
         Pipeline complet d'analyse en 7 étapes
         Retourne analyse complète + logs
+
+        Args:
+            context: Contexte d'analyse (transcription, frames, etc.)
+            progress_callback: Fonction callback(dict) pour émettre progression en temps réel
         """
+        self.progress_callback = progress_callback
         start_time = time.time()
 
         print("\n" + "="*80)
@@ -1165,25 +1182,38 @@ RÈGLES:
 
         try:
             # ÉTAPE 0: Classification
+            self._emit_progress(0, 7, "Classification du type d'investissement")
             classification = self._classify_investment_type(context)
             investment_type = classification.get('type', 'autre')
+            self._emit_progress(0, 7, "Classification terminée", "completed")
 
             # ÉTAPE 1: Extraction données
+            self._emit_progress(1, 7, "Extraction et validation des données")
             extracted_data = self._extract_raw_data(context, investment_type)
+            self._emit_progress(1, 7, "Extraction terminée", "completed")
 
             # ÉTAPE 2: Quantitative
+            self._emit_progress(2, 7, "Due diligence quantitative (calculs financiers)")
             quant_analysis = self._quantitative_analysis(context, extracted_data, investment_type)
+            self._emit_progress(2, 7, "Analyse quantitative terminée", "completed")
 
             # ÉTAPE 3: Qualitative
+            self._emit_progress(3, 7, "Due diligence qualitative (moat, management)")
             qual_analysis = self._qualitative_analysis(context, extracted_data, investment_type)
+            self._emit_progress(3, 7, "Analyse qualitative terminée", "completed")
 
             # ÉTAPE 4: Risques
+            self._emit_progress(4, 7, "Analyse de risques exhaustive")
             risk_analysis = self._risk_analysis(context, quant_analysis, qual_analysis, investment_type)
+            self._emit_progress(4, 7, "Analyse de risques terminée", "completed")
 
             # ÉTAPE 5: Comparative
+            self._emit_progress(5, 7, "Évaluation comparative et benchmarking")
             comp_analysis = self._comparative_analysis(context, extracted_data, investment_type)
+            self._emit_progress(5, 7, "Évaluation comparative terminée", "completed")
 
             # ÉTAPE 6: Synthèse
+            self._emit_progress(6, 7, "Synthèse finale et décision d'investissement")
             all_analyses = {
                 'extraction': extracted_data,
                 'quantitative': quant_analysis,
@@ -1193,9 +1223,12 @@ RÈGLES:
             }
 
             synthesis = self._final_synthesis(all_analyses, investment_type)
+            self._emit_progress(6, 7, "Synthèse terminée", "completed")
 
             # ÉTAPE 7: Visualisation
+            self._emit_progress(7, 7, "Génération des données de visualisation")
             viz_data = self._generate_visualization_data(all_analyses, synthesis)
+            self._emit_progress(7, 7, "Analyse complète", "completed")
 
             # Assembler le rapport final
             final_report = self._assemble_final_report(

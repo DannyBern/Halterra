@@ -1,13 +1,22 @@
 import { useState, useEffect } from 'react'
-import { uploadFile, analyzeFile, UploadResponse } from './services/api'
+import { uploadFile, analyzeFileWithProgress, UploadResponse, ProgressEvent } from './services/api'
 import { FileUploadZone } from './components/FileUploadZone'
 import { FileInfo } from './components/FileInfo'
 import { AnalysisResult } from './components/AnalysisResult'
 import { HistoryPanel } from './components/HistoryPanel'
+import { ProgressTracker } from './components/ProgressTracker'
 import { AnalysisHistory } from './types'
 import { exportToPDF } from './utils/exportPDF'
 
 const HISTORY_STORAGE_KEY = 'financial_analyzer_history'
+
+interface ProgressState {
+  stage: number
+  total: number
+  name: string
+  status: 'pending' | 'in_progress' | 'completed'
+  progress_pct: number
+}
 
 function App() {
   const [uploadedFile, setUploadedFile] = useState<UploadResponse | null>(null)
@@ -19,6 +28,8 @@ function App() {
   const [isDragging, setIsDragging] = useState(false)
   const [history, setHistory] = useState<AnalysisHistory[]>([])
   const [showHistory, setShowHistory] = useState(false)
+  const [progressState, setProgressState] = useState<ProgressState | undefined>()
+  const [progressMessage, setProgressMessage] = useState<string>('')
 
   // Load history from localStorage on mount
   useEffect(() => {
@@ -88,7 +99,7 @@ function App() {
     }
   }
 
-  const handleAnalyze = async () => {
+  const handleAnalyze = () => {
     if (!uploadedFile) {
       setError('Please upload a file first')
       return
@@ -103,16 +114,42 @@ function App() {
     setIsLoading(true)
     setAnalysis('')
     setProcessingTime(undefined)
+    setProgressState(undefined)
+    setProgressMessage('Démarrage de l\'analyse...')
 
-    try {
-      const response = await analyzeFile(uploadedFile.file_id, userQuery)
-      setAnalysis(response.analysis)
-      setProcessingTime(response.processing_time)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Analysis failed')
-    } finally {
-      setIsLoading(false)
-    }
+    analyzeFileWithProgress(
+      uploadedFile.file_id,
+      userQuery,
+      (event: ProgressEvent) => {
+        // Handle progress events
+        if (event.type === 'progress' && event.stage !== undefined) {
+          setProgressState({
+            stage: event.stage,
+            total: event.total || 7,
+            name: event.name || '',
+            status: event.status as any || 'in_progress',
+            progress_pct: event.progress_pct || 0
+          })
+        } else if (event.message) {
+          setProgressMessage(event.message)
+        }
+      },
+      (analysisText: string, time: number) => {
+        // On complete
+        setAnalysis(analysisText)
+        setProcessingTime(time)
+        setIsLoading(false)
+        setProgressState(undefined)
+        setProgressMessage('')
+      },
+      (errorMsg: string) => {
+        // On error
+        setError(errorMsg)
+        setIsLoading(false)
+        setProgressState(undefined)
+        setProgressMessage('')
+      }
+    )
   }
 
   const handleSaveToHistory = () => {
@@ -238,12 +275,10 @@ function App() {
           )}
 
           {isLoading && (
-            <div className="loading">
-              <div className="spinner"></div>
-              <span>
-                🎯 Deep Analysis in progress (7 institutional-grade stages)... This will take 90-180 seconds.
-              </span>
-            </div>
+            <ProgressTracker
+              currentProgress={progressState}
+              message={progressMessage}
+            />
           )}
 
           {error && (

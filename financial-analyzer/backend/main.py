@@ -1,10 +1,14 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import os
 import uuid
 import time
+import json
+import asyncio
 from pathlib import Path
+from typing import AsyncGenerator
 
 from config import config
 from services.file_handler import file_handler
@@ -201,6 +205,135 @@ async def analyze_file(request: AnalyzeRequest):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/analyze-stream")
+async def analyze_file_stream(request: AnalyzeRequest):
+    """
+    Analyze avec streaming SSE pour progression en temps réel
+    Body: { file_id: str, user_query: str }
+    Returns: Server-Sent Events stream
+    """
+    async def event_generator() -> AsyncGenerator[str, None]:
+        try:
+            # Check if file exists
+            if request.file_id not in uploaded_files:
+                yield f"data: {json.dumps({'type': 'error', 'message': 'File not found'})}\n\n"
+                return
+
+            file_info = uploaded_files[request.file_id]
+            file_path = file_info["file_path"]
+            file_type = file_info["file_type"]
+
+            # Emit start event
+            yield f"data: {json.dumps({'type': 'start', 'message': 'Préparation de l\\'analyse...'})}\n\n"
+            await asyncio.sleep(0.1)
+
+            print(f"Analyzing {file_type} file: {file_info['original_filename']}")
+
+            # Prepare context
+            context = {"user_query": request.user_query}
+
+            # Process based on file type
+            if file_type == "audio":
+                yield f"data: {json.dumps({'type': 'processing', 'message': 'Extraction de la transcription audio...'})}\n\n"
+                await asyncio.sleep(0.1)
+                transcription = file_handler.extract_audio_transcription(file_path)
+                context["transcription"] = transcription
+
+            elif file_type == "video":
+                yield f"data: {json.dumps({'type': 'processing', 'message': 'Extraction de la transcription vidéo...'})}\n\n"
+                await asyncio.sleep(0.1)
+                transcription = file_handler.extract_audio_transcription(file_path)
+                context["transcription"] = transcription
+
+                yield f"data: {json.dumps({'type': 'processing', 'message': 'Extraction des frames vidéo...'})}\n\n"
+                await asyncio.sleep(0.1)
+                frames_with_metadata = file_handler.extract_video_frames(file_path, fps=2)
+                frames_base64 = [f['data'] for f in frames_with_metadata]
+                frame_timestamps = [f['timestamp'] for f in frames_with_metadata]
+                context["frames"] = frames_base64
+                context["frame_timestamps"] = frame_timestamps
+
+            elif file_type == "image":
+                yield f"data: {json.dumps({'type': 'processing', 'message': 'Extraction du texte de l\\'image...'})}\n\n"
+                await asyncio.sleep(0.1)
+                ocr_text = file_handler.extract_text_from_image(file_path)
+                context["ocr_text"] = ocr_text
+                image_base64 = file_handler.image_to_base64(file_path)
+                context["image_base64"] = image_base64
+
+            # Progress callback for SSE
+            async def progress_callback(progress_data):
+                event_data = {
+                    'type': 'progress',
+                    'stage': progress_data['stage'],
+                    'total': progress_data['total'],
+                    'name': progress_data['name'],
+                    'status': progress_data['status'],
+                    'progress_pct': progress_data['progress_pct']
+                }
+                yield f"data: {json.dumps(event_data)}\n\n"
+                await asyncio.sleep(0.1)
+
+            # Wrapper to make callback async-compatible
+            progress_events = []
+            def sync_progress_callback(data):
+                progress_events.append(data)
+
+            # Run analysis in executor to not block
+            import concurrent.futures
+            loop = asyncio.get_event_loop()
+
+            def run_analysis():
+                return multi_stage_analyzer.analyze(context, progress_callback=sync_progress_callback)
+
+            # Start analysis
+            analysis_task = loop.run_in_executor(None, run_analysis)
+
+            # Stream progress events as they come
+            while not analysis_task.done():
+                if progress_events:
+                    event_data = progress_events.pop(0)
+                    yield f"data: {json.dumps({'type': 'progress', **event_data})}\n\n"
+                await asyncio.sleep(0.2)
+
+            # Get final result
+            result = await analysis_task
+
+            # Stream any remaining progress events
+            while progress_events:
+                event_data = progress_events.pop(0)
+                yield f"data: {json.dumps({'type': 'progress', **event_data})}\n\n"
+                await asyncio.sleep(0.1)
+
+            analysis = result["analysis"]
+            processing_time = result["processing_time"]
+
+            # Store in cache for chat
+            analysis_cache[request.file_id] = {
+                "analysis": analysis,
+                "context": context,
+                "file_info": file_info,
+                "timestamp": time.time()
+            }
+
+            # Emit completion event
+            yield f"data: {json.dumps({'type': 'complete', 'analysis': analysis, 'processing_time': processing_time})}\n\n"
+
+        except Exception as e:
+            print(f"❌ Error in streaming analysis: {str(e)}")
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
 
 
 @app.post("/api/chat")

@@ -34,6 +34,12 @@ echo.
 echo   Frontend: http://localhost:5173
 echo   Backend:  http://localhost:8000
 echo.
+echo   Features:
+echo   - 7-stage institutional analysis
+echo   - Real-time progress tracking
+echo   - Warren Buffett AI chat
+echo   - Interactive financial charts
+echo.
 echo   Two windows have opened:
 echo   - Backend server
 echo   - Frontend server
