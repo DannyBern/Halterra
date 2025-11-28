@@ -3,6 +3,7 @@ import type { MeditationSession } from '../types';
 import type { ShareableSession } from '../types/share';
 import { moods } from '../data/moods';
 import ShareModal from './ShareModal';
+import MoodIcon from './MoodIcon';
 import './SessionView.css';
 
 interface SessionViewProps {
@@ -60,7 +61,7 @@ export default function SessionView({ session, onBack }: SessionViewProps) {
   return (
     <div className="session-view fade-in">
       <div className="session-view-header">
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
           <button className="back-button" onClick={onBack}>
             ← Retour à l'historique
           </button>
@@ -86,7 +87,9 @@ export default function SessionView({ session, onBack }: SessionViewProps) {
             className="session-mood-badge"
             style={{ backgroundColor: `${mood?.color}15`, color: mood?.color }}
           >
-            <span className="mood-icon">{mood?.icon || '🌟'}</span>
+            <div className="mood-icon" style={{ color: mood?.color || 'var(--color-accent)' }}>
+              <MoodIcon moodId={mood?.id || 'calm'} size={24} />
+            </div>
             <span className="mood-name">{mood?.name || session.mood}</span>
           </div>
 

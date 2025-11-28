@@ -185,8 +185,11 @@ function App() {
         console.error('⚠️ Session non trouvée après sauvegarde!');
       }
 
-      // RESTE SUR LA PAGE DE MEDITATION - ne navigue PAS vers l'historique
-      // L'utilisateur peut consulter l'historique manuellement via le bouton dédié
+      // Rediriger automatiquement vers l'historique après la sauvegarde
+      // Petit délai pour que l'utilisateur voie la notification de succès
+      setTimeout(() => {
+        setScreen('history');
+      }, 1500);
     } catch (error) {
       console.error('❌ Failed to save session:', error);
       // Afficher une alerte à l'utilisateur
@@ -251,6 +254,16 @@ function App() {
         </button>
       )}
 
+      {/* Bouton Historique flottant - visible sur toutes les pages sauf meditation */}
+      {screen !== 'meditation' && screen !== 'history' && screen !== 'session-view' && (
+        <button className="floating-history-button" onClick={handleViewHistory} aria-label="Voir l'historique">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" strokeWidth="2">
+            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>Historique</span>
+        </button>
+      )}
+
       {screen === 'video-intro' && <VideoIntro onComplete={() => {
         setHasSeenIntro(true);
         setScreen('onboarding');
@@ -266,9 +279,6 @@ function App() {
         <div>
           <button className="intro-replay-link" onClick={() => setScreen('video-intro')}>
             🎬 Revoir l'intro
-          </button>
-          <button className="history-link" onClick={handleViewHistory}>
-            📖 Historique
           </button>
           <DateDisplay
             userName={user.name}
