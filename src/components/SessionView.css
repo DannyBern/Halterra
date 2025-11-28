@@ -21,9 +21,12 @@
   margin-bottom: 2rem;
 }
 
-/* Override le margin-bottom des boutons dans le header */
+/* Override le margin-bottom ET position fixed des boutons dans le header */
 .session-header-buttons .back-button {
   margin-bottom: 0;
+  position: relative !important; /* Override position: fixed from App.css */
+  top: auto !important;
+  left: auto !important;
 }
 
 .session-info {
