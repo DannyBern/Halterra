@@ -172,7 +172,18 @@ export default function Meditation({
       }
     } catch (err) {
       console.error('Erreur:', err);
-      setError('Impossible de générer la méditation. Vérifiez votre connexion.');
+
+      // Message d'erreur plus détaillé et doux
+      const errorMessage = err instanceof Error ? err.message : 'Une erreur inattendue s\'est produite';
+
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+        setError('Impossible de se connecter au service. Vérifie ta connexion internet et réessaie dans quelques instants. 🌸');
+      } else if (errorMessage.includes('Failed to generate')) {
+        setError('Nos guides sont momentanément indisponibles. Prends une pause, respire profondément, et réessaie dans un instant. 🍃');
+      } else {
+        setError('Une petite turbulence s\'est produite. Prends un moment pour toi, puis réessaie avec un cœur serein. 💫');
+      }
+
       setStatus('error');
     }
   };
@@ -387,14 +398,62 @@ export default function Meditation({
 
   if (status === 'error') {
     return (
-      <div className="meditation">
-        <div className="meditation-error fade-in">
-          <div className="error-icon">⚠️</div>
-          <h2 className="error-title">Une erreur est survenue</h2>
-          <p className="error-text">{error}</p>
-          <button className="retry-button" onClick={generateContent}>
-            Réessayer
+      <div className="meditation meditation-fullscreen fade-in">
+        {/* Ambient background gradient */}
+        <div className="meditation-ambient-bg" style={{
+          background: `radial-gradient(circle at 30% 20%, ${mood.color}15 0%, transparent 50%),
+                       radial-gradient(circle at 70% 80%, ${mood.color}10 0%, transparent 50%)`
+        }}></div>
+
+        <button
+          className="back-button-premium"
+          onClick={(e) => {
+            e.stopPropagation();
+            onBack();
+          }}
+          aria-label="Retour"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          <span>Retour</span>
+        </button>
+
+        <div className="meditation-error-premium fade-in">
+          {/* Icon de catégorie au centre */}
+          <div className="error-icon-container">
+            <div className="error-icon-glow" style={{ backgroundColor: `${mood.color}15` }}></div>
+            <img
+              src={`/${categoryIcon}`}
+              alt={category}
+              className="error-category-icon"
+            />
+          </div>
+
+          <h2 className="error-title-premium">Un moment de pause</h2>
+          <p className="error-text-premium">{error}</p>
+
+          <button
+            className="retry-button-premium"
+            onClick={generateContent}
+            style={{
+              backgroundColor: mood.color,
+              boxShadow: `0 4px 20px ${mood.color}40`
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+            <span>Réessayer avec douceur</span>
           </button>
+
+          {loadingQuote && (
+            <div className="error-quote-premium fade-in">
+              <div className="quote-icon">✦</div>
+              <p className="quote-text-modern">"{loadingQuote.quote}"</p>
+              <p className="quote-author-modern">— {loadingQuote.author}</p>
+            </div>
+          )}
         </div>
       </div>
     );

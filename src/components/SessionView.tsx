@@ -68,6 +68,7 @@ export default function SessionView({ session, onBack }: SessionViewProps) {
           <button
             className="back-button share-button-session"
             onClick={() => setShareModalOpen(true)}
+            aria-label="Partager cette méditation"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '0.5rem' }}>
               <circle cx="18" cy="5" r="3"/>
@@ -76,7 +77,7 @@ export default function SessionView({ session, onBack }: SessionViewProps) {
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
             </svg>
-            Partager
+            <span>Partager</span>
           </button>
         </div>
 

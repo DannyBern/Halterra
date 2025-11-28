@@ -5,6 +5,7 @@ import { storage } from '../utils/storage';
 import { moods } from '../data/moods';
 import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
 import ShareModal from './ShareModal';
+import MoodIcon from './MoodIcon';
 import './History.css';
 
 interface HistoryProps {
@@ -221,7 +222,9 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
                                 />
                               </div>
                             ) : (
-                              <span className="session-icon">{mood?.icon || '🌟'}</span>
+                              <div className="session-mood-icon" style={{ color: mood?.color || 'var(--color-accent)' }}>
+                                <MoodIcon moodId={mood?.id || 'calm'} size={40} />
+                              </div>
                             )}
                             <span className="session-mood-name">{displayIntention}</span>
                           </div>
