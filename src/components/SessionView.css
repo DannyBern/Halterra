@@ -11,6 +11,21 @@
   margin: 0 auto 3rem;
 }
 
+/* Container pour les boutons en haut - Flex layout */
+.session-header-buttons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+/* Override le margin-bottom des boutons dans le header */
+.session-header-buttons .back-button {
+  margin-bottom: 0;
+}
+
 .session-info {
   text-align: center;
   margin-top: 2rem;

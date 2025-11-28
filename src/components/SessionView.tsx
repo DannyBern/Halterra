@@ -61,7 +61,7 @@ export default function SessionView({ session, onBack }: SessionViewProps) {
   return (
     <div className="session-view fade-in">
       <div className="session-view-header">
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+        <div className="session-header-buttons">
           <button className="back-button" onClick={onBack}>
             ← Retour à l'historique
           </button>
