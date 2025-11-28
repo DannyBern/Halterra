@@ -37,6 +37,7 @@ export async function generateMeditationStreaming(
   guideType: 'meditation' | 'reflection' = 'meditation',
   duration: 2 | 5 | 10 = 5,
   astrologicalProfile: AstrologicalProfile | undefined,
+  sessionHistory: MeditationSession[] | undefined,
   onChunk: (chunk: string) => void,
   onComplete: (result: { displayText: string; audioText: string; dailyInspiration?: string }) => void
 ): Promise<void> {
@@ -54,6 +55,7 @@ export async function generateMeditationStreaming(
         guideType,
         duration,
         astrologicalProfile,
+        sessionHistory,
         stream: true  // Enable streaming mode
       })
     });
@@ -128,7 +130,8 @@ export async function generateMeditation(
   intention: string,
   guideType: 'meditation' | 'reflection' = 'meditation',
   duration: 2 | 5 | 10 = 5,
-  astrologicalProfile?: AstrologicalProfile
+  astrologicalProfile?: AstrologicalProfile,
+  sessionHistory?: MeditationSession[]
 ): Promise<{ displayText: string; audioText: string; dailyInspiration?: string }> {
   // Appel au backend Vercel qui gère les clés API de manière sécurisée
   const response = await fetch(`${BACKEND_URL}/api/meditation`, {
@@ -144,6 +147,7 @@ export async function generateMeditation(
       guideType,
       duration,
       astrologicalProfile,
+      sessionHistory,
       stream: false  // Explicitly disable streaming
     })
   });

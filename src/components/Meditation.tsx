@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Mood, AstrologicalProfile } from '../types';
 import { generateMeditation, generateMeditationStreaming, generateAudio as generateAudioAPI, fetchLoadingQuote as fetchQuoteAPI } from '../services/api';
+import { storage } from '../utils/storage';
 import { FALLBACK_LOADING_QUOTE } from '../constants/fallbackQuotes';
 import MoodIcon from './MoodIcon';
 import './Meditation.css';
@@ -82,6 +83,10 @@ export default function Meditation({
 
   const generateContent = async () => {
     try {
+      // NOUVEAU: Récupérer les 10 dernières sessions pour analyse de patterns
+      const recentSessions = await storage.getAllSessions();
+      const last10Sessions = recentSessions.slice(0, 10); // Les plus récentes en premier
+
       // 🌊 STREAMING MODE - Progressive rendering with instant feedback
       if (useStreaming) {
         setStatus('generating-text');
@@ -94,6 +99,7 @@ export default function Meditation({
           guideType,
           duration,
           astrologicalProfile,
+          last10Sessions,
           // onChunk: Accumulate but don't display (contains JSON)
           () => {
             // Chunks contain raw JSON - we'll parse and display on complete
@@ -146,7 +152,8 @@ export default function Meditation({
         intention,
         guideType,
         duration,
-        astrologicalProfile
+        astrologicalProfile,
+        last10Sessions
       );
       setMeditationText(displayText);
       setDailyInspiration(inspiration);
