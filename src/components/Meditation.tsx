@@ -60,7 +60,12 @@ export default function Meditation({
   const [dailyInspiration, setDailyInspiration] = useState<string>();
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
-  const [useStreaming] = useState(true); // Feature flag: set to false to disable streaming
+  // Disable streaming on mobile devices - SSE has issues on mobile browsers
+  const [useStreaming] = useState(() => {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    console.log(`📱 Mobile detected: ${isMobile}, streaming: ${!isMobile}`);
+    return !isMobile;
+  });
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioTextRef = useRef<string>(''); // Store audioText for later audio generation
 

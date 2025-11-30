@@ -8,7 +8,14 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(dir:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(vercel:*)",
+      "Bash(npm run deploy:*)",
+      "Bash(node:*)",
+      "Bash(python -m json.tool:*)",
+      "Bash(git revert:*)",
+      "Bash(git checkout:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []
