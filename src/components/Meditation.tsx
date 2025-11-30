@@ -89,13 +89,19 @@ export default function Meditation({
 
       // NOUVEAU: Récupérer les 10 dernières sessions pour analyse de patterns
       // Wrapped in try-catch to isolate storage issues on mobile
-      let last10Sessions: typeof recentSessions = [];
-      let recentSessions: Awaited<ReturnType<typeof storage.getAllSessions>> = [];
+      let last10Sessions: Array<Omit<Awaited<ReturnType<typeof storage.getAllSessions>>[0], 'audioUrl'>> = [];
       try {
         console.log('📦 Fetching sessions from storage...');
-        recentSessions = await storage.getAllSessions();
-        last10Sessions = recentSessions.slice(0, 10); // Les plus récentes en premier
-        console.log(`✅ Storage OK: ${recentSessions.length} sessions found`);
+        const recentSessions = await storage.getAllSessions();
+        // IMPORTANT: Strip audioUrl from sessions to reduce payload size
+        // audioUrl contains base64 audio data (several MB per session)
+        // This was causing "Failed to fetch" on mobile due to huge payload
+        last10Sessions = recentSessions.slice(0, 10).map(session => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { audioUrl, ...sessionWithoutAudio } = session;
+          return sessionWithoutAudio;
+        });
+        console.log(`✅ Storage OK: ${recentSessions.length} sessions found, sending ${last10Sessions.length} without audio`);
       } catch (storageError) {
         console.warn('⚠️ Storage error (continuing without history):', storageError);
         // Continue without session history - don't block meditation generation
