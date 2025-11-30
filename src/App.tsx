@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense, useCallback } from 'react';
 import VideoIntro from './components/VideoIntro';
 import DateDisplay from './components/DateDisplay';
 import GuideSelector from './components/GuideSelector';
@@ -7,6 +7,7 @@ import { DurationSelection } from './components/DurationSelection';
 import { CategorySelection } from './components/CategorySelection';
 import BackgroundMusic from './components/BackgroundMusic';
 import LoadingFallback from './components/LoadingFallback';
+import Toast from './components/Toast';
 import { usePreloadComponents } from './hooks/usePreloadComponents';
 import type { User, Mood, MeditationSession } from './types';
 import { storage } from './utils/storage';
@@ -45,6 +46,11 @@ function App() {
   const [selectedSession, setSelectedSession] = useState<MeditationSession | null>(null);
   const [hasSeenIntro, setHasSeenIntro] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+
+  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type });
+  }, []);
 
   // 🚀 PRELOAD INTELLIGENT - Charge les composants avant qu'ils soient nécessaires
   usePreloadComponents(screen, hasSeenIntro);
@@ -192,8 +198,7 @@ function App() {
       }, 1500);
     } catch (error) {
       console.error('❌ Failed to save session:', error);
-      // Afficher une alerte à l'utilisateur
-      alert('Erreur lors de la sauvegarde. La méditation n\'a pas été enregistrée. Veuillez réessayer.');
+      showToast('Erreur lors de la sauvegarde. Veuillez réessayer.', 'error');
     }
   };
 
@@ -349,6 +354,15 @@ function App() {
         <Suspense fallback={<LoadingFallback />}>
           <SessionView session={selectedSession} onBack={handleSessionViewBack} />
         </Suspense>
+      )}
+
+      {/* Toast notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
     </div>
   );

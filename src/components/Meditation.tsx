@@ -60,6 +60,7 @@ export default function Meditation({
   const [dailyInspiration, setDailyInspiration] = useState<string>();
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+  const [showErrorNotification, setShowErrorNotification] = useState(false);
   // TEMPORARILY DISABLED: Streaming causes issues on mobile browsers
   // Force non-streaming mode for all devices until SSE issues are resolved
   const [useStreaming] = useState(false);
@@ -267,7 +268,8 @@ export default function Meditation({
       }, 3000);
     } catch (error) {
       console.error('❌ Erreur lors de la sauvegarde:', error);
-      alert('Une erreur est survenue. Veuillez réessayer.');
+      setShowErrorNotification(true);
+      setTimeout(() => setShowErrorNotification(false), 4000);
     } finally {
       setIsSaving(false);
     }
@@ -511,6 +513,27 @@ export default function Meditation({
             <div className="success-content">
               <h3 className="success-title">Sauvegardée</h3>
               <p className="success-message">Ta méditation est enregistrée</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Notification */}
+      {showErrorNotification && (
+        <div className="success-notification-overlay">
+          <div className="success-notification-premium" style={{
+            borderColor: '#ef4444',
+            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(15, 23, 42, 0.95))'
+          }}>
+            <div className="success-icon-container" style={{ backgroundColor: '#ef4444' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </div>
+            <div className="success-content">
+              <h3 className="success-title">Erreur</h3>
+              <p className="success-message">Impossible de sauvegarder. Réessaie.</p>
             </div>
           </div>
         </div>
