@@ -265,7 +265,7 @@
   font-size: 0.95rem;
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.6;
-  margin-bottom: 1rem;
+  margin-bottom: 2.5rem; /* Espace réservé pour les boutons d'action */
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
