@@ -1,4 +1,4 @@
-import type { Mood, AstrologicalProfile } from '../types';
+import type { Mood, AstrologicalProfile, MeditationSession } from '../types';
 import { FALLBACK_LOADING_QUOTE } from '../constants/fallbackQuotes';
 
 // URL du backend Vercel sécurisé - Utilise l'alias principal
