@@ -4,6 +4,8 @@ import { generateMeditation, generateMeditationStreaming, generateAudio as gener
 import { storage } from '../utils/storage';
 import { FALLBACK_LOADING_QUOTE } from '../constants/fallbackQuotes';
 import MoodIcon from './MoodIcon';
+import ShareModal from './ShareModal';
+import type { ShareableSession } from '../types/share';
 import './Meditation.css';
 import './Meditation_Premium.css';
 
@@ -61,6 +63,9 @@ export default function Meditation({
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
   const [showErrorNotification, setShowErrorNotification] = useState(false);
+  const [showSharePrompt, setShowSharePrompt] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [savedSessionId, setSavedSessionId] = useState<string | null>(null);
   // TEMPORARILY DISABLED: Streaming causes issues on mobile browsers
   // Force non-streaming mode for all devices until SSE issues are resolved
   const [useStreaming] = useState(false);
@@ -259,13 +264,17 @@ export default function Meditation({
       await onComplete(meditationText, audioBase64);
       console.log('✅ Méditation sauvegardée avec succès');
 
-      // Afficher la notification de succès
-      setShowSuccessNotification(true);
+      // Générer un ID de session temporaire pour le partage
+      const sessionId = `session-${Date.now()}`;
+      setSavedSessionId(sessionId);
 
-      // Masquer après 3 secondes
+      // Afficher la notification de succès brièvement
+      setShowSuccessNotification(true);
       setTimeout(() => {
         setShowSuccessNotification(false);
-      }, 3000);
+        // Afficher le prompt de partage après la notification
+        setShowSharePrompt(true);
+      }, 1500);
     } catch (error) {
       console.error('❌ Erreur lors de la sauvegarde:', error);
       setShowErrorNotification(true);
@@ -274,6 +283,24 @@ export default function Meditation({
       setIsSaving(false);
     }
   };
+
+  // Créer l'objet ShareableSession pour le modal
+  const getShareableSession = (): ShareableSession => ({
+    id: savedSessionId || `session-${Date.now()}`,
+    meditationText,
+    mood: {
+      id: mood.id,
+      name: mood.name,
+      icon: mood.icon || '🧘',
+      color: mood.color,
+    },
+    category,
+    intention,
+    userName,
+    date: new Date().toISOString(),
+    guideType,
+    duration,
+  });
 
   const categoryIcon = getCategoryIcon(category);
   const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
@@ -733,6 +760,69 @@ export default function Meditation({
           )}
         </button>
       </div>
+
+      {/* Share Prompt - Suggestion élégante post-sauvegarde */}
+      {showSharePrompt && (
+        <div className="share-prompt-overlay" onClick={() => setShowSharePrompt(false)}>
+          <div className="share-prompt-card" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="share-prompt-close"
+              onClick={() => setShowSharePrompt(false)}
+              aria-label="Fermer"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+
+            <div className="share-prompt-icon" style={{ backgroundColor: `${mood.color}15` }}>
+              <span>{mood.icon || '✨'}</span>
+            </div>
+
+            <h3 className="share-prompt-title">Partage ton moment</h3>
+            <p className="share-prompt-text">
+              Ta méditation a été sauvegardée. Inspire d'autres personnes en partageant ce beau moment de sérénité.
+            </p>
+
+            <div className="share-prompt-actions">
+              <button
+                className="share-prompt-btn share-prompt-btn-primary"
+                onClick={() => {
+                  setShowSharePrompt(false);
+                  setShowShareModal(true);
+                }}
+                style={{
+                  backgroundColor: mood.color,
+                  boxShadow: `0 4px 15px ${mood.color}40`
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="18" cy="5" r="3"/>
+                  <circle cx="6" cy="12" r="3"/>
+                  <circle cx="18" cy="19" r="3"/>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+                <span>Partager</span>
+              </button>
+              <button
+                className="share-prompt-btn share-prompt-btn-secondary"
+                onClick={() => setShowSharePrompt(false)}
+              >
+                <span>Plus tard</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ShareModal */}
+      <ShareModal
+        session={getShareableSession()}
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+      />
     </div>
   );
 }

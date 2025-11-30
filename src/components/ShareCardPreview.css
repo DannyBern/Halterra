@@ -1,0 +1,188 @@
+/**
+ * Styles ShareCardPreview - Design premium pour les Share Cards
+ */
+
+.share-card-preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.share-card-preview {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.share-card-preview:hover {
+  transform: scale(1.02);
+  box-shadow:
+    0 15px 50px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.share-card-preview-loading {
+  opacity: 0.7;
+}
+
+.share-card-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+/* Loading overlay */
+.share-card-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.share-card-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: share-card-spin 0.8s linear infinite;
+}
+
+@keyframes share-card-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Format selector */
+.share-card-formats {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.share-card-format-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.share-card-format-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.share-card-format-btn.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.share-card-format-icon {
+  width: 24px;
+  height: 24px;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+}
+
+.share-card-format-icon.story {
+  width: 16px;
+  height: 28px;
+}
+
+.share-card-format-icon.square {
+  width: 24px;
+  height: 24px;
+}
+
+.share-card-format-icon.wide {
+  width: 32px;
+  height: 18px;
+}
+
+.share-card-format-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Actions */
+.share-card-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.share-card-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.share-card-action-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.share-card-action-btn:active {
+  transform: translateY(0);
+}
+
+.share-card-action-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .share-card-preview {
+    border-radius: 12px;
+  }
+
+  .share-card-formats {
+    gap: 0.25rem;
+  }
+
+  .share-card-format-btn {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .share-card-format-label {
+    font-size: 0.65rem;
+  }
+
+  .share-card-action-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}

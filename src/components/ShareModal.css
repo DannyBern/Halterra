@@ -95,50 +95,105 @@
   transform: scale(1.05);
 }
 
-/* Aperçu session */
-.share-preview {
+/* Share Card Section */
+.share-card-section {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 1rem;
   padding: 1.5rem 2rem;
-  margin: 0;
 }
 
-.share-preview-mood {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
+/* Format Selector */
+.share-format-selector {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.share-format-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.share-format-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.share-format-btn.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.share-format-icon {
+  border: 2px solid currentColor;
+  border-radius: 3px;
+}
+
+.share-format-icon.story {
+  width: 12px;
+  height: 20px;
+}
+
+.share-format-icon.square {
+  width: 18px;
+  height: 18px;
+}
+
+.share-format-icon.wide {
+  width: 24px;
+  height: 14px;
+}
+
+/* Quick Actions */
+.share-quick-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.share-quick-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.share-preview-icon {
-  font-size: 2rem;
-}
-
-.share-preview-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.share-preview-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: white;
-  margin: 0 0 0.25rem 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.share-preview-mood-name {
-  font-size: 0.95rem;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
   font-weight: 500;
-  margin: 0;
-  opacity: 0.9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.share-quick-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.share-quick-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.share-quick-btn svg {
+  flex-shrink: 0;
 }
 
 /* Status message */
@@ -300,8 +355,26 @@
     font-size: 1.25rem;
   }
 
-  .share-preview {
-    padding: 1.25rem 1.5rem;
+  .share-card-section {
+    padding: 1rem 1.5rem;
+  }
+
+  .share-format-selector {
+    gap: 0.25rem;
+  }
+
+  .share-format-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.65rem;
+  }
+
+  .share-quick-actions {
+    gap: 0.5rem;
+  }
+
+  .share-quick-btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
   }
 
   .share-platforms-grid {

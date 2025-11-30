@@ -1,10 +1,12 @@
 /**
  * Modal de partage social - Design premium et minimaliste
+ * Avec Share Card preview et sélecteur de format
  */
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import type { SharePlatform, ShareableSession, ShareResult } from '../types/share';
 import { shareSession, isNativeShareAvailable, trackShare } from '../services/shareService';
+import ShareCardPreview, { type ShareCardFormat, useShareCardDownload, useShareCardClipboard } from './ShareCardPreview';
 import './ShareModal.css';
 
 interface ShareModalProps {
@@ -72,6 +74,43 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
     message?: string;
     type?: 'success' | 'error';
   }>({});
+  const [selectedFormat, setSelectedFormat] = useState<ShareCardFormat>('square');
+  const [cardBlob, setCardBlob] = useState<Blob | null>(null);
+
+  const { downloadCard } = useShareCardDownload();
+  const { copyToClipboard } = useShareCardClipboard();
+
+  const handleImageReady = useCallback((blob: Blob) => {
+    setCardBlob(blob);
+  }, []);
+
+  const handleDownload = useCallback(() => {
+    if (cardBlob) {
+      const formatSuffix = selectedFormat === 'story' ? '-story' : selectedFormat === 'wide' ? '-wide' : '';
+      downloadCard(cardBlob, `halterra-meditation${formatSuffix}.png`);
+      setShareStatus({
+        platform: 'copy-link',
+        message: 'Image t\u00e9l\u00e9charg\u00e9e!',
+        type: 'success',
+      });
+    }
+  }, [cardBlob, selectedFormat, downloadCard]);
+
+  const handleCopyImage = useCallback(async () => {
+    if (cardBlob) {
+      const success = await copyToClipboard(cardBlob);
+      if (success) {
+        setShareStatus({
+          platform: 'copy-link',
+          message: 'Image copi\u00e9e!',
+          type: 'success',
+        });
+      } else {
+        // Fallback to download
+        handleDownload();
+      }
+    }
+  }, [cardBlob, copyToClipboard, handleDownload]);
 
   const handleShare = async (platform: SharePlatform) => {
     setSharing(true);
@@ -153,18 +192,59 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
           </button>
         </div>
 
-        {/* Aperçu de la session */}
-        <div className="share-preview">
-          <div className="share-preview-mood" style={{ backgroundColor: `${session.mood.color}20` }}>
-            <span className="share-preview-icon">{session.mood.icon}</span>
+        {/* Share Card Preview */}
+        <div className="share-card-section">
+          <ShareCardPreview
+            session={session}
+            format={selectedFormat}
+            onImageReady={handleImageReady}
+          />
+
+          {/* Format selector */}
+          <div className="share-format-selector">
+            <button
+              className={`share-format-btn ${selectedFormat === 'square' ? 'active' : ''}`}
+              onClick={() => setSelectedFormat('square')}
+              title="Carré (Instagram, Facebook)"
+            >
+              <div className="share-format-icon square" />
+              <span>Carré</span>
+            </button>
+            <button
+              className={`share-format-btn ${selectedFormat === 'story' ? 'active' : ''}`}
+              onClick={() => setSelectedFormat('story')}
+              title="Story (Instagram, TikTok)"
+            >
+              <div className="share-format-icon story" />
+              <span>Story</span>
+            </button>
+            <button
+              className={`share-format-btn ${selectedFormat === 'wide' ? 'active' : ''}`}
+              onClick={() => setSelectedFormat('wide')}
+              title="Large (Twitter, LinkedIn)"
+            >
+              <div className="share-format-icon wide" />
+              <span>Large</span>
+            </button>
           </div>
-          <div className="share-preview-content">
-            <h3 className="share-preview-title">
-              {session.intention || 'Ma méditation'}
-            </h3>
-            <p className="share-preview-mood-name" style={{ color: session.mood.color }}>
-              {session.mood.name}
-            </p>
+
+          {/* Quick actions */}
+          <div className="share-quick-actions">
+            <button className="share-quick-btn" onClick={handleDownload} disabled={!cardBlob}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span>Télécharger</span>
+            </button>
+            <button className="share-quick-btn" onClick={handleCopyImage} disabled={!cardBlob}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+              <span>Copier</span>
+            </button>
           </div>
         </div>
 
