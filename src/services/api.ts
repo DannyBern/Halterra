@@ -134,29 +134,51 @@ export async function generateMeditation(
   sessionHistory?: MeditationSession[]
 ): Promise<{ displayText: string; audioText: string; dailyInspiration?: string }> {
   // Appel au backend Vercel qui gère les clés API de manière sécurisée
-  const response = await fetch(`${BACKEND_URL}/api/meditation`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      userName,
-      mood,
-      category,
-      intention,
-      guideType,
-      duration,
-      astrologicalProfile,
-      sessionHistory,
-      stream: false  // Explicitly disable streaming
-    })
-  });
+  const url = `${BACKEND_URL}/api/meditation`;
+  console.log('🌐 [API] Preparing fetch to:', url);
+  console.log('🌐 [API] Session history count:', sessionHistory?.length ?? 0);
+
+  const requestBody = {
+    userName,
+    mood,
+    category,
+    intention,
+    guideType,
+    duration,
+    astrologicalProfile,
+    sessionHistory,
+    stream: false  // Explicitly disable streaming
+  };
+
+  console.log('🌐 [API] Request body size:', JSON.stringify(requestBody).length, 'bytes');
+
+  let response: Response;
+  try {
+    console.log('🌐 [API] Starting fetch...');
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody)
+    });
+    console.log('🌐 [API] Fetch completed, status:', response.status);
+  } catch (fetchError) {
+    console.error('🌐 [API] Fetch FAILED:', fetchError);
+    console.error('🌐 [API] Error type:', (fetchError as Error).name);
+    console.error('🌐 [API] Error message:', (fetchError as Error).message);
+    throw fetchError;
+  }
 
   if (!response.ok) {
+    console.error('🌐 [API] Response not OK:', response.status, response.statusText);
     throw new Error('Erreur lors de la génération de la méditation');
   }
 
+  console.log('🌐 [API] Parsing JSON response...');
   const data = await response.json();
+  console.log('🌐 [API] Response received, text length:', data.meditationText?.length ?? 0);
+
   return {
     displayText: data.meditationText,  // Version propre pour l'affichage
     audioText: data.audioText || data.meditationText,  // Version SSML pour audio (fallback si pas présent)

@@ -85,9 +85,21 @@ export default function Meditation({
 
   const generateContent = async () => {
     try {
+      console.log('🚀 generateContent started');
+
       // NOUVEAU: Récupérer les 10 dernières sessions pour analyse de patterns
-      const recentSessions = await storage.getAllSessions();
-      const last10Sessions = recentSessions.slice(0, 10); // Les plus récentes en premier
+      // Wrapped in try-catch to isolate storage issues on mobile
+      let last10Sessions: typeof recentSessions = [];
+      let recentSessions: Awaited<ReturnType<typeof storage.getAllSessions>> = [];
+      try {
+        console.log('📦 Fetching sessions from storage...');
+        recentSessions = await storage.getAllSessions();
+        last10Sessions = recentSessions.slice(0, 10); // Les plus récentes en premier
+        console.log(`✅ Storage OK: ${recentSessions.length} sessions found`);
+      } catch (storageError) {
+        console.warn('⚠️ Storage error (continuing without history):', storageError);
+        // Continue without session history - don't block meditation generation
+      }
 
       // 🌊 STREAMING MODE - Progressive rendering with instant feedback
       if (useStreaming) {
@@ -146,6 +158,12 @@ export default function Meditation({
 
       // 📦 FALLBACK MODE - Traditional non-streaming (for compatibility)
       setStatus('generating-text');
+      console.log('📡 Calling generateMeditation API...');
+      console.log('   userName:', userName);
+      console.log('   mood:', mood.id);
+      console.log('   category:', category);
+      console.log('   guideType:', guideType);
+      console.log('   duration:', duration);
 
       const { displayText, audioText, dailyInspiration: inspiration } = await generateMeditation(
         userName,
