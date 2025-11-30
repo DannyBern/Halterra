@@ -442,7 +442,14 @@
     font-size: 1.3rem;
   }
 
-  .delete-button {
+  /* Rendre les boutons d'action toujours visibles sur mobile (pas de hover) */
+  .session-actions {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .delete-button,
+  .share-button {
     opacity: 1;
     transform: scale(1);
   }
