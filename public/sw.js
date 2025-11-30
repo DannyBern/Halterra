@@ -1,9 +1,10 @@
 // Service Worker pour Halterra
-const CACHE_NAME = 'halterra-v1';
+// Version bump forces cache invalidation on all clients
+const CACHE_NAME = 'halterra-v2';
 const urlsToCache = [
-  '/Halterra/',
-  '/Halterra/index.html',
-  '/Halterra/manifest.json',
+  '/',
+  '/index.html',
+  '/manifest.json',
 ];
 
 // Installation du service worker
