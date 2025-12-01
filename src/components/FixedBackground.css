@@ -6,11 +6,14 @@
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100vw;
   height: 100vh;
-  height: 100dvh; /* Dynamic viewport height pour mobile */
+  height: 100dvh; /* Dynamic viewport height for mobile */
   z-index: -1;
   overflow: hidden;
+  background-color: #0a0e1a; /* Fallback color pendant chargement */
 }
 
 .fixed-background-image {
@@ -20,16 +23,35 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center center;
+  object-position: center;
 }
 
 .fixed-background-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   pointer-events: none;
+}
+
+/* Zone cliquable pour ouvrir fullscreen - couvre tout sauf les éléments interactifs */
+.fixed-background-click-zone {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 1;
+  cursor: pointer;
+  /* Debug: décommenter pour voir la zone cliquable */
+  /* background: rgba(255, 0, 0, 0.1); */
 }
 
 /* Fullscreen viewer - image pure sans overlay */
@@ -37,6 +59,8 @@
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
@@ -44,6 +68,7 @@
   cursor: pointer;
   animation: fullscreenEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   background: #000;
+  overflow: hidden;
 }
 
 .fullscreen-background-viewer.closing {
@@ -51,38 +76,29 @@
 }
 
 .fullscreen-background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center center;
+  object-position: center;
 }
 
 @keyframes fullscreenEnter {
   from {
     opacity: 0;
-    transform: scale(1.05);
   }
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
 @keyframes fullscreenExit {
   from {
     opacity: 1;
-    transform: scale(1);
   }
   to {
     opacity: 0;
-    transform: scale(1.05);
-  }
-}
-
-/* Fix pour Safari iOS qui a des problèmes avec 100vh */
-@supports (-webkit-touch-callout: none) {
-  .fixed-background,
-  .fullscreen-background-viewer {
-    height: -webkit-fill-available;
   }
 }

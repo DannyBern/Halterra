@@ -12,6 +12,7 @@ interface FixedBackgroundProps {
   alt?: string;
   overlayOpacity?: number;
   enableFullscreen?: boolean;
+  onBackgroundClick?: () => void;
 }
 
 export default function FixedBackground({
@@ -23,60 +24,24 @@ export default function FixedBackground({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
-  const toggleFullscreen = useCallback(() => {
-    if (isFullscreen) {
-      setIsClosing(true);
-      setTimeout(() => {
-        setIsFullscreen(false);
-        setIsClosing(false);
-      }, 400);
-    } else {
-      setIsFullscreen(true);
+  const closeFullscreen = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsFullscreen(false);
       setIsClosing(false);
-    }
-  }, [isFullscreen]);
+    }, 400);
+  }, []);
 
-  const handleBackgroundClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+  const openFullscreen = useCallback(() => {
     if (!enableFullscreen) return;
-
-    const target = e.target as HTMLElement;
-
-    // Ne pas déclencher sur les éléments interactifs
-    if (
-      target.tagName === 'BUTTON' ||
-      target.tagName === 'INPUT' ||
-      target.tagName === 'A' ||
-      target.tagName === 'SELECT' ||
-      target.tagName === 'TEXTAREA' ||
-      target.closest('button') ||
-      target.closest('input') ||
-      target.closest('a') ||
-      target.closest('select') ||
-      target.closest('textarea') ||
-      target.closest('.interactive') ||
-      target.closest('.mood-card') ||
-      target.closest('.category-card') ||
-      target.closest('.duration-button') ||
-      target.closest('.audio-toggle') ||
-      target.closest('.guide-card') ||
-      target.closest('.session-card') ||
-      target.closest('.session-actions') ||
-      target.closest('.delete-modal') ||
-      target.closest('.share-modal')
-    ) {
-      return;
-    }
-
-    toggleFullscreen();
-  }, [enableFullscreen, toggleFullscreen]);
+    setIsFullscreen(true);
+    setIsClosing(false);
+  }, [enableFullscreen]);
 
   return (
     <>
       {/* Background fixe normal */}
-      <div
-        className="fixed-background"
-        onClick={handleBackgroundClick}
-      >
+      <div className="fixed-background">
         <img
           src={src}
           alt={alt}
@@ -95,12 +60,19 @@ export default function FixedBackground({
         />
       </div>
 
+      {/* Zone cliquable invisible pour ouvrir fullscreen */}
+      {enableFullscreen && !isFullscreen && (
+        <div
+          className="fixed-background-click-zone"
+          onClick={openFullscreen}
+        />
+      )}
+
       {/* Fullscreen viewer (sans overlay, image pure) */}
       {isFullscreen && (
         <div
           className={`fullscreen-background-viewer ${isClosing ? 'closing' : ''}`}
-          onClick={toggleFullscreen}
-          onTouchStart={toggleFullscreen}
+          onClick={closeFullscreen}
         >
           <img
             src={src}
