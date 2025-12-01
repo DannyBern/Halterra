@@ -1,6 +1,12 @@
 /**
  * PullToRefresh - Composant pour rafraîchir l'app en tirant vers le bas
  * Fonctionne sur mobile comme le geste natif des apps iOS/Android
+ *
+ * Le pull-to-refresh ne se déclenche que si:
+ * 1. L'utilisateur est en haut de la page (scrollTop < 5px)
+ * 2. Le touch commence dans les 100px du haut de l'écran (configurable via triggerZone)
+ *
+ * Cela évite les déclenchements accidentels lors d'un scroll up normal.
  */
 
 import { useState, useRef, useCallback, useEffect, type ReactNode } from 'react';
@@ -11,13 +17,15 @@ interface PullToRefreshProps {
   onRefresh?: () => void | Promise<void>;
   threshold?: number; // Distance en px pour déclencher le refresh
   disabled?: boolean;
+  triggerZone?: number; // Zone de déclenchement depuis le haut de l'écran (en px)
 }
 
 export default function PullToRefresh({
   children,
   onRefresh,
   threshold = 80,
-  disabled = false
+  disabled = false,
+  triggerZone = 100 // Seulement les 100px du haut de l'écran
 }: PullToRefreshProps) {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -34,9 +42,13 @@ export default function PullToRefresh({
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
     if (scrollTop > 5) return;
 
-    startY.current = e.touches[0].clientY;
+    // Vérifier si le touch commence dans la zone de déclenchement (haut de l'écran)
+    const touchY = e.touches[0].clientY;
+    if (touchY > triggerZone) return; // Ignorer si le touch est en dehors de la zone
+
+    startY.current = touchY;
     setIsPulling(true);
-  }, [disabled, isRefreshing]);
+  }, [disabled, isRefreshing, triggerZone]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!isPulling || disabled || isRefreshing) return;
