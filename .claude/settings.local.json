@@ -15,7 +15,15 @@
       "Bash(python -m json.tool:*)",
       "Bash(git revert:*)",
       "Bash(git checkout:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(npx vercel:*)",
+      "Bash(where:*)",
+      "Bash(pip show:*)",
+      "Bash(findstr:*)",
+      "Bash(pip install:*)",
+      "Bash(winget search:*)",
+      "Bash(choco search:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

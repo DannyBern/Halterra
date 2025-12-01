@@ -8,6 +8,7 @@ import { CategorySelection } from './components/CategorySelection';
 import BackgroundMusic from './components/BackgroundMusic';
 import LoadingFallback from './components/LoadingFallback';
 import Toast from './components/Toast';
+import PullToRefresh from './components/PullToRefresh';
 import { usePreloadComponents } from './hooks/usePreloadComponents';
 import type { User, Mood, MeditationSession } from './types';
 import { storage } from './utils/storage';
@@ -65,23 +66,6 @@ function App() {
       }
     }
   }, [hasSeenIntro]);
-
-  // Prevent pull-to-refresh on mobile
-  useEffect(() => {
-    const preventPullToRefresh = (e: TouchEvent) => {
-      const target = e.target as HTMLElement;
-      // Only prevent if at top of scroll and pulling down
-      if (target.scrollTop === 0 && e.touches[0].clientY > e.touches[0].clientY) {
-        e.preventDefault();
-      }
-    };
-
-    document.addEventListener('touchmove', preventPullToRefresh, { passive: false });
-
-    return () => {
-      document.removeEventListener('touchmove', preventPullToRefresh);
-    };
-  }, []);
 
   const handleOnboardingComplete = (newUser: User) => {
     setUser(newUser);
@@ -226,7 +210,11 @@ function App() {
     setSelectedSession(null);
   };
 
+  // Désactiver pull-to-refresh pendant la méditation et la lecture de session
+  const disablePullToRefresh = screen === 'meditation' || screen === 'session-view' || screen === 'video-intro';
+
   return (
+    <PullToRefresh disabled={disablePullToRefresh}>
     <div className="app">
       {/* Musique de fond - fade out pendant la méditation */}
       <BackgroundMusic
@@ -365,6 +353,7 @@ function App() {
         />
       )}
     </div>
+    </PullToRefresh>
   );
 }
 

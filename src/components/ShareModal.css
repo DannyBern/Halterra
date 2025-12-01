@@ -13,8 +13,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(10, 14, 26, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(10, 14, 26, 0.92);
   animation: share-fadeIn 0.3s ease-out;
   padding: 1rem;
 }
@@ -34,10 +33,9 @@
   width: 100%;
   max-width: 540px;
   max-height: 85vh;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+  background: linear-gradient(135deg, rgba(30, 35, 50, 0.98) 0%, rgba(25, 30, 45, 0.98) 100%);
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 24px;
-  backdrop-filter: blur(20px);
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.1) inset;

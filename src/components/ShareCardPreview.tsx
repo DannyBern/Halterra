@@ -143,10 +143,16 @@ export default function ShareCardPreview({
 
   const renderCard = useCallback(async () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      setIsRendering(false);
+      return;
+    }
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      setIsRendering(false);
+      return;
+    }
 
     const { width, height } = DIMENSIONS[format];
     canvas.width = width;

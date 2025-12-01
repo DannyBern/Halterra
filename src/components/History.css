@@ -3,12 +3,12 @@
   padding: 2rem;
   position: relative;
   background-size: cover;
-  background-position: center;
+  background-position: center center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  /* Fixed attachment cause des problèmes de zoom sur mobile */
 }
 
-/* Overlay sombre pour lisibilité avec effet glassmorphism */
+/* Overlay sombre pour lisibilité */
 .history::before {
   content: '';
   position: fixed;
@@ -18,12 +18,10 @@
   height: 100%;
   background: linear-gradient(
     135deg,
-    rgba(0, 0, 0, 0.33) 0%,
-    rgba(0, 0, 0, 0.28) 50%,
-    rgba(0, 0, 0, 0.33) 100%
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.30) 50%,
+    rgba(0, 0, 0, 0.35) 100%
   );
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
   z-index: 0;
   pointer-events: none;
 }

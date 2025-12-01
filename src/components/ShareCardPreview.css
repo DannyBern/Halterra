@@ -27,7 +27,7 @@
 }
 
 .share-card-preview-loading {
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 .share-card-canvas {
@@ -44,8 +44,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.5);
 }
 
 .share-card-spinner {
