@@ -1,12 +1,10 @@
 /**
- * PullToRefresh - Composant pour rafraîchir l'app en tirant vers le bas
- * Fonctionne sur mobile comme le geste natif des apps iOS/Android
+ * PullToRefresh - Composant premium pour rafraîchir l'app en tirant vers le bas
+ * Design centré, épuré et sophistiqué avec cercle de progression
  *
  * Le pull-to-refresh ne se déclenche que si:
  * 1. L'utilisateur est en haut de la page (scrollTop < 5px)
  * 2. Le touch commence dans le premier QUART (25%) de l'écran
- *
- * Cela évite les déclenchements accidentels lors d'un scroll up normal.
  */
 
 import { useState, useRef, useCallback, useEffect, type ReactNode } from 'react';
@@ -15,7 +13,7 @@ import './PullToRefresh.css';
 interface PullToRefreshProps {
   children: ReactNode;
   onRefresh?: () => void | Promise<void>;
-  threshold?: number; // Distance en px pour déclencher le refresh
+  threshold?: number;
   disabled?: boolean;
 }
 
@@ -36,17 +34,13 @@ export default function PullToRefresh({
   const handleTouchStart = useCallback((e: TouchEvent) => {
     if (disabled || isRefreshing) return;
 
-    // Vérifier si on est en haut de la page
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
     if (scrollTop > 5) return;
 
-    // Calculer le premier quart de l'écran
     const screenHeight = window.innerHeight;
-    const topQuarter = screenHeight * 0.25; // Premier 25% de l'écran
-
+    const topQuarter = screenHeight * 0.25;
     const touchY = e.touches[0].clientY;
 
-    // Ne PAS déclencher le pull si le touch est en dehors du premier quart
     if (touchY > topQuarter) return;
 
     startY.current = touchY;
@@ -59,14 +53,11 @@ export default function PullToRefresh({
     currentY.current = e.touches[0].clientY;
     const diff = currentY.current - startY.current;
 
-    // Seulement si on tire vers le bas
     if (diff > 0) {
-      // Effet de résistance (plus on tire, plus c'est dur)
       const resistance = 0.4;
       const distance = Math.min(diff * resistance, threshold * 1.5);
       setPullDistance(distance);
 
-      // Empêcher le scroll natif pendant le pull
       if (distance > 10) {
         e.preventDefault();
       }
@@ -79,26 +70,22 @@ export default function PullToRefresh({
     setIsPulling(false);
 
     if (pullDistance >= threshold && !isRefreshing) {
-      // Déclencher le refresh
       setIsRefreshing(true);
-      setPullDistance(threshold * 0.6); // Garder un peu visible pendant le refresh
+      setPullDistance(threshold * 0.6);
 
       try {
         if (onRefresh) {
           await onRefresh();
         } else {
-          // Comportement par défaut: recharger la page
           window.location.reload();
         }
       } finally {
-        // Petit délai pour voir l'animation
         setTimeout(() => {
           setIsRefreshing(false);
           setPullDistance(0);
         }, 300);
       }
     } else {
-      // Pas assez tiré, annuler
       setPullDistance(0);
     }
   }, [isPulling, disabled, pullDistance, threshold, isRefreshing, onRefresh]);
@@ -120,36 +107,70 @@ export default function PullToRefresh({
   const progress = Math.min(pullDistance / threshold, 1);
   const shouldTrigger = pullDistance >= threshold;
 
+  // Calcul du stroke-dashoffset pour le cercle de progression
+  // circumference = 2 * PI * rayon (25) ≈ 157
+  const circumference = 157;
+  const strokeDashoffset = circumference - (progress * circumference);
+
   return (
     <div ref={containerRef} className="pull-to-refresh-container">
-      {/* Indicateur de pull */}
+      {/* Overlay subtil pendant le pull */}
+      <div className={`pull-overlay ${isPulling || isRefreshing ? 'visible' : ''}`} />
+
+      {/* Indicateur centré premium */}
       <div
         className={`pull-indicator ${isPulling || isRefreshing ? 'visible' : ''} ${shouldTrigger ? 'ready' : ''} ${isRefreshing ? 'refreshing' : ''}`}
         style={{
-          transform: `translateY(${pullDistance - 60}px)`,
-          opacity: Math.min(progress * 1.5, 1)
+          opacity: isPulling || isRefreshing ? Math.min(progress * 2, 1) : 0
         }}
       >
         <div className="pull-indicator-content">
-          {isRefreshing ? (
-            <div className="pull-spinner" />
-          ) : (
-            <svg
-              className="pull-arrow"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              style={{
-                transform: `rotate(${shouldTrigger ? 180 : 0}deg)`,
-                transition: 'transform 0.2s ease'
-              }}
-            >
-              <path d="M12 19V5M5 12l7-7 7 7" />
+          {/* Cercle de progression avec icône centrale */}
+          <div className="pull-progress-ring">
+            <svg viewBox="0 0 56 56">
+              <circle
+                className="ring-bg"
+                cx="28"
+                cy="28"
+                r="25"
+              />
+              <circle
+                className="ring-progress"
+                cx="28"
+                cy="28"
+                r="25"
+                style={{
+                  strokeDashoffset: isRefreshing ? 0 : strokeDashoffset
+                }}
+              />
             </svg>
-          )}
+            <div className="pull-icon-container">
+              {isRefreshing ? (
+                <div className="pull-spinner" />
+              ) : (
+                <svg
+                  className="pull-arrow"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 19V5" />
+                  <path d="M5 12l7-7 7 7" />
+                </svg>
+              )}
+            </div>
+          </div>
+
+          {/* Texte indicateur */}
           <span className="pull-text">
-            {isRefreshing ? 'Actualisation...' : shouldTrigger ? 'Relâcher pour actualiser' : 'Tirer pour actualiser'}
+            {isRefreshing
+              ? 'Actualisation...'
+              : shouldTrigger
+                ? 'Relâcher'
+                : 'Tirer pour actualiser'}
           </span>
         </div>
       </div>
