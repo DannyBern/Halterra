@@ -6,6 +6,7 @@
   position: relative;
   min-height: 100vh;
   overflow: visible;
+  z-index: 1; /* Au-dessus du FixedBackground (z-index: 0) qui est rendu via portal */
 }
 
 .pull-indicator {

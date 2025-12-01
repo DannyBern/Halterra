@@ -7,7 +7,7 @@
 }
 
 html {
-  background: #0a0e1a; /* Fallback background sur html */
+  background: transparent; /* Transparent pour laisser voir le FixedBackground */
 }
 
 html, body {
