@@ -4,50 +4,9 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  padding-top: 5rem; /* Space for back button */
+  padding-top: 5rem;
   position: relative;
   overflow: hidden;
-}
-
-/* Background cosy */
-.guide-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  z-index: 0;
-}
-
-.guide-bg::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('/landing-bg.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  z-index: 0;
-}
-
-.guide-bg::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.75) 0%,
-    rgba(0, 0, 0, 0.6) 50%,
-    rgba(0, 0, 0, 0.75) 100%
-  );
-  z-index: 1;
 }
 
 .guide-content {

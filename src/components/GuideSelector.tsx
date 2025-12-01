@@ -1,3 +1,4 @@
+import FixedBackground from './FixedBackground';
 import './GuideSelector.css';
 
 interface GuideSelectorProps {
@@ -7,9 +8,11 @@ interface GuideSelectorProps {
 }
 
 export default function GuideSelector({ userName, onSelectGuide, onBack }: GuideSelectorProps) {
+  const backgroundImage = `${import.meta.env.BASE_URL}landing-bg.jpg`;
+
   return (
     <div className="guide-selector fade-in">
-      <div className="guide-bg"></div>
+      <FixedBackground src={backgroundImage} alt="Guide selector background" overlayOpacity={0.3} />
 
       <button className="back-button" onClick={onBack} aria-label="Retour">
         ← Retour

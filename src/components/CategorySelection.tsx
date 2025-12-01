@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Mood } from '../types';
-import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
 import { getMoodBackgroundUrl } from '../constants/moodImages';
+import FixedBackground from './FixedBackground';
 import { CustomIntentionInput } from './CustomIntentionInput';
 import './CategorySelection.css';
 
@@ -230,19 +230,13 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
   const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
 
   const backgroundImageUrl = getMoodBackgroundUrl(mood.id, import.meta.env.BASE_URL);
-  const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImageUrl);
 
   return (
-    <div
-      className="category-selection"
-      style={{
-        backgroundImage: backgroundImageUrl ? `url(${backgroundImageUrl})` : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-      onClick={handleBackgroundClick}
-    >
+    <div className="category-selection">
+      {backgroundImageUrl && (
+        <FixedBackground src={backgroundImageUrl} alt="Category selection background" overlayOpacity={0.2} />
+      )}
+
       <button className="back-button-category" onClick={onBack}>
         ← Retour
       </button>
@@ -313,9 +307,6 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
           </div>
         ))}
       </div>
-
-      {/* Fullscreen Background Viewer */}
-      <FullscreenViewer />
 
       {/* Custom Intention Input Modal */}
       {showCustomInput && (

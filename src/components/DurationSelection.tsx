@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Mood } from '../types';
-import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
 import { getMoodBackgroundUrl } from '../constants/moodImages';
+import FixedBackground from './FixedBackground';
 import './DurationSelection.css';
 
 interface DurationSelectionProps {
@@ -22,19 +22,12 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
   const guideTitle = guideType === 'meditation' ? 'Méditation' : 'Réflexion';
 
   const backgroundImageUrl = getMoodBackgroundUrl(mood.id, import.meta.env.BASE_URL);
-  const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImageUrl);
 
   return (
-    <div
-      className={`duration-selection ${guideType}`}
-      style={{
-        backgroundImage: backgroundImageUrl ? `url(${backgroundImageUrl})` : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-      onClick={handleBackgroundClick}
-    >
+    <div className={`duration-selection ${guideType}`}>
+      {backgroundImageUrl && (
+        <FixedBackground src={backgroundImageUrl} alt="Duration selection background" overlayOpacity={0.2} />
+      )}
 
       <button className="back-button" onClick={onBack}>
         ← Retour
@@ -125,9 +118,6 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
           </button>
         </div>
       </div>
-
-      {/* Fullscreen Background Viewer */}
-      <FullscreenViewer />
     </div>
   );
 };

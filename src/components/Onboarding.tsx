@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { User } from '../types';
-import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
 import { calculateHumanDesign } from '../utils/humanDesign';
+import FixedBackground from './FixedBackground';
 import './Onboarding.css';
 
 interface OnboardingProps {
@@ -20,7 +20,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [skipAstrologicalProfile, setSkipAstrologicalProfile] = useState(false);
 
   const backgroundImage = `${import.meta.env.BASE_URL}macro_close_up_of_a_fern_leaf_unfolding.jpeg`;
-  const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImage);
 
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,10 +79,9 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const isBirthInfoValid = birthDate && birthTime && birthLocation.trim();
 
   return (
-    <div
-      className={`onboarding ${isSubmitting ? 'fade-out' : ''}`}
-      onClick={handleBackgroundClick}
-    >
+    <div className={`onboarding ${isSubmitting ? 'fade-out' : ''}`}>
+      <FixedBackground src={backgroundImage} alt="Onboarding background" overlayOpacity={0.25} />
+
       <div className="onboarding-content fade-in">
         {step === 'name' && (
           <>
@@ -198,9 +196,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           Vos données restent privées et sont stockées localement sur votre appareil.
         </p>
       </div>
-
-      {/* Fullscreen Background Viewer */}
-      <FullscreenViewer />
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Mood } from '../types';
-import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
 import './CustomIntentionInput.css';
 
 interface CustomIntentionInputProps {
@@ -164,12 +163,10 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
 
   const isValid = intention.trim().length >= 5 && intention.trim().length <= 300;
 
-  const backgroundImageUrl = `${import.meta.env.BASE_URL}cinematic_night_landscape_showing_the_milky_way.jpeg`;
   const categoryIcon = '/Intention Libre icon.jpeg';
-  const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImageUrl);
 
   return (
-    <div className="custom-intention-input-overlay" onClick={handleBackgroundClick}>
+    <div className="custom-intention-input-overlay" onClick={onCancel}>
       <div
         className="custom-intention-input-modal fade-in"
         onClick={(e) => e.stopPropagation()}
@@ -285,9 +282,6 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
           </button>
         </div>
       </div>
-
-      {/* Fullscreen Background Viewer */}
-      <FullscreenViewer />
     </div>
   );
 };

@@ -3,7 +3,7 @@ import type { MeditationSession } from '../types';
 import type { ShareableSession } from '../types/share';
 import { storage } from '../utils/storage';
 import { moods } from '../data/moods';
-import { useFullscreenBackground } from '../hooks/useFullscreenBackground';
+import FixedBackground from './FixedBackground';
 import ShareModal from './ShareModal';
 import MoodIcon from './MoodIcon';
 import './History.css';
@@ -37,7 +37,6 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
   const [sessionToShare, setSessionToShare] = useState<ShareableSession | null>(null);
 
   const backgroundImage = `${import.meta.env.BASE_URL}professional_photograph_of_a_modern_home_library.jpeg`;
-  const { FullscreenViewer, handleBackgroundClick } = useFullscreenBackground(backgroundImage);
 
   useEffect(() => {
     loadSessions();
@@ -156,11 +155,8 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
   );
 
   return (
-    <div
-      className="history fade-in"
-      style={{ backgroundImage: `url(${backgroundImage})` }}
-      onClick={handleBackgroundClick}
-    >
+    <div className="history fade-in">
+      <FixedBackground src={backgroundImage} alt="Library background" overlayOpacity={0.25} />
       <div className="history-header">
         <button className="back-button" onClick={onBack}>
           ← Retour
@@ -293,9 +289,6 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
           </div>
         </div>
       )}
-
-      {/* Fullscreen Background Viewer */}
-      <FullscreenViewer />
 
       {/* Modal de partage */}
       {sessionToShare && (
