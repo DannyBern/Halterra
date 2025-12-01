@@ -2,19 +2,29 @@
    STICKY HEADER - Always visible navigation
    ============================================ */
 
+/* Portal container - ensures highest stacking context */
+#sticky-header-root {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 999999 !important;
+  pointer-events: none;
+  /* Prevent any stacking context issues */
+  isolation: isolate;
+}
+
 .sticky-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
+  position: relative; /* Relative to the fixed container */
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
+  /* Safe area for notch devices */
+  padding-top: max(1rem, env(safe-area-inset-top));
   background: linear-gradient(180deg,
-    rgba(15, 23, 42, 0.95) 0%,
-    rgba(15, 23, 42, 0.85) 70%,
+    rgba(15, 23, 42, 0.98) 0%,
+    rgba(15, 23, 42, 0.9) 60%,
     rgba(15, 23, 42, 0) 100%
   );
   backdrop-filter: blur(12px);

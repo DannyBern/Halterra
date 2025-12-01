@@ -13,8 +13,10 @@ export default function StickyHeader({
   showHistory = false,
   backLabel = 'Retour'
 }: StickyHeaderProps) {
-  // Use portal to render directly in body, ensuring position: fixed works
-  // regardless of parent CSS (transform, overflow, etc.)
+  // Use dedicated portal container placed AFTER #root in DOM
+  // This ensures the header is always on top regardless of other portals
+  const container = document.getElementById('sticky-header-root') || document.body;
+
   return createPortal(
     <div className="sticky-header">
       <button
@@ -47,6 +49,6 @@ export default function StickyHeader({
         </button>
       )}
     </div>,
-    document.body
+    container
   );
 }
