@@ -45,3 +45,94 @@
   pointer-events: none;
 }
 
+/* ========================================
+   Mode Visualisation (Fullscreen Viewer)
+   ======================================== */
+
+.fullscreen-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 10000; /* Au-dessus de tout */
+  background: #000;
+  cursor: pointer;
+  animation: viewerEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.fullscreen-viewer.closing {
+  animation: viewerExit 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.fullscreen-viewer-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Hint discret pour indiquer comment fermer */
+.fullscreen-viewer-hint {
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 2rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0;
+  animation: hintFadeIn 0.6s ease 0.5s forwards;
+  pointer-events: none;
+}
+
+/* Animations */
+@keyframes viewerEnter {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes viewerExit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes hintFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Safe area pour iOS */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .fullscreen-viewer-hint {
+    bottom: calc(3rem + env(safe-area-inset-bottom));
+  }
+}
+
