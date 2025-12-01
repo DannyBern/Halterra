@@ -38,9 +38,10 @@ export default function FixedBackground({
   const [isViewing, setIsViewing] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isLongPressing = useRef(false);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
 
   const LONG_PRESS_DURATION = 500; // 500ms pour activer
+  const MOVE_THRESHOLD = 10; // pixels de mouvement avant d'annuler
 
   // Ouvrir le mode visualisation
   const openViewer = useCallback(() => {
@@ -59,81 +60,86 @@ export default function FixedBackground({
     }, 400); // Durée de l'animation de fermeture
   }, []);
 
-  // Gestion du long press
-  const handleTouchStart = useCallback((_e: TouchEvent) => {
+  // Nettoyer le timer
+  const clearLongPressTimer = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+    touchStartPos.current = null;
+  }, []);
+
+  // Gestion du long press - Touch
+  const handleTouchStart = useCallback((e: TouchEvent) => {
     if (!enableViewer || isViewing) return;
 
-    isLongPressing.current = false;
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+
     longPressTimer.current = setTimeout(() => {
-      isLongPressing.current = true;
       openViewer();
     }, LONG_PRESS_DURATION);
   }, [enableViewer, isViewing, openViewer]);
 
   const handleTouchEnd = useCallback(() => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-  }, []);
+    clearLongPressTimer();
+  }, [clearLongPressTimer]);
 
-  const handleTouchMove = useCallback(() => {
-    // Annuler le long press si l'utilisateur bouge (scroll)
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    // Annuler le long press si l'utilisateur bouge trop (scroll)
+    if (longPressTimer.current && touchStartPos.current) {
+      const touch = e.touches[0];
+      const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
+      const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
+
+      if (deltaX > MOVE_THRESHOLD || deltaY > MOVE_THRESHOLD) {
+        clearLongPressTimer();
+      }
     }
-  }, []);
+  }, [clearLongPressTimer]);
 
   // Mouse events pour desktop
   const handleMouseDown = useCallback(() => {
     if (!enableViewer || isViewing) return;
 
-    isLongPressing.current = false;
     longPressTimer.current = setTimeout(() => {
-      isLongPressing.current = true;
       openViewer();
     }, LONG_PRESS_DURATION);
   }, [enableViewer, isViewing, openViewer]);
 
   const handleMouseUp = useCallback(() => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-  }, []);
+    clearLongPressTimer();
+  }, [clearLongPressTimer]);
 
   const handleMouseLeave = useCallback(() => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-  }, []);
+    clearLongPressTimer();
+  }, [clearLongPressTimer]);
 
   // Attacher les event listeners au document pour capturer les long press partout
   useEffect(() => {
     if (!enableViewer) return;
 
-    document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchend', handleTouchEnd, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: true });
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mouseup', handleMouseUp);
+    // Utiliser capture: true pour intercepter avant les autres éléments
+    document.addEventListener('touchstart', handleTouchStart, { passive: true, capture: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true, capture: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true, capture: true });
+    document.addEventListener('touchcancel', handleTouchEnd, { passive: true, capture: true });
+    document.addEventListener('mousedown', handleMouseDown, { capture: true });
+    document.addEventListener('mouseup', handleMouseUp, { capture: true });
     document.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchend', handleTouchEnd);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchstart', handleTouchStart, { capture: true });
+      document.removeEventListener('touchend', handleTouchEnd, { capture: true });
+      document.removeEventListener('touchmove', handleTouchMove, { capture: true });
+      document.removeEventListener('touchcancel', handleTouchEnd, { capture: true });
+      document.removeEventListener('mousedown', handleMouseDown, { capture: true });
+      document.removeEventListener('mouseup', handleMouseUp, { capture: true });
       document.removeEventListener('mouseleave', handleMouseLeave);
 
-      if (longPressTimer.current) {
-        clearTimeout(longPressTimer.current);
-      }
+      clearLongPressTimer();
     };
-  }, [enableViewer, handleTouchStart, handleTouchEnd, handleTouchMove, handleMouseDown, handleMouseUp, handleMouseLeave]);
+  }, [enableViewer, handleTouchStart, handleTouchEnd, handleTouchMove, handleMouseDown, handleMouseUp, handleMouseLeave, clearLongPressTimer]);
 
   // Rendu via Portal directement dans le body
   const backgroundContent = (
