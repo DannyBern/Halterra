@@ -1,11 +1,12 @@
 .history {
   min-height: 100vh;
+  min-height: 100dvh;
   padding: 2rem;
   position: relative;
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
-  /* Fixed attachment cause des problèmes de zoom sur mobile */
+  background-attachment: scroll;
 }
 
 /* Overlay sombre pour lisibilité */
