@@ -60,7 +60,7 @@ export default function FixedBackground({
   }, []);
 
   // Gestion du long press
-  const handleTouchStart = useCallback((e: TouchEvent) => {
+  const handleTouchStart = useCallback((_e: TouchEvent) => {
     if (!enableViewer || isViewing) return;
 
     isLongPressing.current = false;
