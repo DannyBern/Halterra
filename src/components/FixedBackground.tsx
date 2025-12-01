@@ -1,13 +1,12 @@
 /**
- * FixedBackground - Image de fond plein écran fixe avec mode fullscreen
+ * FixedBackground - Image de fond plein écran fixe
  * L'image reste fixe pendant que le contenu défile par-dessus
- * Clic en dehors des éléments UI = affichage plein écran sans overlay
  *
  * IMPORTANT: Utilise createPortal pour rendre directement dans le body
- * car les éléments avec transform (comme PullToRefresh) cassent position: fixed
+ * car les éléments avec transform (comme PullToRefresh) cassent position: fixed.
+ * Utilise des z-index négatifs pour rester derrière le contenu de l'app.
  */
 
-import { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import './FixedBackground.css';
 
@@ -15,37 +14,17 @@ interface FixedBackgroundProps {
   src: string;
   alt?: string;
   overlayOpacity?: number;
-  enableFullscreen?: boolean;
-  onBackgroundClick?: () => void;
 }
 
 export default function FixedBackground({
   src,
   alt = 'Background',
-  overlayOpacity = 0.25,
-  enableFullscreen = true
+  overlayOpacity = 0.25
 }: FixedBackgroundProps) {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
-
-  const closeFullscreen = useCallback(() => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setIsFullscreen(false);
-      setIsClosing(false);
-    }, 400);
-  }, []);
-
-  const openFullscreen = useCallback(() => {
-    if (!enableFullscreen) return;
-    setIsFullscreen(true);
-    setIsClosing(false);
-  }, [enableFullscreen]);
-
   // Rendu via Portal directement dans le body pour éviter les problèmes de transform
   const backgroundContent = (
     <>
-      {/* Background fixe normal */}
+      {/* Background fixe - z-index négatifs pour rester derrière l'app */}
       <div className="fixed-background">
         <img
           src={src}
@@ -64,28 +43,6 @@ export default function FixedBackground({
           }}
         />
       </div>
-
-      {/* Zone cliquable invisible pour ouvrir fullscreen */}
-      {enableFullscreen && !isFullscreen && (
-        <div
-          className="fixed-background-click-zone"
-          onClick={openFullscreen}
-        />
-      )}
-
-      {/* Fullscreen viewer (sans overlay, image pure) */}
-      {isFullscreen && (
-        <div
-          className={`fullscreen-background-viewer ${isClosing ? 'closing' : ''}`}
-          onClick={closeFullscreen}
-        >
-          <img
-            src={src}
-            alt={alt}
-            className="fullscreen-background-image"
-          />
-        </div>
-      )}
     </>
   );
 

@@ -1,15 +1,18 @@
 /**
  * FixedBackground - Styles pour image de fond plein écran fixe
  * L'image reste fixe, le contenu défile par-dessus
+ *
+ * IMPORTANT: Comme le composant utilise createPortal pour rendre dans body
+ * (pour éviter les problèmes avec transform de PullToRefresh),
+ * on utilise des z-index NÉGATIFS pour rester derrière le contenu de l'app.
+ *
  * Hiérarchie z-index:
- * - Body pseudo-elements: -1
- * - Background container: 0
- * - Background image: 1
- * - Overlay: 2
- * - Click zone: 3
- * - UI Content: 10+
- * - Buttons: 100
- * - Fullscreen: 9999
+ * - Background container: -10
+ * - Background image: -9
+ * - Overlay: -8
+ * - Click zone: -7
+ * - UI Content (app): 0+ (naturellement au-dessus)
+ * - Fullscreen: 9999 (au-dessus de tout)
  */
 
 .fixed-background {
@@ -19,7 +22,7 @@
   width: 100vw;
   height: 100vh;
   height: 100dvh; /* Dynamic viewport height for mobile */
-  z-index: 0;
+  z-index: -10;
   overflow: hidden;
   background-color: #0a0e1a; /* Fallback color pendant chargement */
   pointer-events: none;
@@ -34,7 +37,7 @@
   height: 100dvh;
   object-fit: cover;
   object-position: center;
-  z-index: 1;
+  z-index: -9;
 }
 
 .fixed-background-overlay {
@@ -44,69 +47,7 @@
   width: 100vw;
   height: 100vh;
   height: 100dvh;
-  z-index: 2;
+  z-index: -8;
   pointer-events: none;
 }
 
-/* Zone cliquable pour ouvrir fullscreen - en dessous du contenu UI */
-.fixed-background-click-zone {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  z-index: 3;
-  cursor: pointer;
-  /* Debug: décommenter pour voir la zone cliquable */
-  /* background: rgba(255, 0, 0, 0.1); */
-}
-
-/* Fullscreen viewer - image pure sans overlay */
-.fullscreen-background-viewer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  z-index: 9999;
-  cursor: pointer;
-  animation: fullscreenEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  background: #000;
-  overflow: hidden;
-}
-
-.fullscreen-background-viewer.closing {
-  animation: fullscreenExit 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
-}
-
-.fullscreen-background-image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-@keyframes fullscreenEnter {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fullscreenExit {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
