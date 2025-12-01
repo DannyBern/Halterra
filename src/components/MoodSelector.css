@@ -1,11 +1,15 @@
 .mood-selector {
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Allow scrolling when content is tall */
   justify-content: center;
   padding: var(--spacing-xl);
-  padding-top: 5rem !important;
+  padding-top: 5rem; /* Space for sticky header */
+  padding-bottom: 4rem; /* Space at bottom for full content visibility */
   position: relative;
+  overflow-x: hidden;
+  overflow-y: auto; /* Allow vertical scrolling */
 }
 
 .mood-selector.fade-out {
@@ -143,6 +147,8 @@
 @media (max-width: 768px) {
   .mood-selector {
     padding: var(--spacing-lg);
+    padding-top: 4.5rem; /* Space for sticky header on mobile */
+    padding-bottom: 3rem;
   }
 
   .mood-title {

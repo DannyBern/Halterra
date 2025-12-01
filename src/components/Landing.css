@@ -1,11 +1,15 @@
 .landing {
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Allow scrolling when content is tall */
   justify-content: center;
   padding: var(--spacing-xl);
+  padding-top: 2rem;
+  padding-bottom: 4rem; /* Space at bottom for full content visibility */
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto; /* Allow vertical scrolling */
 }
 
 .landing.fade-out {
@@ -187,6 +191,7 @@
 @media (max-width: 768px) {
   .landing {
     padding: var(--spacing-lg);
+    padding-bottom: 3rem;
   }
 
   .landing-title {
