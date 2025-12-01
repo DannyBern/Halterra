@@ -7,21 +7,25 @@ import './CustomIntentionInput.css';
 interface CustomIntentionInputProps {
   mood: Mood;
   onSubmit: (intention: string) => void;
-  onCancel: () => void;
+  onBack: () => void;
+  onHistory: () => void;
 }
 
 export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
   mood,
   onSubmit,
-  onCancel
+  onBack,
+  onHistory
 }) => {
   const [intention, setIntention] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const recognitionRef = useRef<any>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const silenceTimerRef = useRef<number | null>(null);
   const isListeningRef = useRef<boolean>(false);
+  const longPressTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     isListeningRef.current = isListening;
@@ -34,29 +38,24 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
     if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.lang = 'fr-FR';
-      recognitionRef.current.continuous = false; // Will restart manually
-      recognitionRef.current.interimResults = false; // Only final results
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
       recognitionRef.current.maxAlternatives = 1;
 
       recognitionRef.current.onresult = (event: any) => {
-        // Get the transcript from the last result
         const transcript = event.results[event.results.length - 1][0].transcript;
-
         console.log('📝 Received transcript:', transcript);
 
-        // Add to intention
         setIntention(prev => {
           const newValue = prev + (prev ? ' ' : '') + transcript;
           console.log('✍️ New intention:', newValue);
           return newValue;
         });
 
-        // Clear existing silence timer
         if (silenceTimerRef.current) {
           clearTimeout(silenceTimerRef.current);
         }
 
-        // Set new silence timer (5 seconds)
         silenceTimerRef.current = setTimeout(() => {
           if (recognitionRef.current && isListeningRef.current) {
             console.log('⏱️ Silence timer - stopping recognition');
@@ -69,9 +68,7 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
       recognitionRef.current.onend = () => {
         console.log('🛑 Recognition ended, isListening:', isListeningRef.current);
 
-        // If still in listening mode, wait a bit then restart recognition
         if (isListeningRef.current) {
-          // Small delay to avoid rapid restarts
           setTimeout(() => {
             if (isListeningRef.current) {
               try {
@@ -81,14 +78,13 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
                 console.log('Failed to restart recognition:', err);
               }
             }
-          }, 300); // 300ms delay before restart
+          }, 300);
         }
       };
 
       recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         if (event.error === 'no-speech') {
-          // No speech detected, just restart if still listening
           if (isListeningRef.current) {
             try {
               recognitionRef.current.start();
@@ -116,6 +112,9 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
       }
       if (silenceTimerRef.current) {
         clearTimeout(silenceTimerRef.current);
+      }
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
       }
     };
   }, []);
@@ -163,15 +162,39 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
     setError(null);
   };
 
+  // Long press handlers for fullscreen background
+  const handleTouchStart = () => {
+    longPressTimerRef.current = setTimeout(() => {
+      setIsFullscreen(true);
+    }, 500); // 500ms long press
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+  };
+
+  const handleFullscreenClose = () => {
+    setIsFullscreen(false);
+  };
+
   const isValid = intention.trim().length >= 5 && intention.trim().length <= 300;
 
   const categoryIcon = `${import.meta.env.BASE_URL}Intention Libre icon.jpeg`;
   const backgroundImage = `${import.meta.env.BASE_URL}cinematic_night_landscape_showing_the_milky_way.jpeg`;
 
   return (
-    <div className="custom-intention-page">
+    <div
+      className="custom-intention-page"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleTouchStart}
+      onMouseUp={handleTouchEnd}
+      onMouseLeave={handleTouchEnd}
+    >
       <FixedBackground src={backgroundImage} alt="Intention libre background" overlayOpacity={0.3} />
-      <StickyHeader onBack={onCancel} showHistory={false} />
+      <StickyHeader onBack={onBack} onHistory={onHistory} showHistory={true} />
 
       <div className="custom-intention-content">
         {/* Header */}
@@ -193,6 +216,9 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
         {/* Form Card */}
         <div
           className="custom-intention-card"
+          onClick={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
           style={{
             borderColor: `${mood.color}30`,
             background: `linear-gradient(135deg, ${mood.color}08, ${mood.color}03)`
@@ -264,7 +290,7 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
           <div className="custom-intention-actions">
             <button
               className="custom-intention-cancel"
-              onClick={onCancel}
+              onClick={onBack}
             >
               Annuler
             </button>
@@ -283,7 +309,33 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Long press hint */}
+        <p className="fullscreen-hint">
+          Maintiens appuyé pour voir l'image en plein écran
+        </p>
       </div>
+
+      {/* Fullscreen overlay */}
+      {isFullscreen && (
+        <div
+          className="fullscreen-overlay"
+          onClick={handleFullscreenClose}
+          onTouchEnd={handleFullscreenClose}
+        >
+          <img
+            src={backgroundImage}
+            alt="Fond d'écran en plein écran"
+            className="fullscreen-image"
+          />
+          <button className="fullscreen-close" onClick={handleFullscreenClose}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

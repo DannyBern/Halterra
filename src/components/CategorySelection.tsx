@@ -3,7 +3,6 @@ import type { Mood } from '../types';
 import { getMoodBackgroundUrl } from '../constants/moodImages';
 import FixedBackground from './FixedBackground';
 import StickyHeader from './StickyHeader';
-import { CustomIntentionInput } from './CustomIntentionInput';
 import './CategorySelection.css';
 
 interface Category {
@@ -17,6 +16,7 @@ interface CategorySelectionProps {
   guideType: 'meditation' | 'reflection';
   mood: Mood;
   onSelectIntention: (category: string, intention: string) => void;
+  onCustomIntention: () => void;
   onBack: () => void;
   onHistory: () => void;
 }
@@ -193,7 +193,7 @@ const categories: Category[] = [
     id: 'intention-libre',
     name: 'Intention Libre',
     icon: 'Intention Libre icon.jpeg',
-    intentions: [] // Special category - user provides custom intention
+    intentions: [] // Special category - navigates to custom intention page
   }
 ];
 
@@ -201,16 +201,16 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
   guideType,
   mood,
   onSelectIntention,
+  onCustomIntention,
   onBack,
   onHistory
 }) => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const [showCustomInput, setShowCustomInput] = useState(false);
 
   const handleCategoryClick = (categoryId: string) => {
-    // Special handling for "Intention Libre" category
+    // Special handling for "Intention Libre" category - navigate to new page
     if (categoryId === 'intention-libre') {
-      setShowCustomInput(true);
+      onCustomIntention();
       return;
     }
 
@@ -219,15 +219,6 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
     } else {
       setExpandedCategory(categoryId);
     }
-  };
-
-  const handleCustomIntentionSubmit = (customIntention: string) => {
-    onSelectIntention('intention-libre', customIntention);
-    setShowCustomInput(false);
-  };
-
-  const handleCustomIntentionCancel = () => {
-    setShowCustomInput(false);
   };
 
   const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
@@ -307,15 +298,6 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
           </div>
         ))}
       </div>
-
-      {/* Custom Intention Input Modal */}
-      {showCustomInput && (
-        <CustomIntentionInput
-          mood={mood}
-          onSubmit={handleCustomIntentionSubmit}
-          onCancel={handleCustomIntentionCancel}
-        />
-      )}
     </div>
   );
 };

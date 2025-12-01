@@ -5,6 +5,7 @@ import GuideSelector from './components/GuideSelector';
 import MoodSelector from './components/MoodSelector';
 import { DurationSelection } from './components/DurationSelection';
 import { CategorySelection } from './components/CategorySelection';
+import { CustomIntentionInput } from './components/CustomIntentionInput';
 import BackgroundMusic from './components/BackgroundMusic';
 import LoadingFallback from './components/LoadingFallback';
 import Toast from './components/Toast';
@@ -29,6 +30,7 @@ type AppScreen =
   | 'mood'
   | 'duration'
   | 'category'
+  | 'custom-intention'
   | 'meditation'
   | 'history'
   | 'session-view';
@@ -109,6 +111,20 @@ function App() {
     setSelectedCategory(category);
     setSelectedIntention(intention);
     setScreen('meditation');
+  };
+
+  const handleCustomIntentionOpen = () => {
+    setScreen('custom-intention');
+  };
+
+  const handleCustomIntentionSubmit = (intention: string) => {
+    setSelectedCategory('intention-libre');
+    setSelectedIntention(intention);
+    setScreen('meditation');
+  };
+
+  const handleCustomIntentionBack = () => {
+    setScreen('category');
   };
 
   const handleCategoryBack = () => {
@@ -314,7 +330,17 @@ function App() {
           guideType={selectedGuideType}
           mood={selectedMood}
           onSelectIntention={handleCategorySelect}
+          onCustomIntention={handleCustomIntentionOpen}
           onBack={handleCategoryBack}
+          onHistory={handleViewHistory}
+        />
+      )}
+
+      {screen === 'custom-intention' && selectedMood && (
+        <CustomIntentionInput
+          mood={selectedMood}
+          onSubmit={handleCustomIntentionSubmit}
+          onBack={handleCustomIntentionBack}
           onHistory={handleViewHistory}
         />
       )}
