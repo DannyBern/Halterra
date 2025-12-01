@@ -1,54 +1,62 @@
 /**
  * FixedBackground - Styles pour image de fond plein écran fixe
+ * L'image reste fixe, le contenu défile par-dessus
+ * Hiérarchie z-index:
+ * - Body pseudo-elements: -1
+ * - Background container: 0
+ * - Background image: 1
+ * - Overlay: 2
+ * - Click zone: 3
+ * - UI Content: 10+
+ * - Buttons: 100
+ * - Fullscreen: 9999
  */
 
 .fixed-background {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
   width: 100vw;
   height: 100vh;
   height: 100dvh; /* Dynamic viewport height for mobile */
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
   background-color: #0a0e1a; /* Fallback color pendant chargement */
+  pointer-events: none;
 }
 
 .fixed-background-image {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   object-fit: cover;
   object-position: center;
+  z-index: 1;
 }
 
 .fixed-background-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
+  z-index: 2;
   pointer-events: none;
 }
 
-/* Zone cliquable pour ouvrir fullscreen - couvre tout sauf les éléments interactifs */
+/* Zone cliquable pour ouvrir fullscreen - en dessous du contenu UI */
 .fixed-background-click-zone {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
-  z-index: 1;
+  z-index: 3;
   cursor: pointer;
   /* Debug: décommenter pour voir la zone cliquable */
   /* background: rgba(255, 0, 0, 0.1); */

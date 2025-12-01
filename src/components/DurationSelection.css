@@ -7,17 +7,7 @@
   padding: 2rem;
   padding-top: 5rem !important; /* Space for back button - override mobile-override */
   position: relative;
-}
-
-.duration-selection::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.20);
-  z-index: 0;
+  /* Pas de background - géré par FixedBackground */
 }
 
 .back-button {
