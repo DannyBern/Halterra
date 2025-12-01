@@ -2,9 +2,13 @@
  * FixedBackground - Image de fond plein écran fixe avec mode fullscreen
  * L'image reste fixe pendant que le contenu défile par-dessus
  * Clic en dehors des éléments UI = affichage plein écran sans overlay
+ *
+ * IMPORTANT: Utilise createPortal pour rendre directement dans le body
+ * car les éléments avec transform (comme PullToRefresh) cassent position: fixed
  */
 
 import { useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import './FixedBackground.css';
 
 interface FixedBackgroundProps {
@@ -38,7 +42,8 @@ export default function FixedBackground({
     setIsClosing(false);
   }, [enableFullscreen]);
 
-  return (
+  // Rendu via Portal directement dans le body pour éviter les problèmes de transform
+  const backgroundContent = (
     <>
       {/* Background fixe normal */}
       <div className="fixed-background">
@@ -83,4 +88,7 @@ export default function FixedBackground({
       )}
     </>
   );
+
+  // Utiliser createPortal pour rendre directement dans document.body
+  return createPortal(backgroundContent, document.body);
 }
