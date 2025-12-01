@@ -20,13 +20,10 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
   const [intention, setIntention] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const recognitionRef = useRef<any>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const silenceTimerRef = useRef<number | null>(null);
   const isListeningRef = useRef<boolean>(false);
-  const longPressTimerRef = useRef<number | null>(null);
-  const justClosedFullscreenRef = useRef<boolean>(false);
 
   useEffect(() => {
     isListeningRef.current = isListening;
@@ -114,9 +111,6 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
       if (silenceTimerRef.current) {
         clearTimeout(silenceTimerRef.current);
       }
-      if (longPressTimerRef.current) {
-        clearTimeout(longPressTimerRef.current);
-      }
     };
   }, []);
 
@@ -163,53 +157,13 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
     setError(null);
   };
 
-  // Long press handlers for fullscreen background
-  const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
-    // Don't trigger long press if already in fullscreen or just closed it
-    if (isFullscreen || justClosedFullscreenRef.current) return;
-
-    // Prevent text selection on long press
-    e.preventDefault();
-    longPressTimerRef.current = setTimeout(() => {
-      setIsFullscreen(true);
-    }, 500); // 500ms long press
-  };
-
-  const handleTouchEnd = () => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-    }
-  };
-
-  // Prevent context menu on long press
-  const handleContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault();
-  };
-
-  const handleFullscreenClose = () => {
-    setIsFullscreen(false);
-    // Prevent immediately reopening fullscreen from lingering touch events
-    justClosedFullscreenRef.current = true;
-    setTimeout(() => {
-      justClosedFullscreenRef.current = false;
-    }, 600);
-  };
-
   const isValid = intention.trim().length >= 5 && intention.trim().length <= 300;
 
   const categoryIcon = `${import.meta.env.BASE_URL}Intention Libre icon.jpeg`;
   const backgroundImage = `${import.meta.env.BASE_URL}cinematic_night_landscape_showing_the_milky_way.jpeg`;
 
   return (
-    <div
-      className="custom-intention-page"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onMouseDown={handleTouchStart}
-      onMouseUp={handleTouchEnd}
-      onMouseLeave={handleTouchEnd}
-      onContextMenu={handleContextMenu}
-    >
+    <div className="custom-intention-page">
       <FixedBackground src={backgroundImage} alt="Intention libre background" overlayOpacity={0.3} />
       <StickyHeader onBack={onBack} onHistory={onHistory} showHistory={true} />
 
@@ -327,50 +281,7 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
           </div>
         </div>
 
-        {/* Long press hint */}
-        <p className="fullscreen-hint">
-          Maintiens appuyé pour voir l'image en plein écran
-        </p>
       </div>
-
-      {/* Fullscreen overlay */}
-      {isFullscreen && (
-        <div
-          className="fullscreen-overlay"
-          onTouchStart={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleFullscreenClose();
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleFullscreenClose();
-          }}
-        >
-          <img
-            src={backgroundImage}
-            alt="Fond d'écran en plein écran"
-            className="fullscreen-image"
-          />
-          <button
-            className="fullscreen-close"
-            onTouchStart={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleFullscreenClose();
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleFullscreenClose();
-            }}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        </div>
-      )}
     </div>
   );
 };
