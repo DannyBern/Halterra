@@ -1,12 +1,15 @@
 .guide-selector {
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Allow scrolling when content is tall */
   justify-content: center;
   padding: 2rem;
-  padding-top: 5rem;
+  padding-top: 5rem; /* Space for sticky header */
+  padding-bottom: 4rem; /* Space at bottom for full content visibility */
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto; /* Allow vertical scrolling */
 }
 
 .guide-content {
@@ -226,6 +229,8 @@
 @media (max-width: 768px) {
   .guide-selector {
     padding: 1.5rem;
+    padding-top: 4.5rem; /* Space for sticky header on mobile */
+    padding-bottom: 3rem;
   }
 
   .guide-header {

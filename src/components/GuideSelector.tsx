@@ -1,22 +1,21 @@
 import FixedBackground from './FixedBackground';
+import StickyHeader from './StickyHeader';
 import './GuideSelector.css';
 
 interface GuideSelectorProps {
   userName: string;
   onSelectGuide: (guideType: 'meditation' | 'reflection') => void;
   onBack: () => void;
+  onHistory: () => void;
 }
 
-export default function GuideSelector({ userName, onSelectGuide, onBack }: GuideSelectorProps) {
+export default function GuideSelector({ userName, onSelectGuide, onBack, onHistory }: GuideSelectorProps) {
   const backgroundImage = `${import.meta.env.BASE_URL}landing-bg.jpg`;
 
   return (
     <div className="guide-selector fade-in">
       <FixedBackground src={backgroundImage} alt="Guide selector background" overlayOpacity={0.3} />
-
-      <button className="back-button" onClick={onBack} aria-label="Retour">
-        ← Retour
-      </button>
+      <StickyHeader onBack={onBack} onHistory={onHistory} showHistory={true} />
 
       <div className="guide-content">
         <div className="guide-header">

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Mood } from '../types';
 import { getMoodBackgroundUrl } from '../constants/moodImages';
 import FixedBackground from './FixedBackground';
+import StickyHeader from './StickyHeader';
 import { CustomIntentionInput } from './CustomIntentionInput';
 import './CategorySelection.css';
 
@@ -17,6 +18,7 @@ interface CategorySelectionProps {
   mood: Mood;
   onSelectIntention: (category: string, intention: string) => void;
   onBack: () => void;
+  onHistory: () => void;
 }
 
 const categories: Category[] = [
@@ -199,7 +201,8 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
   guideType,
   mood,
   onSelectIntention,
-  onBack
+  onBack,
+  onHistory
 }) => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [showCustomInput, setShowCustomInput] = useState(false);
@@ -236,10 +239,7 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
       {backgroundImageUrl && (
         <FixedBackground src={backgroundImageUrl} alt="Category selection background" overlayOpacity={0.2} />
       )}
-
-      <button className="back-button-category" onClick={onBack}>
-        ← Retour
-      </button>
+      <StickyHeader onBack={onBack} onHistory={onHistory} showHistory={true} />
 
       <div className="category-header">
         <h1 className="category-title">Choisis ton intention</h1>

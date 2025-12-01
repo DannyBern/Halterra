@@ -286,6 +286,7 @@ function App() {
           userName={user.name}
           onSelectGuide={handleGuideSelect}
           onBack={handleGuideBack}
+          onHistory={handleViewHistory}
         />
       )}
 
@@ -294,6 +295,7 @@ function App() {
           userName={user.name}
           onMoodSelect={handleMoodSelect}
           onBack={handleMoodBack}
+          onHistory={handleViewHistory}
         />
       )}
 
@@ -303,6 +305,7 @@ function App() {
           mood={selectedMood}
           onSelect={handleDurationSelect}
           onBack={handleDurationBack}
+          onHistory={handleViewHistory}
         />
       )}
 
@@ -312,6 +315,7 @@ function App() {
           mood={selectedMood}
           onSelectIntention={handleCategorySelect}
           onBack={handleCategoryBack}
+          onHistory={handleViewHistory}
         />
       )}
 

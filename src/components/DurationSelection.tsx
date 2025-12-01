@@ -2,6 +2,7 @@ import React from 'react';
 import type { Mood } from '../types';
 import { getMoodBackgroundUrl } from '../constants/moodImages';
 import FixedBackground from './FixedBackground';
+import StickyHeader from './StickyHeader';
 import './DurationSelection.css';
 
 interface DurationSelectionProps {
@@ -9,13 +10,15 @@ interface DurationSelectionProps {
   mood: Mood;
   onSelect: (duration: 2 | 5 | 10, generateAudio: boolean) => void;
   onBack: () => void;
+  onHistory: () => void;
 }
 
 export const DurationSelection: React.FC<DurationSelectionProps> = ({
   guideType,
   mood,
   onSelect,
-  onBack
+  onBack,
+  onHistory
 }) => {
   const [generateAudio, setGenerateAudio] = React.useState(true);
   const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
@@ -28,10 +31,7 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
       {backgroundImageUrl && (
         <FixedBackground src={backgroundImageUrl} alt="Duration selection background" overlayOpacity={0.2} />
       )}
-
-      <button className="back-button" onClick={onBack}>
-        ← Retour
-      </button>
+      <StickyHeader onBack={onBack} onHistory={onHistory} showHistory={true} />
 
       <div className="duration-content">
         <h1 className="duration-title">

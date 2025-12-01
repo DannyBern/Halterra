@@ -3,15 +3,17 @@ import type { Mood } from '../types';
 import { moods } from '../data/moods';
 import MoodIcon from './MoodIcon';
 import FixedBackground from './FixedBackground';
+import StickyHeader from './StickyHeader';
 import './MoodSelector.css';
 
 interface MoodSelectorProps {
   userName: string;
   onMoodSelect: (mood: Mood) => void;
   onBack: () => void;
+  onHistory: () => void;
 }
 
-export default function MoodSelector({ userName, onMoodSelect, onBack }: MoodSelectorProps) {
+export default function MoodSelector({ userName, onMoodSelect, onBack, onHistory }: MoodSelectorProps) {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -28,9 +30,7 @@ export default function MoodSelector({ userName, onMoodSelect, onBack }: MoodSel
   return (
     <div className={`mood-selector ${isTransitioning ? 'fade-out' : ''}`}>
       <FixedBackground src={backgroundImage} alt="Mood selector background" overlayOpacity={0.2} />
-      <button className="back-button" onClick={onBack} aria-label="Retour">
-        ← Retour
-      </button>
+      <StickyHeader onBack={onBack} onHistory={onHistory} showHistory={true} />
 
       <div className="mood-content fade-in">
         <h2 className="mood-title">{userName}, comment vous sentez-vous ce matin ?</h2>
