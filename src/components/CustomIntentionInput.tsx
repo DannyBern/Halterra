@@ -163,7 +163,9 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
   };
 
   // Long press handlers for fullscreen background
-  const handleTouchStart = () => {
+  const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
+    // Prevent text selection on long press
+    e.preventDefault();
     longPressTimerRef.current = setTimeout(() => {
       setIsFullscreen(true);
     }, 500); // 500ms long press
@@ -173,6 +175,11 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
     }
+  };
+
+  // Prevent context menu on long press
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
   };
 
   const handleFullscreenClose = () => {
@@ -192,6 +199,7 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
       onMouseDown={handleTouchStart}
       onMouseUp={handleTouchEnd}
       onMouseLeave={handleTouchEnd}
+      onContextMenu={handleContextMenu}
     >
       <FixedBackground src={backgroundImage} alt="Intention libre background" overlayOpacity={0.3} />
       <StickyHeader onBack={onBack} onHistory={onHistory} showHistory={true} />

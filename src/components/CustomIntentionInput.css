@@ -14,6 +14,13 @@
   position: relative;
   overflow-y: auto;
   overflow-x: hidden;
+  /* Disable text selection on long press (mobile) */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Content wrapper - centered */
@@ -104,6 +111,12 @@
   min-height: 140px;
   font-family: inherit;
   transition: all 0.3s ease;
+  /* Re-enable text selection in textarea */
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
 }
 
 .custom-intention-textarea:focus {
