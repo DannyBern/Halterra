@@ -6,17 +6,21 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height pour mobile */
   z-index: -1;
-  pointer-events: none;
+  overflow: hidden;
 }
 
 .fixed-background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: center center;
 }
 
 .fixed-background-overlay {
@@ -25,4 +29,60 @@
   left: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
+}
+
+/* Fullscreen viewer - image pure sans overlay */
+.fullscreen-background-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 9999;
+  cursor: pointer;
+  animation: fullscreenEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  background: #000;
+}
+
+.fullscreen-background-viewer.closing {
+  animation: fullscreenExit 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+.fullscreen-background-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+@keyframes fullscreenEnter {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fullscreenExit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+}
+
+/* Fix pour Safari iOS qui a des problèmes avec 100vh */
+@supports (-webkit-touch-callout: none) {
+  .fixed-background,
+  .fullscreen-background-viewer {
+    height: -webkit-fill-available;
+  }
 }
