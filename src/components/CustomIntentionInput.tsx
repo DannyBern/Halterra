@@ -26,6 +26,7 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
   const silenceTimerRef = useRef<number | null>(null);
   const isListeningRef = useRef<boolean>(false);
   const longPressTimerRef = useRef<number | null>(null);
+  const justClosedFullscreenRef = useRef<boolean>(false);
 
   useEffect(() => {
     isListeningRef.current = isListening;
@@ -164,6 +165,9 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
 
   // Long press handlers for fullscreen background
   const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
+    // Don't trigger long press if already in fullscreen or just closed it
+    if (isFullscreen || justClosedFullscreenRef.current) return;
+
     // Prevent text selection on long press
     e.preventDefault();
     longPressTimerRef.current = setTimeout(() => {
@@ -184,6 +188,11 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
 
   const handleFullscreenClose = () => {
     setIsFullscreen(false);
+    // Prevent immediately reopening fullscreen from lingering touch events
+    justClosedFullscreenRef.current = true;
+    setTimeout(() => {
+      justClosedFullscreenRef.current = false;
+    }, 600);
   };
 
   const isValid = intention.trim().length >= 5 && intention.trim().length <= 300;
