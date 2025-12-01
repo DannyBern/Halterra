@@ -32,37 +32,23 @@ const PLATFORMS: Array<{
   },
   {
     id: 'facebook',
-    name: 'Facebook',
-    icon: '👥',
+    name: 'Messenger',
+    icon: '💬',
     color: '#1877F2',
     available: true,
   },
   {
-    id: 'twitter',
-    name: 'X',
-    icon: '🐦',
-    color: '#000000',
+    id: 'email',
+    name: 'Email',
+    icon: '✉️',
+    color: '#EA4335',
     available: true,
   },
   {
-    id: 'linkedin',
-    name: 'LinkedIn',
-    icon: '💼',
-    color: '#0A66C2',
-    available: true,
-  },
-  {
-    id: 'whatsapp',
-    name: 'WhatsApp',
-    icon: '💬',
-    color: '#25D366',
-    available: true,
-  },
-  {
-    id: 'copy-link',
-    name: 'Copier le lien',
-    icon: '🔗',
-    color: '#667eea',
+    id: 'sms',
+    name: 'SMS',
+    icon: '📱',
+    color: '#34C759',
     available: true,
   },
 ];
@@ -70,7 +56,6 @@ const PLATFORMS: Array<{
 export default function ShareModal({ session, isOpen, onClose }: ShareModalProps) {
   const [sharing, setSharing] = useState(false);
   const [shareStatus, setShareStatus] = useState<{
-    platform?: SharePlatform;
     message?: string;
     type?: 'success' | 'error';
   }>({});
@@ -89,8 +74,7 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
       const formatSuffix = selectedFormat === 'story' ? '-story' : selectedFormat === 'wide' ? '-wide' : '';
       downloadCard(cardBlob, `halterra-meditation${formatSuffix}.png`);
       setShareStatus({
-        platform: 'copy-link',
-        message: 'Image t\u00e9l\u00e9charg\u00e9e!',
+        message: 'Image téléchargée!',
         type: 'success',
       });
     }
@@ -101,8 +85,7 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
       const success = await copyToClipboard(cardBlob);
       if (success) {
         setShareStatus({
-          platform: 'copy-link',
-          message: 'Image copi\u00e9e!',
+          message: 'Image copiée!',
           type: 'success',
         });
       } else {
@@ -124,36 +107,36 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
       });
 
       if (result.success) {
+        const messages: Record<string, string> = {
+          instagram: 'Texte copié! Ouvre Instagram pour partager.',
+          facebook: 'Ouverture de Messenger...',
+          email: 'Ouverture de l\'application email...',
+          sms: 'Ouverture des messages...',
+          native: 'Partagé avec succès!',
+        };
+
         setShareStatus({
-          platform,
-          message:
-            platform === 'copy-link'
-              ? 'Lien copié!'
-              : platform === 'instagram'
-                ? 'Texte copié! Ouvre Instagram pour partager.'
-                : 'Partagé avec succès!',
+          message: messages[platform] || 'Partagé avec succès!',
           type: 'success',
         });
 
         // Track le partage
         await trackShare(result, session);
 
-        // Fermer automatiquement après 2s si c'est un succès (sauf Instagram/copy)
-        if (platform !== 'instagram' && platform !== 'copy-link') {
+        // Fermer automatiquement après 2s pour email/sms/facebook
+        if (['email', 'sms', 'facebook'].includes(platform)) {
           setTimeout(() => {
             onClose();
           }, 2000);
         }
       } else {
         setShareStatus({
-          platform,
           message: result.error || 'Erreur lors du partage',
           type: 'error',
         });
       }
     } catch (error) {
       setShareStatus({
-        platform,
         message: 'Une erreur est survenue',
         type: 'error',
       });
@@ -263,7 +246,7 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
           {platformsToShow.map((platform) => (
             <button
               key={platform.id}
-              className={`share-platform-btn ${sharing && shareStatus.platform === platform.id ? 'share-platform-btn-loading' : ''}`}
+              className={`share-platform-btn ${sharing ? 'share-platform-btn-loading' : ''}`}
               onClick={() => handleShare(platform.id)}
               disabled={sharing}
               style={{

@@ -23,7 +23,12 @@ const DIMENSIONS: Record<ShareCardFormat, { width: number; height: number }> = {
 };
 
 // Scale pour l'affichage (canvas interne vs preview)
-const PREVIEW_SCALE = 0.25;
+// Story est plus petit car très grand verticalement
+const PREVIEW_SCALES: Record<ShareCardFormat, number> = {
+  story: 0.15,
+  square: 0.22,
+  wide: 0.25,
+};
 
 /**
  * Extrait une citation inspirante du texte de méditation
@@ -257,8 +262,9 @@ export default function ShareCardPreview({
   }, [renderCard]);
 
   const { width, height } = DIMENSIONS[format];
-  const previewWidth = width * PREVIEW_SCALE;
-  const previewHeight = height * PREVIEW_SCALE;
+  const previewScale = PREVIEW_SCALES[format];
+  const previewWidth = width * previewScale;
+  const previewHeight = height * previewScale;
 
   return (
     <div className="share-card-preview-container">

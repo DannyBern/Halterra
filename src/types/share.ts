@@ -5,11 +5,8 @@
 export type SharePlatform =
   | 'instagram'
   | 'facebook'
-  | 'twitter'
-  | 'linkedin'
-  | 'tiktok'
-  | 'whatsapp'
-  | 'copy-link'
+  | 'email'
+  | 'sms'
   | 'native';
 
 export type ShareFormat = 'image' | 'video' | 'text' | 'link';

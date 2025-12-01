@@ -150,37 +150,21 @@ export async function prepareShareContent(
     instagram: {
       title: `${session.mood.icon} Moment de méditation`,
       description: excerpt,
-      hashtags: hashtags.slice(0, 10), // Instagram limite à 30 hashtags total
+      hashtags: hashtags.slice(0, 10),
     },
     facebook: {
       title: `Ma méditation avec Halterra`,
       description: `${session.intention ? `${session.intention}\n\n` : ''}${excerpt}`,
-      hashtags: hashtags.slice(0, 3), // Facebook préfère moins de hashtags
+      hashtags: hashtags.slice(0, 3),
     },
-    twitter: {
-      title: `✨ Méditation du jour`,
-      description: generateExcerpt(session.meditationText, 240), // 280 - liens - hashtags
-      hashtags: hashtags.slice(0, 2),
-      via: 'HalterraApp',
-    },
-    linkedin: {
-      title: `Prendre un moment pour soi avec Halterra`,
-      description: excerpt,
-      hashtags: ['Wellbeing', 'Mindfulness', 'MentalHealth'],
-    },
-    tiktok: {
-      title: `${session.mood.icon} Ma méditation`,
-      description: excerpt,
-      hashtags: ['meditation', 'mindfulness', 'selfcare', 'wellness'],
-    },
-    whatsapp: {
-      title: `Partage de méditation`,
-      description: `${session.mood.icon} ${excerpt}`,
+    email: {
+      title: `Ma méditation Halterra`,
+      description: `${session.mood.icon} ${excerpt}\n\nDécouvre Halterra pour créer tes propres méditations personnalisées.`,
       hashtags: [],
     },
-    'copy-link': {
-      title: 'Lien copié!',
-      description: shareLink,
+    sms: {
+      title: `Méditation`,
+      description: `${session.mood.icon} ${generateExcerpt(session.meditationText, 120)}`,
       hashtags: [],
     },
     native: {
@@ -299,80 +283,37 @@ function shareFacebook(content: ShareContent): ShareResult {
 }
 
 /**
- * Partage sur Twitter/X
+ * Partage via Email
  */
-function shareTwitter(content: ShareContent): ShareResult {
-  const url = new URL('https://twitter.com/intent/tweet');
+function shareEmail(content: ShareContent): ShareResult {
+  const subject = encodeURIComponent(content.title);
+  const body = encodeURIComponent(`${content.description}\n\n${content.url}`);
+  const mailtoUrl = `mailto:?subject=${subject}&body=${body}`;
 
-  let text = content.description;
-  if (content.hashtags && content.hashtags.length > 0) {
-    text += '\n\n' + content.hashtags.map((h) => `#${h}`).join(' ');
-  }
-
-  url.searchParams.set('text', text);
-  url.searchParams.set('url', content.url);
-
-  if (content.via) {
-    url.searchParams.set('via', content.via);
-  }
-
-  window.open(url.toString(), '_blank', 'width=600,height=400');
+  window.location.href = mailtoUrl;
 
   return {
     success: true,
-    platform: 'twitter',
+    platform: 'email',
   };
 }
 
 /**
- * Partage sur LinkedIn
+ * Partage via SMS
  */
-function shareLinkedIn(content: ShareContent): ShareResult {
-  const url = new URL('https://www.linkedin.com/sharing/share-offsite/');
-  url.searchParams.set('url', content.url);
+function shareSMS(content: ShareContent): ShareResult {
+  const text = encodeURIComponent(`${content.description}\n\n${content.url}`);
 
-  window.open(url.toString(), '_blank', 'width=600,height=400');
+  // iOS utilise &body= tandis qu'Android utilise ?body=
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const smsUrl = isIOS ? `sms:&body=${text}` : `sms:?body=${text}`;
+
+  window.location.href = smsUrl;
 
   return {
     success: true,
-    platform: 'linkedin',
+    platform: 'sms',
   };
-}
-
-/**
- * Partage sur WhatsApp
- */
-function shareWhatsApp(content: ShareContent): ShareResult {
-  const text = `${content.description}\n\n${content.url}`;
-  const url = new URL('https://wa.me/');
-  url.searchParams.set('text', text);
-
-  window.open(url.toString(), '_blank');
-
-  return {
-    success: true,
-    platform: 'whatsapp',
-  };
-}
-
-/**
- * Copier le lien dans le presse-papiers
- */
-async function copyLink(content: ShareContent): Promise<ShareResult> {
-  try {
-    await navigator.clipboard.writeText(content.url);
-
-    return {
-      success: true,
-      platform: 'copy-link',
-    };
-  } catch (error) {
-    return {
-      success: false,
-      platform: 'copy-link',
-      error: 'Failed to copy link',
-    };
-  }
 }
 
 /**
@@ -406,14 +347,10 @@ export async function shareSession(
         return await shareInstagram(content, mediaUrl);
       case 'facebook':
         return shareFacebook(content);
-      case 'twitter':
-        return shareTwitter(content);
-      case 'linkedin':
-        return shareLinkedIn(content);
-      case 'whatsapp':
-        return shareWhatsApp(content);
-      case 'copy-link':
-        return await copyLink(content);
+      case 'email':
+        return shareEmail(content);
+      case 'sms':
+        return shareSMS(content);
       default:
         return {
           success: false,
