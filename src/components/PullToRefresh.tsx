@@ -4,7 +4,7 @@
  *
  * Le pull-to-refresh ne se déclenche que si:
  * 1. L'utilisateur est en haut de la page (scrollTop < 5px)
- * 2. Le touch commence dans les 150px du haut de l'écran (configurable via triggerZone)
+ * 2. Le touch commence dans le premier QUART (25%) de l'écran
  *
  * Cela évite les déclenchements accidentels lors d'un scroll up normal.
  */
@@ -17,15 +17,13 @@ interface PullToRefreshProps {
   onRefresh?: () => void | Promise<void>;
   threshold?: number; // Distance en px pour déclencher le refresh
   disabled?: boolean;
-  triggerZone?: number; // Zone de déclenchement depuis le haut de l'écran (en px)
 }
 
 export default function PullToRefresh({
   children,
   onRefresh,
   threshold = 80,
-  disabled = false,
-  triggerZone = 150 // Zone de déclenchement depuis le haut (en px, inclut safe area)
+  disabled = false
 }: PullToRefreshProps) {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -42,17 +40,18 @@ export default function PullToRefresh({
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
     if (scrollTop > 5) return;
 
-    // Vérifier si le touch commence dans la zone de déclenchement (haut de l'écran)
-    // On prend en compte le safe-area-inset-top pour iOS (notch, dynamic island)
+    // Calculer le premier quart de l'écran
+    const screenHeight = window.innerHeight;
+    const topQuarter = screenHeight * 0.25; // Premier 25% de l'écran
+
     const touchY = e.touches[0].clientY;
 
-    // Ne PAS déclencher le pull si le touch est trop bas sur l'écran
-    // triggerZone = 150px par défaut = environ le tiers supérieur sur mobile
-    if (touchY > triggerZone) return;
+    // Ne PAS déclencher le pull si le touch est en dehors du premier quart
+    if (touchY > topQuarter) return;
 
     startY.current = touchY;
     setIsPulling(true);
-  }, [disabled, isRefreshing, triggerZone]);
+  }, [disabled, isRefreshing]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!isPulling || disabled || isRefreshing) return;
