@@ -33,18 +33,24 @@ const PREVIEW_SCALES: Record<ShareCardFormat, number> = {
 /**
  * Extrait une citation inspirante du texte de méditation
  */
-function extractQuote(text: string, maxLength: number = 150): string {
+function extractQuote(text: string, maxLength: number = 180): string {
+  if (!text || text.trim().length === 0) {
+    return 'Un moment de paix et de sérénité...';
+  }
+
   // Nettoyer et diviser en phrases
   const cleaned = text.replace(/\s+/g, ' ').trim();
   const sentences = cleaned.split(/(?<=[.!?])\s+/);
 
   // Chercher une phrase inspirante (éviter les instructions directes)
   const inspiringPhrases = sentences.filter(s =>
-    s.length >= 30 &&
+    s.length >= 20 &&
     s.length <= maxLength &&
     !s.toLowerCase().startsWith('maintenant') &&
     !s.toLowerCase().startsWith('respire') &&
-    !s.toLowerCase().startsWith('ferme')
+    !s.toLowerCase().startsWith('ferme') &&
+    !s.toLowerCase().startsWith('inspire') &&
+    !s.toLowerCase().startsWith('expire')
   );
 
   if (inspiringPhrases.length > 0) {
@@ -168,15 +174,17 @@ export default function ShareCardPreview({
     }
 
     // === CARD CENTRALE (GLASSMORPHISM) ===
-    const cardPadding = width * 0.08;
+    // Adapter les dimensions selon le format
+    const cardPadding = format === 'story' ? width * 0.06 : width * 0.08;
     const cardWidth = width - (cardPadding * 2);
-    const cardHeight = format === 'story' ? height * 0.5 : height * 0.7;
+    // Story: carte plus haute pour utiliser l'espace vertical
+    const cardHeight = format === 'story' ? height * 0.65 : format === 'wide' ? height * 0.75 : height * 0.7;
     const cardY = (height - cardHeight) / 2;
 
     // Fond de la card
     ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.beginPath();
-    ctx.roundRect(cardPadding, cardY, cardWidth, cardHeight, 40);
+    ctx.roundRect(cardPadding, cardY, cardWidth, cardHeight, format === 'story' ? 50 : 40);
     ctx.fill();
 
     // Bordure de la card
@@ -185,17 +193,22 @@ export default function ShareCardPreview({
     ctx.stroke();
 
     // === ICÔNE MOOD ===
-    const iconY = cardY + (format === 'story' ? 120 : 80);
-    ctx.font = `${format === 'story' ? 80 : 64}px Arial`;
+    const iconSize = format === 'story' ? 100 : format === 'wide' ? 56 : 64;
+    const iconY = cardY + (format === 'story' ? 150 : format === 'wide' ? 70 : 90);
+    ctx.font = `${iconSize}px Arial`;
     ctx.textAlign = 'center';
     ctx.fillText(session.mood.icon, width / 2, iconY);
 
     // === CITATION ===
-    const quote = extractQuote(session.meditationText);
-    const quoteY = iconY + (format === 'story' ? 100 : 70);
-    const quoteMaxWidth = cardWidth - 80;
+    const quoteMaxLength = format === 'story' ? 250 : format === 'wide' ? 120 : 150;
+    const quote = extractQuote(session.meditationText, quoteMaxLength);
+    const quoteY = iconY + (format === 'story' ? 120 : format === 'wide' ? 60 : 80);
+    const quoteMaxWidth = cardWidth - (format === 'story' ? 100 : 80);
 
-    ctx.font = `italic ${format === 'story' ? 42 : 32}px Georgia, serif`;
+    const fontSize = format === 'story' ? 48 : format === 'wide' ? 26 : 32;
+    const lineHeight = format === 'story' ? 68 : format === 'wide' ? 36 : 46;
+
+    ctx.font = `italic ${fontSize}px Georgia, serif`;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
 
     const finalQuoteY = drawWrappedText(
@@ -204,11 +217,11 @@ export default function ShareCardPreview({
       width / 2,
       quoteY,
       quoteMaxWidth,
-      format === 'story' ? 56 : 44
+      lineHeight
     );
 
     // === LIGNE SÉPARATRICE ===
-    const separatorY = finalQuoteY + (format === 'story' ? 60 : 40);
+    const separatorY = finalQuoteY + (format === 'story' ? 80 : format === 'wide' ? 30 : 45);
     ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.4)`;
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -217,8 +230,9 @@ export default function ShareCardPreview({
     ctx.stroke();
 
     // === DÉTAILS DE LA SESSION ===
-    const detailsY = separatorY + (format === 'story' ? 50 : 35);
-    ctx.font = `600 ${format === 'story' ? 32 : 24}px Inter, -apple-system, sans-serif`;
+    const detailsY = separatorY + (format === 'story' ? 60 : format === 'wide' ? 30 : 40);
+    const detailsFontSize = format === 'story' ? 36 : format === 'wide' ? 22 : 26;
+    ctx.font = `600 ${detailsFontSize}px Inter, -apple-system, sans-serif`;
     ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.9)`;
     ctx.fillText(session.mood.name, width / 2, detailsY);
 
@@ -226,22 +240,25 @@ export default function ShareCardPreview({
     const durationText = session.duration
       ? `${session.duration} min avec ${session.guideType === 'meditation' ? 'Iza' : 'Dann'}`
       : 'Méditation guidée';
-    ctx.font = `400 ${format === 'story' ? 26 : 20}px Inter, -apple-system, sans-serif`;
+    const durationFontSize = format === 'story' ? 28 : format === 'wide' ? 18 : 22;
+    ctx.font = `400 ${durationFontSize}px Inter, -apple-system, sans-serif`;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.fillText(durationText, width / 2, detailsY + (format === 'story' ? 45 : 35));
+    ctx.fillText(durationText, width / 2, detailsY + (format === 'story' ? 50 : format === 'wide' ? 28 : 38));
 
     // === LOGO / BRANDING ===
-    const brandY = cardY + cardHeight - (format === 'story' ? 80 : 60);
+    const brandY = cardY + cardHeight - (format === 'story' ? 100 : format === 'wide' ? 50 : 65);
 
     // Texte "Halterra"
-    ctx.font = `700 ${format === 'story' ? 36 : 28}px Inter, -apple-system, sans-serif`;
+    const brandFontSize = format === 'story' ? 42 : format === 'wide' ? 24 : 30;
+    ctx.font = `700 ${brandFontSize}px Inter, -apple-system, sans-serif`;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.fillText('Halterra', width / 2, brandY);
 
     // Tagline
-    ctx.font = `400 ${format === 'story' ? 22 : 18}px Inter, -apple-system, sans-serif`;
+    const taglineFontSize = format === 'story' ? 24 : format === 'wide' ? 16 : 18;
+    ctx.font = `400 ${taglineFontSize}px Inter, -apple-system, sans-serif`;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.fillText('Méditations personnalisées par IA', width / 2, brandY + (format === 'story' ? 35 : 28));
+    ctx.fillText('Méditations personnalisées par IA', width / 2, brandY + (format === 'story' ? 40 : format === 'wide' ? 24 : 30));
 
     // === EXPORT ===
     setIsRendering(false);
