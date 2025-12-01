@@ -1,6 +1,7 @@
 .history {
   min-height: 100vh;
   padding: 2rem;
+  padding-top: 5rem; /* Space for sticky header */
   position: relative;
 }
 

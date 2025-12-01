@@ -4,14 +4,17 @@ import type { ShareableSession } from '../types/share';
 import { moods } from '../data/moods';
 import ShareModal from './ShareModal';
 import MoodIcon from './MoodIcon';
+import StickyHeader from './StickyHeader';
 import './SessionView.css';
+import './StickyHeader.css';
 
 interface SessionViewProps {
   session: MeditationSession;
   onBack: () => void;
+  onHistory: () => void;
 }
 
-export default function SessionView({ session, onBack }: SessionViewProps) {
+export default function SessionView({ session, onBack, onHistory }: SessionViewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -60,12 +63,10 @@ export default function SessionView({ session, onBack }: SessionViewProps) {
 
   return (
     <div className="session-view fade-in">
+      <StickyHeader onBack={onBack} onHistory={onHistory} showHistory={true} backLabel="Historique" />
+
       <div className="session-view-header">
         <div className="session-header-buttons">
-          <button className="back-button" onClick={onBack}>
-            ← Retour à l'historique
-          </button>
-
           <button
             className="back-button share-button-session"
             onClick={() => setShareModalOpen(true)}

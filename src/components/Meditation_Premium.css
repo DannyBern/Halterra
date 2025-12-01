@@ -62,7 +62,7 @@
   max-width: 900px;
   width: 100%;
   margin: 0 auto 3rem;
-  padding-top: 6rem;
+  padding-top: 5rem; /* Space for sticky header */
 }
 
 .header-category-icon {
@@ -565,7 +565,7 @@
 
 .audio-progress-banner {
   position: fixed;
-  top: 5rem;
+  top: 4.5rem; /* Below sticky header */
   left: 2rem;
   right: 2rem;
   z-index: 90;
@@ -673,7 +673,7 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .audio-progress-banner {
-    top: 4rem;
+    top: 4rem; /* Below sticky header on mobile */
     left: 1rem;
     right: 1rem;
     padding: 0.75rem 1rem;
@@ -709,6 +709,7 @@
   justify-content: center;
   min-height: 100vh;
   padding: 2rem;
+  padding-top: 5rem; /* Space for sticky header */
   text-align: center;
   position: relative;
   z-index: 1;

@@ -6,7 +6,9 @@ import { moods } from '../data/moods';
 import FixedBackground from './FixedBackground';
 import ShareModal from './ShareModal';
 import MoodIcon from './MoodIcon';
+import StickyHeader from './StickyHeader';
 import './History.css';
+import './StickyHeader.css';
 
 interface HistoryProps {
   onBack: () => void;
@@ -157,10 +159,9 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
   return (
     <div className="history fade-in">
       <FixedBackground src={backgroundImage} alt="Library background" overlayOpacity={0.25} />
+      <StickyHeader onBack={onBack} showHistory={false} />
+
       <div className="history-header">
-        <button className="back-button" onClick={onBack}>
-          ← Retour
-        </button>
         <h1 className="history-title">Historique de vos méditations</h1>
         <p className="history-subtitle">
           Revisitez vos moments de réflexion passés

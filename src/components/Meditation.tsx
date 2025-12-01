@@ -5,9 +5,11 @@ import { storage } from '../utils/storage';
 import { FALLBACK_LOADING_QUOTE } from '../constants/fallbackQuotes';
 import MoodIcon from './MoodIcon';
 import ShareModal from './ShareModal';
+import StickyHeader from './StickyHeader';
 import type { ShareableSession } from '../types/share';
 import './Meditation.css';
 import './Meditation_Premium.css';
+import './StickyHeader.css';
 
 interface MeditationProps {
   mood: Mood;
@@ -20,6 +22,7 @@ interface MeditationProps {
   astrologicalProfile?: AstrologicalProfile;
   onComplete: (meditationText: string, audioBase64?: string) => Promise<void>;
   onBack: () => void;
+  onHistory: () => void;
 }
 
 // Helper pour récupérer l'icône de la catégorie
@@ -49,7 +52,8 @@ export default function Meditation({
   generateAudio,
   astrologicalProfile,
   onComplete,
-  onBack
+  onBack,
+  onHistory
 }: MeditationProps) {
   const [status, setStatus] = useState<'generating-text' | 'generating-audio' | 'ready' | 'error'>('generating-text');
   const [meditationText, setMeditationText] = useState('');
@@ -369,19 +373,7 @@ export default function Meditation({
                        radial-gradient(circle at 70% 80%, ${mood.color}10 0%, transparent 50%)`
         }}></div>
 
-        <button
-          className="back-button-premium"
-          onClick={(e) => {
-            e.stopPropagation();
-            onBack();
-          }}
-          aria-label="Retour"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-          <span>Retour</span>
-        </button>
+        <StickyHeader onBack={onBack} onHistory={onHistory} showHistory={true} />
 
         {/* 🎙️ AUDIO GENERATION PROGRESS BAR - Premium design */}
         <div className="audio-progress-banner" style={{
@@ -467,19 +459,7 @@ export default function Meditation({
                        radial-gradient(circle at 70% 80%, ${mood.color}10 0%, transparent 50%)`
         }}></div>
 
-        <button
-          className="back-button-premium"
-          onClick={(e) => {
-            e.stopPropagation();
-            onBack();
-          }}
-          aria-label="Retour"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-          <span>Retour</span>
-        </button>
+        <StickyHeader onBack={onBack} onHistory={onHistory} showHistory={true} />
 
         <div className="meditation-error-premium fade-in">
           {/* Icon de catégorie au centre */}
@@ -572,19 +552,7 @@ export default function Meditation({
                      radial-gradient(circle at 70% 80%, ${mood.color}10 0%, transparent 50%)`
       }}></div>
 
-      <button
-        className="back-button-premium"
-        onClick={(e) => {
-          e.stopPropagation();
-          onBack();
-        }}
-        aria-label="Retour"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-        <span>Retour</span>
-      </button>
+      <StickyHeader onBack={onBack} onHistory={onHistory} showHistory={true} />
 
       {/* Premium header with category icon and mood */}
       <div className="meditation-header-premium">

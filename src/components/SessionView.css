@@ -4,6 +4,7 @@
 .session-view {
   min-height: 100vh;
   padding: 2rem;
+  padding-top: 5rem; /* Space for sticky header */
 }
 
 .session-view-header {

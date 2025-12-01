@@ -328,6 +328,7 @@ function App() {
             astrologicalProfile={user.astrologicalProfile}
             onComplete={handleMeditationComplete}
             onBack={handleMeditationBack}
+            onHistory={handleViewHistory}
           />
         </Suspense>
       )}
@@ -340,7 +341,7 @@ function App() {
 
       {screen === 'session-view' && selectedSession && (
         <Suspense fallback={<LoadingFallback />}>
-          <SessionView session={selectedSession} onBack={handleSessionViewBack} />
+          <SessionView session={selectedSession} onBack={handleSessionViewBack} onHistory={handleViewHistory} />
         </Suspense>
       )}
 

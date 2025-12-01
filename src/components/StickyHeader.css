@@ -1,0 +1,114 @@
+/* ============================================
+   STICKY HEADER - Always visible navigation
+   ============================================ */
+
+.sticky-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(180deg,
+    rgba(15, 23, 42, 0.95) 0%,
+    rgba(15, 23, 42, 0.85) 70%,
+    rgba(15, 23, 42, 0) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: none; /* Allow clicks through the gradient area */
+}
+
+.sticky-header-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto; /* Re-enable clicks for buttons */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.sticky-header-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+}
+
+.sticky-header-btn:active {
+  transform: translateY(0);
+}
+
+.sticky-header-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Back button specific */
+.sticky-header-back:hover {
+  transform: translateX(-4px);
+}
+
+/* History button specific */
+.sticky-header-history {
+  background: rgba(102, 126, 234, 0.15);
+  border-color: rgba(102, 126, 234, 0.3);
+  color: #a5b4fc;
+}
+
+.sticky-header-history:hover {
+  background: rgba(102, 126, 234, 0.25);
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: 0 6px 24px rgba(102, 126, 234, 0.25);
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  .sticky-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .sticky-header-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .sticky-header-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Hide text labels on very small screens, keep only icons */
+  .sticky-header-btn span {
+    display: none;
+  }
+
+  .sticky-header-btn {
+    padding: 0.65rem 0.85rem;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1024px) {
+  .sticky-header {
+    padding: 1.5rem 2rem;
+  }
+
+  .sticky-header-btn {
+    padding: 0.85rem 1.5rem;
+    font-size: 1rem;
+  }
+}
