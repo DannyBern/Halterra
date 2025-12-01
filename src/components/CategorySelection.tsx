@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import type { Mood } from '../types';
 import { getMoodBackgroundUrl } from '../constants/moodImages';
 import FixedBackground from './FixedBackground';
@@ -25,7 +25,7 @@ const categories: Category[] = [
   {
     id: 'sante-corps',
     name: 'Santé & Corps',
-    icon: 'Santé & Corps icon.jpeg',
+    icon: 'Santé & Corps icon.webp',
     intentions: [
       'Gérer la douleur chronique',
       'Améliorer la santé physique générale',
@@ -35,7 +35,7 @@ const categories: Category[] = [
   {
     id: 'changement-habitudes',
     name: 'Changement & Habitudes',
-    icon: 'Changement & Habitudes icon.jpeg',
+    icon: 'Changement & Habitudes icon.webp',
     intentions: [
       'Briser les habitudes néfastes et les dépendances',
       'Développer des comportements sains et activés'
@@ -44,7 +44,7 @@ const categories: Category[] = [
   {
     id: 'eveil-preparation',
     name: 'Éveil & Préparation',
-    icon: 'Éveil & Préparation icon.jpeg',
+    icon: 'Éveil & Préparation icon.webp',
     intentions: [
       'Se préparer mentalement',
       'Cultiver la conscience du moment présent',
@@ -56,7 +56,7 @@ const categories: Category[] = [
   {
     id: 'attention-cognition',
     name: 'Attention & Cognition',
-    icon: 'Attention & Cognition icon.jpeg',
+    icon: 'Attention & Cognition icon.webp',
     intentions: [
       'Améliorer la concentration et le focus',
       'Développer l\'attention soutenue et la présence',
@@ -71,7 +71,7 @@ const categories: Category[] = [
   {
     id: 'performance-action',
     name: 'Performance & Action',
-    icon: 'Performance & Action icon.jpeg',
+    icon: 'Performance & Action icon.webp',
     intentions: [
       'Augmenter la productivité et la performance au travail',
       'Développer la créativité et l\'innovation',
@@ -85,7 +85,7 @@ const categories: Category[] = [
   {
     id: 'regulation-resilience',
     name: 'Régulation & Résilience',
-    icon: 'Régulation & Résilience icon.jpeg',
+    icon: 'Régulation & Résilience icon.webp',
     intentions: [
       'Réduire le stress et l\'anxiété',
       'Gérer l\'anxiété et les pensées anxieuses',
@@ -100,7 +100,7 @@ const categories: Category[] = [
   {
     id: 'flexibilite-psychologique',
     name: 'Flexibilité Psychologique',
-    icon: 'Flexibilité Psychologique icon.jpeg',
+    icon: 'Flexibilité Psychologique icon.webp',
     intentions: [
       'Cultiver l\'acceptation et la tolérance à la détresse',
       'Développer la flexibilité psychologique',
@@ -114,7 +114,7 @@ const categories: Category[] = [
   {
     id: 'relations-connexion',
     name: 'Relations & Connexion',
-    icon: 'Relations & Connexion icon.jpeg',
+    icon: 'Relations & Connexion icon.webp',
     intentions: [
       'Améliorer les relations et la communication',
       'Cultiver la compassion et la bienveillance',
@@ -127,7 +127,7 @@ const categories: Category[] = [
   {
     id: 'bien-etre-etats-positifs',
     name: 'Bien-être & États Positifs',
-    icon: 'Bien-être & États Positifs icon.jpeg',
+    icon: 'Bien-être & États Positifs icon.webp',
     intentions: [
       'Augmenter le bonheur et les émotions positives',
       'Cultiver la gratitude et l\'appréciation',
@@ -139,7 +139,7 @@ const categories: Category[] = [
   {
     id: 'soi-developpement',
     name: 'Soi & Développement',
-    icon: 'Soi & Développement icon.jpeg',
+    icon: 'Soi & Développement icon.webp',
     intentions: [
       'Développer la connaissance et l\'acceptation de soi',
       'Développer l\'auto-compassion et réduire l\'autocritique',
@@ -156,7 +156,7 @@ const categories: Category[] = [
   {
     id: 'autonomie-valeurs',
     name: 'Autonomie & Valeurs',
-    icon: 'Autonomie & Valeurs.jpeg',
+    icon: 'Autonomie & Valeurs.webp',
     intentions: [
       'Trouver le sens et le but de sa vie',
       'Clarifier ses valeurs personnelles',
@@ -171,7 +171,7 @@ const categories: Category[] = [
   {
     id: 'spiritualite-transcendance',
     name: 'Spiritualité & Transcendance',
-    icon: 'Spiritualité & Transcendance icon.jpeg',
+    icon: 'Spiritualité & Transcendance icon.webp',
     intentions: [
       'Explorer la conscience et la nature de l\'esprit',
       'Rechercher l\'éveil ou l\'illumination spirituelle',
@@ -183,7 +183,7 @@ const categories: Category[] = [
   {
     id: 'detente-sommeil',
     name: 'Détente & Sommeil',
-    icon: 'Détente & Sommeil icon.jpeg',
+    icon: 'Détente & Sommeil icon.webp',
     intentions: [
       'S\'endormir et améliorer la qualité du sommeil',
       'Gérer l\'insomnie et les réveils nocturnes'
@@ -192,7 +192,7 @@ const categories: Category[] = [
   {
     id: 'intention-libre',
     name: 'Intention Libre',
-    icon: 'Intention Libre icon.jpeg',
+    icon: 'Intention Libre icon.webp',
     intentions: [] // Special category - navigates to custom intention page
   }
 ];
@@ -207,19 +207,20 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
 }) => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
-  const handleCategoryClick = (categoryId: string) => {
+  const handleCategoryClick = useCallback((categoryId: string) => {
     // Special handling for "Intention Libre" category - navigate to new page
     if (categoryId === 'intention-libre') {
       onCustomIntention();
       return;
     }
 
-    if (expandedCategory === categoryId) {
-      setExpandedCategory(null);
-    } else {
-      setExpandedCategory(categoryId);
-    }
-  };
+    setExpandedCategory(prev => prev === categoryId ? null : categoryId);
+  }, [onCustomIntention]);
+
+  const handleIntentionSelect = useCallback((e: React.MouseEvent, categoryId: string, intention: string) => {
+    e.stopPropagation();
+    onSelectIntention(categoryId, intention);
+  }, [onSelectIntention]);
 
   const guideName = guideType === 'meditation' ? 'Iza' : 'Dann';
 
@@ -282,10 +283,7 @@ export const CategorySelection: React.FC<CategorySelectionProps> = ({
                       <button
                         key={index}
                         className="intention-item"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectIntention(category.id, intention);
-                        }}
+                        onClick={(e) => handleIntentionSelect(e, category.id, intention)}
                       >
                         {intention}
                       </button>

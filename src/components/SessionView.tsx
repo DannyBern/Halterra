@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import type { MeditationSession } from '../types';
 import type { ShareableSession } from '../types/share';
 import { moods } from '../data/moods';
@@ -19,10 +19,13 @@ export default function SessionView({ session, onBack, onHistory }: SessionViewP
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const mood = moods.find(m => m.id === session.mood || m.name === session.mood);
+  const mood = useMemo(() =>
+    moods.find(m => m.id === session.mood || m.name === session.mood),
+    [session.mood]
+  );
 
-  // Préparer les données pour le partage
-  const shareableSession: ShareableSession = {
+  // Préparer les données pour le partage (mémorisé)
+  const shareableSession: ShareableSession = useMemo(() => ({
     id: session.id,
     meditationText: session.meditationText,
     mood: {
@@ -36,20 +39,23 @@ export default function SessionView({ session, onBack, onHistory }: SessionViewP
     userName: session.userName,
     date: session.date,
     guideType: 'meditation',
-  };
+  }), [session, mood]);
 
-  const handlePlay = () => {
+  const handlePlay = useCallback(() => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
         audioRef.current.play();
       }
-      setIsPlaying(!isPlaying);
+      setIsPlaying(prev => !prev);
     }
-  };
+  }, [isPlaying]);
 
-  const formatDate = (dateString: string) => {
+  const openShareModal = useCallback(() => setShareModalOpen(true), []);
+  const closeShareModal = useCallback(() => setShareModalOpen(false), []);
+
+  const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
     const options: Intl.DateTimeFormatOptions = {
       weekday: 'long',
@@ -59,7 +65,13 @@ export default function SessionView({ session, onBack, onHistory }: SessionViewP
     };
     const formatted = date.toLocaleDateString('fr-FR', options);
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-  };
+  }, []);
+
+  // Mémoiser le split du texte pour éviter recalcul à chaque render
+  const meditationParagraphs = useMemo(() =>
+    session.meditationText.split('\n\n'),
+    [session.meditationText]
+  );
 
   return (
     <div className="session-view fade-in">
@@ -69,7 +81,7 @@ export default function SessionView({ session, onBack, onHistory }: SessionViewP
         <div className="session-header-buttons">
           <button
             className="back-button share-button-session"
-            onClick={() => setShareModalOpen(true)}
+            onClick={openShareModal}
             aria-label="Partager cette méditation"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '0.5rem' }}>
@@ -152,7 +164,7 @@ export default function SessionView({ session, onBack, onHistory }: SessionViewP
 
         <div className="meditation-text-container">
           <div className="meditation-text">
-            {session.meditationText.split('\n\n').map((paragraph, index) => (
+            {meditationParagraphs.map((paragraph, index) => (
               <p key={index} className="meditation-paragraph">
                 {paragraph}
               </p>
@@ -165,7 +177,7 @@ export default function SessionView({ session, onBack, onHistory }: SessionViewP
       <ShareModal
         session={shareableSession}
         isOpen={shareModalOpen}
-        onClose={() => setShareModalOpen(false)}
+        onClose={closeShareModal}
       />
     </div>
   );

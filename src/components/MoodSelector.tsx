@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import type { Mood } from '../types';
 import { moods } from '../data/moods';
 import MoodIcon from './MoodIcon';
@@ -17,15 +17,15 @@ export default function MoodSelector({ userName, onMoodSelect, onBack, onHistory
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const backgroundImage = `${import.meta.env.BASE_URL}ultra_detailed_cinematic_mobile_app_background_minimalistic_and.jpeg`;
+  const backgroundImage = `${import.meta.env.BASE_URL}ultra_detailed_cinematic_mobile_app_background_minimalistic_and.webp`;
 
-  const handleMoodClick = (mood: Mood) => {
+  const handleMoodClick = useCallback((mood: Mood) => {
     setSelectedMood(mood.id);
     setIsTransitioning(true);
     setTimeout(() => {
       onMoodSelect(mood);
     }, 600);
-  };
+  }, [onMoodSelect]);
 
   return (
     <div className={`mood-selector ${isTransitioning ? 'fade-out' : ''}`}>

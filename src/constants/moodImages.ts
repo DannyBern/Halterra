@@ -6,16 +6,16 @@
  */
 
 export const MOOD_IMAGE_MAP: Record<string, string> = {
-  'aligned': 'Aligné  En flow.jpeg',
-  'motivated': 'Motivé  Inspiré.jpeg',
-  'anxious': 'Anxieux  Inquiet.jpeg',
-  'exhausted': 'Épuisé  Vidé.jpeg',
-  'sad': 'Triste  Découragé.jpeg',
-  'frustrated': 'Frustré  En colère.jpeg',
-  'lost': 'Perdu  Confus.jpeg',
-  'alone': 'Seul  Isolé.jpeg',
-  'overwhelmed': 'Submergé  Sous pression.jpeg',
-  'calm': 'Calme  Serein.jpeg'
+  'aligned': 'Aligné  En flow.webp',
+  'motivated': 'Motivé  Inspiré.webp',
+  'anxious': 'Anxieux  Inquiet.webp',
+  'exhausted': 'Épuisé  Vidé.webp',
+  'sad': 'Triste  Découragé.webp',
+  'frustrated': 'Frustré  En colère.webp',
+  'lost': 'Perdu  Confus.webp',
+  'alone': 'Seul  Isolé.webp',
+  'overwhelmed': 'Submergé  Sous pression.webp',
+  'calm': 'Calme  Serein.webp'
 };
 
 /**

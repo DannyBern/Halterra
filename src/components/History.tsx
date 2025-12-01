@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { MeditationSession } from '../types';
 import type { ShareableSession } from '../types/share';
 import { storage } from '../utils/storage';
@@ -17,19 +17,19 @@ interface HistoryProps {
 
 // Category icons mapping - using category IDs as keys
 const categoryIcons: { [key: string]: string } = {
-  'sante-corps': 'Santé & Corps icon.jpeg',
-  'changement-habitudes': 'Changement & Habitudes icon.jpeg',
-  'eveil-preparation': 'Éveil & Préparation icon.jpeg',
-  'attention-cognition': 'Attention & Cognition icon.jpeg',
-  'performance-action': 'Performance & Action icon.jpeg',
-  'regulation-resilience': 'Régulation & Résilience icon.jpeg',
-  'flexibilite-psychologique': 'Flexibilité Psychologique icon.jpeg',
-  'relations-connexion': 'Relations & Connexion icon.jpeg',
-  'bien-etre-etats-positifs': 'Bien-être & États Positifs icon.jpeg',
-  'soi-developpement': 'Soi & Développement icon.jpeg',
-  'sens-valeurs': 'Sens & Valeurs icon.jpeg',
-  'sommeil-repos': 'Sommeil & Repos icon.jpeg',
-  'intention-libre': 'Intention Libre icon.jpeg'
+  'sante-corps': 'Santé & Corps icon.webp',
+  'changement-habitudes': 'Changement & Habitudes icon.webp',
+  'eveil-preparation': 'Éveil & Préparation icon.webp',
+  'attention-cognition': 'Attention & Cognition icon.webp',
+  'performance-action': 'Performance & Action icon.webp',
+  'regulation-resilience': 'Régulation & Résilience icon.webp',
+  'flexibilite-psychologique': 'Flexibilité Psychologique icon.webp',
+  'relations-connexion': 'Relations & Connexion icon.webp',
+  'bien-etre-etats-positifs': 'Bien-être & États Positifs icon.webp',
+  'soi-developpement': 'Soi & Développement icon.webp',
+  'sens-valeurs': 'Sens & Valeurs icon.webp',
+  'sommeil-repos': 'Sommeil & Repos icon.webp',
+  'intention-libre': 'Intention Libre icon.webp'
 };
 
 export default function History({ onBack, onSessionSelect }: HistoryProps) {
@@ -38,7 +38,7 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [sessionToShare, setSessionToShare] = useState<ShareableSession | null>(null);
 
-  const backgroundImage = `${import.meta.env.BASE_URL}professional_photograph_of_a_modern_home_library.jpeg`;
+  const backgroundImage = `${import.meta.env.BASE_URL}professional_photograph_of_a_modern_home_library.webp`;
 
   useEffect(() => {
     loadSessions();
@@ -51,13 +51,13 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
     setSessions(sorted);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent, sessionId: string) => {
-    e.stopPropagation(); // Empêcher l'ouverture de la session
+  const handleDeleteClick = useCallback((e: React.MouseEvent, sessionId: string) => {
+    e.stopPropagation();
     setSessionToDelete(sessionId);
-  };
+  }, []);
 
-  const handleShareClick = (e: React.MouseEvent, session: MeditationSession) => {
-    e.stopPropagation(); // Empêcher l'ouverture de la session
+  const handleShareClick = useCallback((e: React.MouseEvent, session: MeditationSession) => {
+    e.stopPropagation();
     const mood = getMoodById(session.mood);
 
     const shareableSession: ShareableSession = {
@@ -77,7 +77,7 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
     };
 
     setSessionToShare(shareableSession);
-  };
+  }, []);
 
   const confirmDelete = async () => {
     if (sessionToDelete) {
@@ -102,7 +102,8 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
     setSessionToDelete(null);
   };
 
-  const groupSessionsByDate = () => {
+  // Mémoiser le groupement des sessions par date (évite recalcul à chaque render)
+  const groupedSessions = useMemo(() => {
     const groups: { [key: string]: MeditationSession[] } = {};
 
     sessions.forEach(session => {
@@ -113,7 +114,15 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
     });
 
     return groups;
-  };
+  }, [sessions]);
+
+  // Mémoiser le tri des dates
+  const dates = useMemo(() =>
+    Object.keys(groupedSessions).sort((a, b) =>
+      new Date(b).getTime() - new Date(a).getTime()
+    ),
+    [groupedSessions]
+  );
 
   const formatDate = (dateString: string) => {
     // Parse la date en format local pour éviter les problèmes de timezone
@@ -147,14 +156,9 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
     }
   };
 
-  const getMoodById = (moodId: string) => {
+  const getMoodById = useCallback((moodId: string) => {
     return moods.find(m => m.id === moodId || m.name === moodId);
-  };
-
-  const groupedSessions = groupSessionsByDate();
-  const dates = Object.keys(groupedSessions).sort((a, b) =>
-    new Date(b).getTime() - new Date(a).getTime()
-  );
+  }, []);
 
   return (
     <div className="history fade-in">
@@ -187,15 +191,6 @@ export default function History({ onBack, onSessionSelect }: HistoryProps) {
                     const mood = getMoodById(session.mood);
                     const categoryIcon = session.category ? categoryIcons[session.category] : null;
                     const displayIntention = session.intention || 'Méditation personnalisée';
-
-                    // Debug logging
-                    console.log('Session debug:', {
-                      hasCategory: !!session.category,
-                      category: session.category,
-                      hasCategoryIcon: !!categoryIcon,
-                      categoryIcon: categoryIcon,
-                      intention: session.intention
-                    });
 
                     return (
                       <div key={session.id} className="session-card-wrapper">

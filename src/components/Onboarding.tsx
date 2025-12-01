@@ -19,7 +19,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [skipAstrologicalProfile, setSkipAstrologicalProfile] = useState(false);
 
-  const backgroundImage = `${import.meta.env.BASE_URL}macro_close_up_of_a_fern_leaf_unfolding.jpeg`;
+  const backgroundImage = `${import.meta.env.BASE_URL}macro_close_up_of_a_fern_leaf_unfolding.webp`;
 
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();

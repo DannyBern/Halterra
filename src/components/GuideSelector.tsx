@@ -10,7 +10,7 @@ interface GuideSelectorProps {
 }
 
 export default function GuideSelector({ userName, onSelectGuide, onBack, onHistory }: GuideSelectorProps) {
-  const backgroundImage = `${import.meta.env.BASE_URL}landing-bg.jpg`;
+  const backgroundImage = `${import.meta.env.BASE_URL}landing-bg.webp`;
 
   return (
     <div className="guide-selector fade-in">
@@ -35,7 +35,7 @@ export default function GuideSelector({ userName, onSelectGuide, onBack, onHisto
           >
             <div className="guide-card-image-container">
               <img
-                src="/guide-meditation.webp.jpeg"
+                src="/guide-meditation.webp.webp"
                 alt="Iza - Guide de méditation"
                 loading="lazy"
                 className="guide-card-image"
@@ -64,7 +64,7 @@ export default function GuideSelector({ userName, onSelectGuide, onBack, onHisto
           >
             <div className="guide-card-image-container">
               <img
-                src="/guide-reflection.webp.jpeg"
+                src="/guide-reflection.webp.webp"
                 alt="Dann - Guide de réflexion"
                 loading="lazy"
                 className="guide-card-image"

@@ -28,18 +28,18 @@ interface MeditationProps {
 // Helper pour récupérer l'icône de la catégorie
 const getCategoryIcon = (categoryId: string): string => {
   const categoryIcons: Record<string, string> = {
-    'sante-corps': 'Santé & Corps icon.jpeg',
-    'changement-habitudes': 'Changement & Habitudes icon.jpeg',
-    'eveil-preparation': 'Éveil & Préparation icon.jpeg',
-    'attention-cognition': 'Attention & Cognition icon.jpeg',
-    'performance-action': 'Performance & Action icon.jpeg',
-    'regulation-resilience': 'Régulation & Résilience icon.jpeg',
-    'flexibilite-psychologique': 'Flexibilité Psychologique icon.jpeg',
-    'relations-sociales': 'Relations & Sociales icon.jpeg',
-    'sens-valeurs': 'Sens & Valeurs icon.jpeg',
-    'sommeil-repos': 'Sommeil & Repos icon.jpeg'
+    'sante-corps': 'Santé & Corps icon.webp',
+    'changement-habitudes': 'Changement & Habitudes icon.webp',
+    'eveil-preparation': 'Éveil & Préparation icon.webp',
+    'attention-cognition': 'Attention & Cognition icon.webp',
+    'performance-action': 'Performance & Action icon.webp',
+    'regulation-resilience': 'Régulation & Résilience icon.webp',
+    'flexibilite-psychologique': 'Flexibilité Psychologique icon.webp',
+    'relations-sociales': 'Relations & Sociales icon.webp',
+    'sens-valeurs': 'Sens & Valeurs icon.webp',
+    'sommeil-repos': 'Sommeil & Repos icon.webp'
   };
-  return categoryIcons[categoryId] || 'Éveil & Préparation icon.jpeg';
+  return categoryIcons[categoryId] || 'Éveil & Préparation icon.webp';
 };
 
 export default function Meditation({

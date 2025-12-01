@@ -159,8 +159,8 @@ export const CustomIntentionInput: React.FC<CustomIntentionInputProps> = ({
 
   const isValid = intention.trim().length >= 5 && intention.trim().length <= 300;
 
-  const categoryIcon = `${import.meta.env.BASE_URL}Intention Libre icon.jpeg`;
-  const backgroundImage = `${import.meta.env.BASE_URL}cinematic_night_landscape_showing_the_milky_way.jpeg`;
+  const categoryIcon = `${import.meta.env.BASE_URL}Intention Libre icon.webp`;
+  const backgroundImage = `${import.meta.env.BASE_URL}cinematic_night_landscape_showing_the_milky_way.webp`;
 
   return (
     <div className="custom-intention-page">
