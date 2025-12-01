@@ -1,46 +1,38 @@
 /* ============================================
-   CUSTOM INTENTION INPUT - Premium Modal
+   CUSTOM INTENTION INPUT - Full Page Premium Design
    ============================================ */
 
-.custom-intention-input-overlay {
+/* Full page container */
+.custom-intention-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  padding-top: 5rem; /* Space for sticky header */
+  padding-bottom: 4rem;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('/cinematic_night_landscape_showing_the_milky_way.jpeg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 1000;
-  padding: 2rem;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-/* Dark overlay for better text readability - NO blur for clear background */
-.custom-intention-input-overlay::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: -1;
-}
-
-.custom-intention-input-modal {
-  max-width: 600px;
+/* Content wrapper - centered */
+.custom-intention-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   width: 100%;
-  padding: 2.5rem;
-  border-radius: 24px;
-  border: 1px solid;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  max-width: 600px;
+  margin: 0 auto;
   position: relative;
-  z-index: 1;
+  z-index: 10;
+  animation: fadeInUp 0.5s ease-out;
 }
 
 /* Header */
@@ -54,33 +46,55 @@
 }
 
 .custom-intention-icon {
-  width: 80px;
-  height: 80px;
-  border-radius: 12px;
-  background-size: cover;
-  background-position: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  width: 100px;
+  height: 100px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
+.custom-intention-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .custom-intention-title {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
   color: white;
   letter-spacing: -0.02em;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(135deg, #FFFFFF 0%, rgba(255, 255, 255, 0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .custom-intention-subtitle {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
   margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Form Card */
+.custom-intention-card {
+  width: 100%;
+  padding: 2rem;
+  border-radius: 24px;
+  border: 1px solid;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
 /* Textarea Container */
 .custom-intention-textarea-container {
   position: relative;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .custom-intention-textarea {
@@ -111,6 +125,13 @@
   bottom: -1.5rem;
   right: 0;
   font-size: 0.85rem;
+}
+
+/* Voice Input Container */
+.voice-input-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
 }
 
 /* Voice Input Button */
@@ -188,7 +209,7 @@
 .custom-intention-actions {
   display: flex;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 0.5rem;
 }
 
 .custom-intention-cancel,
@@ -228,7 +249,18 @@
   cursor: not-allowed;
 }
 
-/* Fade-in Animation */
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .fade-in {
   animation: fadeIn 0.3s ease-out;
 }
@@ -246,20 +278,28 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .custom-intention-input-overlay {
+  .custom-intention-page {
     padding: 1rem;
+    padding-top: 4.5rem;
+    padding-bottom: 3rem;
   }
 
-  .custom-intention-input-modal {
-    padding: 2rem 1.5rem;
+  .custom-intention-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
   }
 
   .custom-intention-title {
-    font-size: 1.5rem;
+    font-size: 2rem;
   }
 
   .custom-intention-subtitle {
-    font-size: 0.9rem;
+    font-size: 1rem;
+  }
+
+  .custom-intention-card {
+    padding: 1.5rem;
   }
 
   .custom-intention-textarea {
