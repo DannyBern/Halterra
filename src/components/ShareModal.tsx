@@ -1,9 +1,13 @@
 /**
  * Modal de partage social - Design premium et minimaliste
  * Avec Share Card preview et sélecteur de format
+ *
+ * IMPORTANT: Utilise createPortal pour rendre directement dans le body
+ * car les éléments avec transform (comme PullToRefresh) cassent position: fixed.
  */
 
 import { useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import type { SharePlatform, ShareableSession, ShareResult } from '../types/share';
 import { shareSession, isNativeShareAvailable, trackShare } from '../services/shareService';
 import ShareCardPreview, { type ShareCardFormat, useShareCardDownload, useShareCardClipboard } from './ShareCardPreview';
@@ -156,7 +160,9 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
 
   if (!isOpen) return null;
 
-  return (
+  // Utiliser createPortal pour rendre directement dans body
+  // Cela évite les problèmes de position: fixed causés par le transform de PullToRefresh
+  const modalContent = (
     <div className="share-modal-overlay" onClick={onClose}>
       <div className="share-modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
@@ -268,4 +274,6 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

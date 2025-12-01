@@ -413,3 +413,12 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Safe area pour iOS - éviter le home indicator */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .share-modal {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+}
