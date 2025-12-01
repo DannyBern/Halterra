@@ -33,16 +33,17 @@
   opacity: 1;
 }
 
-/* Indicateur principal - CENTRÉ à l'écran */
+/* Indicateur principal - EN HAUT de l'écran, centré horizontalement */
 .pull-indicator {
   position: fixed;
-  top: 50%;
+  top: 0;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   z-index: 9999;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding-top: max(1.5rem, env(safe-area-inset-top));
 }
 
 .pull-indicator.visible {
@@ -226,9 +227,3 @@
   }
 }
 
-/* Safe area pour iOS */
-@supports (padding-top: env(safe-area-inset-top)) {
-  .pull-indicator {
-    /* Reste centré, pas besoin d'ajustement */
-  }
-}
