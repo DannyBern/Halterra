@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom';
+
 interface StickyHeaderProps {
   onBack: () => void;
   onHistory?: () => void;
@@ -11,7 +13,9 @@ export default function StickyHeader({
   showHistory = false,
   backLabel = 'Retour'
 }: StickyHeaderProps) {
-  return (
+  // Use portal to render directly in body, ensuring position: fixed works
+  // regardless of parent CSS (transform, overflow, etc.)
+  return createPortal(
     <div className="sticky-header">
       <button
         className="sticky-header-btn sticky-header-back"
@@ -42,6 +46,7 @@ export default function StickyHeader({
           <span>Historique</span>
         </button>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
