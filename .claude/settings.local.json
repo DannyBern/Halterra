@@ -34,7 +34,14 @@
       "Bash(find:*)",
       "Bash(xargs ls:*)",
       "Bash(npm install)",
-      "Bash(npm run optimize-images:*)"
+      "Bash(npm run optimize-images:*)",
+      "Bash(git -C \"c:\\Users\\Danny\\halterra\" log --oneline -20)",
+      "Bash(git remote add:*)",
+      "Bash(git fetch:*)",
+      "Bash(git remote remove:*)",
+      "Bash(git pull:*)",
+      "Bash(git reset:*)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []
