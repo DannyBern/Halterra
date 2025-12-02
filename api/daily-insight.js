@@ -60,9 +60,9 @@ INSTRUCTIONS:
 
 Réponds UNIQUEMENT avec le message, sans introduction ni explication.`;
 
-    // Appel à Claude Haiku (rapide et économique)
+    // Appel à Claude Haiku 4.5 (rapide et économique)
     const message = await anthropic.messages.create({
-      model: 'claude-3-5-haiku-20241022',
+      model: 'claude-haiku-4-5-20250514',
       max_tokens: 150,
       temperature: 0.8,
       messages: [{
