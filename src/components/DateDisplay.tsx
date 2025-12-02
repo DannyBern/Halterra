@@ -1,5 +1,6 @@
 import './DateDisplay.css';
 import type { AstrologicalProfile } from '../types';
+import { generateDailyInsightAI } from '../services/api';
 import { generateDailyInsight, getInsightLabel } from '../utils/dailyInsight';
 import { useEffect, useState, useRef, useCallback } from 'react';
 
@@ -48,17 +49,41 @@ export default function DateDisplay({ userName, astrologicalProfile, onContinue 
     };
   }, []);
 
-  // Generate daily insight based on cosmic energies
+  // Generate daily insight using AI with cosmic data
   useEffect(() => {
     if (!astrologicalProfile) return;
 
-    // Generate insight from natal profile + current cosmic positions
-    const insight = generateDailyInsight(astrologicalProfile);
-    const label = getInsightLabel();
+    let cancelled = false;
 
-    setDailyInsight(insight);
-    setInsightLabel(label);
-    setIsLoadingInsight(false);
+    const fetchInsight = async () => {
+      setIsLoadingInsight(true);
+
+      try {
+        // Try AI-generated insight first (uses cosmic calculations)
+        const result = await generateDailyInsightAI(astrologicalProfile);
+        if (!cancelled) {
+          setDailyInsight(result.insight);
+          setInsightLabel(result.label);
+        }
+      } catch (error) {
+        console.warn('AI insight failed, using local fallback:', error);
+        // Fallback to local code-generated insight
+        if (!cancelled) {
+          setDailyInsight(generateDailyInsight(astrologicalProfile));
+          setInsightLabel(getInsightLabel());
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingInsight(false);
+        }
+      }
+    };
+
+    fetchInsight();
+
+    return () => {
+      cancelled = true;
+    };
   }, [astrologicalProfile]);
 
   // Handle swipe up gesture
