@@ -412,7 +412,6 @@
   .share-modal-overlay {
     align-items: flex-start;
     padding: 0;
-    padding-top: env(safe-area-inset-top, 0);
   }
 
   .share-modal {
@@ -420,10 +419,12 @@
     border-radius: 0 0 24px 24px;
     max-height: 100vh;
     margin: 0;
+    /* Espace pour la barre de statut iOS + barre de navigation */
+    padding-top: calc(env(safe-area-inset-top, 20px) + 50px);
   }
 
   .share-modal-header {
-    padding: 1.25rem 1rem 0.5rem;
+    padding: 0.75rem 1rem 0.5rem;
   }
 
   .share-modal-title {
