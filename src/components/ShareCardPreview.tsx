@@ -178,15 +178,15 @@ export default function ShareCardPreview({
     }
 
     const width = BASE_WIDTH;
-    const padding = 100;
+    const padding = 120; // Plus de marge latérale
     const contentWidth = width - (padding * 2);
 
-    // === CONFIGURATION TYPOGRAPHIQUE PREMIUM ===
-    const headerHeight = 220;
-    const fontSize = 34;
-    const lineHeight = 54;
-    const paragraphSpacing = 48; // Plus d'espace entre paragraphes
-    const footerHeight = 180;
+    // === CONFIGURATION TYPOGRAPHIQUE - AÉRÉ ===
+    const headerHeight = 260;
+    const fontSize = 32; // Légèrement plus petit pour plus de lignes courtes
+    const lineHeight = 58; // Plus d'espace entre lignes
+    const paragraphSpacing = 70; // BEAUCOUP plus d'espace entre paragraphes
+    const footerHeight = 220;
 
     // === PARSER LE TEXTE EN PARAGRAPHES ===
     const meditationText = session.meditationText || '';
@@ -202,8 +202,8 @@ export default function ShareCardPreview({
       paragraphSpacing
     );
 
-    // Hauteur totale avec marges généreuses
-    const height = Math.max(1200, headerHeight + totalTextHeight + footerHeight + 120);
+    // Hauteur totale avec marges très généreuses
+    const height = Math.max(1400, headerHeight + totalTextHeight + footerHeight + 180);
 
     canvas.width = width;
     canvas.height = height;
@@ -234,35 +234,35 @@ export default function ShareCardPreview({
     ctx.strokeRect(borderPadding, borderPadding, width - borderPadding * 2, height - borderPadding * 2);
 
     // === HEADER ===
-    let currentY = 70;
+    let currentY = 100; // Plus d'espace en haut
 
     // Icône du mood avec glow subtil
     ctx.save();
     ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
     ctx.shadowBlur = 30;
-    ctx.font = '64px Arial';
+    ctx.font = '56px Arial'; // Légèrement plus petit
     ctx.textAlign = 'center';
-    ctx.fillText(session.mood.icon, width / 2, currentY + 55);
+    ctx.fillText(session.mood.icon, width / 2, currentY + 45);
     ctx.restore();
-    currentY += 90;
+    currentY += 100; // Plus d'espace après l'emoji
 
     // Nom du mood - typographie élégante
-    ctx.font = `300 36px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    ctx.font = `300 32px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
     ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.9)`;
     ctx.textAlign = 'center';
     ctx.letterSpacing = '4px';
-    ctx.fillText(session.mood.name.toUpperCase(), width / 2, currentY + 35);
-    currentY += 60;
+    ctx.fillText(session.mood.name.toUpperCase(), width / 2, currentY + 30);
+    currentY += 80; // Plus d'espace après le titre
 
     // Petite ligne décorative
-    const lineWidth = 60;
+    const lineWidth = 50;
     ctx.beginPath();
-    ctx.moveTo((width - lineWidth) / 2, currentY + 10);
-    ctx.lineTo((width + lineWidth) / 2, currentY + 10);
-    ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.4)`;
+    ctx.moveTo((width - lineWidth) / 2, currentY);
+    ctx.lineTo((width + lineWidth) / 2, currentY);
+    ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.3)`;
     ctx.lineWidth = 1;
     ctx.stroke();
-    currentY += 50;
+    currentY += 70; // Plus d'espace avant le texte
 
     // === TEXTE DE LA MÉDITATION ===
     ctx.font = `400 ${fontSize}px Georgia, 'Times New Roman', serif`;
@@ -280,33 +280,33 @@ export default function ShareCardPreview({
     );
 
     // === FOOTER MINIMALISTE ===
-    currentY += 70;
+    currentY += 100; // Beaucoup plus d'espace avant le footer
 
     // Ligne fine
     ctx.beginPath();
-    ctx.moveTo(width * 0.3, currentY);
-    ctx.lineTo(width * 0.7, currentY);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.moveTo(width * 0.35, currentY);
+    ctx.lineTo(width * 0.65, currentY);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
     ctx.lineWidth = 1;
     ctx.stroke();
-    currentY += 40;
+    currentY += 50;
 
     // Logo Halterra - élégant
-    ctx.font = `200 42px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.font = `200 38px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
     ctx.textAlign = 'center';
-    ctx.fillText('HALTERRA', width / 2, currentY + 30);
-    currentY += 45;
+    ctx.fillText('HALTERRA', width / 2, currentY + 25);
+    currentY += 50;
 
     // Tagline subtile
-    ctx.font = `300 20px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-    ctx.fillText('Méditations personnalisées par IA', width / 2, currentY + 15);
+    ctx.font = `300 18px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.fillText('Méditations personnalisées par IA', width / 2, currentY + 10);
 
     // URL en bas - très subtile
-    ctx.font = `400 18px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.5)`;
-    ctx.fillText('halterra.vercel.app', width / 2, height - 35);
+    ctx.font = `400 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.4)`;
+    ctx.fillText('halterra.vercel.app', width / 2, height - 50);
 
     // === EXPORT ===
     setIsRendering(false);
