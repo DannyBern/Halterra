@@ -43,7 +43,9 @@
       "Bash(git reset:*)",
       "Bash(git restore:*)",
       "Bash(git rev-list:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npm show:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []
