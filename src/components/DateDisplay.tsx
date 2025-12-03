@@ -1,7 +1,8 @@
 import './DateDisplay.css';
 import type { AstrologicalProfile } from '../types';
+import { generateDailyInsightAI } from '../services/api';
 import { generateDailyInsight, getInsightLabel } from '../utils/dailyInsight';
-import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 interface DateDisplayProps {
   userName: string;
@@ -12,6 +13,9 @@ interface DateDisplayProps {
 export default function DateDisplay({ userName, astrologicalProfile, onContinue }: DateDisplayProps) {
   const [isReady, setIsReady] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [dailyInsight, setDailyInsight] = useState<string | null>(null);
+  const [insightLabel, setInsightLabel] = useState<string>('');
+  const [isLoadingInsight, setIsLoadingInsight] = useState(false);
   const touchStartY = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +49,43 @@ export default function DateDisplay({ userName, astrologicalProfile, onContinue 
     };
   }, []);
 
+  // Fetch AI-generated daily insight
+  useEffect(() => {
+    if (!astrologicalProfile) return;
+
+    let cancelled = false;
+
+    const fetchInsight = async () => {
+      setIsLoadingInsight(true);
+
+      try {
+        // Try AI-generated insight first
+        const result = await generateDailyInsightAI(astrologicalProfile);
+        if (!cancelled) {
+          setDailyInsight(result.insight);
+          setInsightLabel(result.label);
+        }
+      } catch (error) {
+        console.warn('AI insight failed, using fallback:', error);
+        // Fallback to code-generated insight
+        if (!cancelled) {
+          setDailyInsight(generateDailyInsight(astrologicalProfile));
+          setInsightLabel(getInsightLabel());
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingInsight(false);
+        }
+      }
+    };
+
+    fetchInsight();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [astrologicalProfile]);
+
   // Handle swipe up gesture
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -59,14 +100,6 @@ export default function DateDisplay({ userName, astrologicalProfile, onContinue 
     }
     touchStartY.current = null;
   }, [onContinue]);
-
-  // Generate daily insight - memoized so it doesn't change during the session
-  const dailyInsight = useMemo(() => {
-    if (!astrologicalProfile) return null;
-    return generateDailyInsight(astrologicalProfile);
-  }, [astrologicalProfile]);
-
-  const insightLabel = useMemo(() => getInsightLabel(), []);
 
   return (
     <div
@@ -101,10 +134,20 @@ export default function DateDisplay({ userName, astrologicalProfile, onContinue 
         </div>
 
         {/* Center section - Personal insight */}
-        {astrologicalProfile && dailyInsight && (
-          <div className="sanctuary-insight">
-            <span className="insight-label">{insightLabel}</span>
-            <p className="insight-text">{dailyInsight}</p>
+        {astrologicalProfile && (
+          <div className={`sanctuary-insight ${isLoadingInsight ? 'is-loading' : ''}`}>
+            {dailyInsight ? (
+              <>
+                <span className="insight-label">{insightLabel}</span>
+                <p className="insight-text">{dailyInsight}</p>
+              </>
+            ) : (
+              <div className="insight-loading">
+                <div className="insight-loading-dot"></div>
+                <div className="insight-loading-dot"></div>
+                <div className="insight-loading-dot"></div>
+              </div>
+            )}
           </div>
         )}
 

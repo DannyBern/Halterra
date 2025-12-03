@@ -234,6 +234,45 @@
   font-weight: 400;
 }
 
+.sanctuary-insight.is-loading {
+  min-height: 120px;
+}
+
+.insight-loading {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.insight-loading-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  animation: insightLoadingPulse 1.4s ease-in-out infinite;
+}
+
+.insight-loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.insight-loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes insightLoadingPulse {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
 .insight-text {
   font-size: clamp(1.05rem, 3.5vw, 1.2rem);
   line-height: 1.8;

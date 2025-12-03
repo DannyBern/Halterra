@@ -31,3 +31,4 @@ dist-ssr
 .vercel
 nul
 public/nul
+.env*.local

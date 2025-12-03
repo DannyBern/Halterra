@@ -264,6 +264,93 @@ export async function generateAudio(
   return promise;
 }
 
+/**
+ * Daily Insight Cache
+ * Stores the generated insight for the current day to avoid regeneration
+ */
+interface CachedInsight {
+  insight: string;
+  label: string;
+  date: string; // YYYY-MM-DD format
+}
+
+let insightCache: CachedInsight | null = null;
+
+/**
+ * Generates a personalized daily insight using AI
+ *
+ * The insight is:
+ * - Concrete and actionable (not vague or poetic)
+ * - Based on personality profile + current cosmic factors
+ * - Written in plain, direct language
+ * - Cached for the entire day
+ *
+ * @param profile - User's astrological profile
+ * @returns Promise with insight text and label
+ */
+export async function generateDailyInsightAI(
+  profile: AstrologicalProfile
+): Promise<{ insight: string; label: string }> {
+  const today = new Date().toISOString().split('T')[0];
+
+  // Return cached insight if same day
+  if (insightCache && insightCache.date === today) {
+    console.log('🔄 Daily insight cache HIT');
+    return { insight: insightCache.insight, label: insightCache.label };
+  }
+
+  console.log('🆕 Generating new daily insight...');
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/daily-insight`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        profile: {
+          dominantElement: profile.dominantElement,
+          dominantQuality: profile.dominantQuality,
+          energyType: profile.energyType,
+          yinYang: profile.yinYang,
+          lifePath: profile.lifePath,
+          sunSign: profile.sunSign
+        },
+        date: today
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate daily insight');
+    }
+
+    const data = await response.json();
+
+    // Cache the result
+    insightCache = {
+      insight: data.insight,
+      label: data.label,
+      date: today
+    };
+
+    return { insight: data.insight, label: data.label };
+  } catch (error) {
+    console.error('Daily insight generation failed:', error);
+    // Return fallback
+    return {
+      insight: "Prenez un moment pour vous recentrer aujourd'hui. Parfois, la meilleure action est simplement d'être présent.",
+      label: "pour aujourd'hui"
+    };
+  }
+}
+
+/**
+ * Clears the daily insight cache (useful for testing)
+ */
+export function clearDailyInsightCache(): void {
+  insightCache = null;
+}
+
 export async function fetchLoadingQuote(): Promise<{ quote: string; author: string }> {
   // Récupère une citation inspirante pour l'écran de chargement
   try {
