@@ -240,7 +240,7 @@
 .session-mood-name {
   font-size: 1.1rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(255, 255, 255, 0.95) !important;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9), 0 1px 4px rgba(0, 0, 0, 0.7);
   flex: 1;
 }
