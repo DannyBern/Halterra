@@ -57,9 +57,14 @@ Halterra/
 npm run dev          # Dev local (frontend seulement)
 vercel dev           # Dev local (frontend + API)
 npm run build        # Build production
-vercel --prod        # Deploy production
 vercel env pull      # Sync env vars locales
 ```
+
+## Déploiement
+**IMPORTANT**: Le push vers GitHub déclenche automatiquement le déploiement Vercel.
+- NE PAS lancer `vercel --prod` après un push (cela créerait un double déploiement)
+- Simplement faire `git push origin main` et attendre le déploiement automatique
+- Le déploiement prend ~30-45 secondes après le push
 
 ## Stack technique
 - React 19 + TypeScript
@@ -85,18 +90,21 @@ Le système de partage permet de partager les méditations sur différentes plat
 - `ShareCardPreview.tsx` - Génère une image Canvas avec la méditation complète
 - `shareService.ts` - Logique de partage par plateforme
 
-### Design de la carte de partage
-- Hauteur dynamique selon la longueur du texte
-- Fond gradient slate avec overlay coloré du mood
+### Design de la carte de partage (Ultra Premium)
+- Fond noir profond (#0a0a0a) avec glow subtil de la couleur du mood
+- Bordure fine premium avec la couleur du mood
+- Emoji avec effet shadow glow
+- Nom du mood en MAJUSCULES (typographie légère)
+- Paragraphes bien espacés (48px) préservant la structure originale
 - Typographie Georgia pour le texte de méditation
-- Éléments zen décoratifs (cercles, ligne verticale)
-- Branding Halterra en footer
+- Logo HALTERRA minimaliste en footer
+- Hauteur dynamique selon la longueur du texte
 
 ## Dernière mise à jour
 - **Date**: 2025-12-03
-- **Session**: Implémentation du partage Messenger fonctionnel avec carte premium
+- **Session**: Design ultra premium carte de partage + fix double déploiement
 - **Changements**:
-  - Ajout plateforme `messenger` distincte de `facebook`
-  - Carte de partage affiche la méditation complète (pas juste un extrait)
-  - Design premium zen avec hauteur dynamique
-  - Web Share API pour partager l'image directement
+  - Nouveau design minimaliste noir pour la carte de partage
+  - Correction espacement des paragraphes (préserve structure \n\n)
+  - Documentation: ne plus utiliser `vercel --prod` (auto-deploy via GitHub)
+  - React mis à jour vers 19.2.1 (security patch)
