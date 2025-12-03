@@ -183,8 +183,10 @@ INSTRUCTIONS CRITIQUES:
 - Utilise les données cosmiques pour informer le ton et le conseil, mais sans les nommer
 - Ton calme et encourageant
 - En français
+- N'UTILISE JAMAIS de tirets (-) ou de puces dans ta réponse
+- Écris un texte fluide en prose, pas une liste
 
-Réponds UNIQUEMENT avec le message, sans introduction ni explication.`;
+Réponds UNIQUEMENT avec le message (texte fluide sans tirets), sans introduction ni explication.`;
 
     // Call Claude Haiku 4.5
     const message = await anthropic.messages.create({
