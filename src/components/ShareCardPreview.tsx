@@ -37,10 +37,10 @@ export const TEMPLATES: Record<ShareCardTemplate, {
     name: 'Turquoise',
     background: '/backgrounds/bg-turquoise.jpeg',
     bgColor: '#3d9ca8',
-    textColor: '#ffffff',
-    textOpacity: 0.95,
-    accentColor: '#d4a853', // Or
-    subtleTextColor: 'rgba(255, 255, 255, 0.75)',
+    textColor: '#1a3a3a', // Bleu-vert foncé pour contraste sur zones claires
+    textOpacity: 0.92,
+    accentColor: '#8b6914', // Or foncé
+    subtleTextColor: 'rgba(26, 58, 58, 0.7)',
     isDark: false,
   },
   midnight: {
