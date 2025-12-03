@@ -29,10 +29,18 @@ export default async function handler(req, res) {
   /**
    * Convert text to SSML for meditation - forces slow, calm delivery
    * Clone was created with normal conversation, so we force meditation pacing
+   * Vitesse normale: 0.68 (15% plus lent que 0.80 précédent)
    */
-  function convertToMeditationSSML(text) {
-    // Wrap entire text in slow prosody for meditation
-    return `<speak><prosody rate="0.80" pitch="-4%">${text}</prosody></speak>`;
+  function convertToMeditationSSML(text, speed = 'normal') {
+    // Vitesses ajustées: normale = 0.68, lente = 0.55, très lente = 0.45
+    const speedMap = {
+      'fast': 0.80,      // Vitesse rapide (ancienne normale)
+      'normal': 0.68,    // Vitesse normale (-15% vs ancienne)
+      'slow': 0.55,      // Vitesse lente
+      'very-slow': 0.45  // Très lent pour méditations profondes
+    };
+    const rate = speedMap[speed] || 0.68;
+    return `<speak><prosody rate="${rate}" pitch="-4%">${text}</prosody></speak>`;
   }
 
   try {
@@ -60,6 +68,7 @@ export default async function handler(req, res) {
       : 'xsNzdCmWJpYoa80FaXJi';  // Voix féminine Iza pour méditation (clone conversation)
 
     // ElevenLabs API - avec SSML pour forcer rythme méditatif
+    // Format mp3_44100_192 = meilleure qualité MP3 disponible (192kbps vs 128kbps)
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
       headers: {
@@ -69,19 +78,18 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         text: processedText,
-        model_id: 'eleven_multilingual_v2',  // ✅ OPTIMAL - Meilleur modèle pour méditations (richesse émotionnelle supérieure)
-        language_code: 'fr',             // Force la langue française (évite auto-détection erronnée)
+        model_id: 'eleven_multilingual_v2',  // ✅ OPTIMAL - Meilleur modèle pour méditations
+        language_code: 'fr',                 // Force la langue française
         voice_settings: {
-          // OPTIMISÉ 2025-12-02 - Basé sur best practices ElevenLabs pour méditations
-          // Recherche: plage optimale méditation 60-85% stability, 75-80% similarity
-          stability: 0.72,               // OPTIMISÉ: 0.95→0.72 Sweet spot naturel/calme (vs robotique)
-          similarity_boost: 0.78,        // OPTIMISÉ: 0.60→0.78 Fidélité maximale clone sans artefacts
-          style: 0,                      // ✅ GARDER: Zéro style prévient variations émotionnelles
-          use_speaker_boost: true        // ✅ GARDER: Améliore cohérence du clone vocal
+          // OPTIMISÉ 2025-12-03 - Clarté audio améliorée
+          stability: 0.75,               // AUGMENTÉ: 0.72→0.75 Plus de clarté et moins d'artefacts
+          similarity_boost: 0.80,        // AUGMENTÉ: 0.78→0.80 Meilleure fidélité au clone
+          style: 0,                      // ✅ Zéro style = voix stable
+          use_speaker_boost: true        // ✅ Améliore la clarté du clone vocal
         },
         seed: 42,                        // Seed fixe pour génération déterministe
         pronunciation_dictionary_locators: [],
-        output_format: 'mp3_44100_128'   // Qualité audio maximale : 44.1kHz, 128kbps
+        output_format: 'mp3_44100_192'   // AMÉLIORÉ: 128kbps→192kbps (qualité maximale MP3)
       })
     });
 
