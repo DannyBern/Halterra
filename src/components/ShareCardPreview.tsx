@@ -1,6 +1,7 @@
 /**
  * ShareCardPreview - Génération d'images de partage premium
- * Utilise Canvas HTML5 pour créer des Share Cards élégantes côté client
+ * Affiche la méditation COMPLÈTE avec un design zen et professionnel
+ * La hauteur s'adapte dynamiquement au contenu
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -15,56 +16,11 @@ interface ShareCardPreviewProps {
   onImageReady?: (blob: Blob, dataUrl: string) => void;
 }
 
-// Dimensions pour chaque format
-const DIMENSIONS: Record<ShareCardFormat, { width: number; height: number }> = {
-  story: { width: 1080, height: 1920 },
-  square: { width: 1080, height: 1080 },
-  wide: { width: 1200, height: 630 },
-};
+// Largeur fixe, hauteur dynamique selon le contenu
+const BASE_WIDTH = 1080;
 
-// Scale pour l'affichage (canvas interne vs preview)
-// Story est plus petit car très grand verticalement
-const PREVIEW_SCALES: Record<ShareCardFormat, number> = {
-  story: 0.15,
-  square: 0.22,
-  wide: 0.25,
-};
-
-/**
- * Extrait une citation inspirante du texte de méditation
- */
-function extractQuote(text: string, maxLength: number = 180): string {
-  if (!text || text.trim().length === 0) {
-    return 'Un moment de paix et de sérénité...';
-  }
-
-  // Nettoyer et diviser en phrases
-  const cleaned = text.replace(/\s+/g, ' ').trim();
-  const sentences = cleaned.split(/(?<=[.!?])\s+/);
-
-  // Chercher une phrase inspirante (éviter les instructions directes)
-  const inspiringPhrases = sentences.filter(s =>
-    s.length >= 20 &&
-    s.length <= maxLength &&
-    !s.toLowerCase().startsWith('maintenant') &&
-    !s.toLowerCase().startsWith('respire') &&
-    !s.toLowerCase().startsWith('ferme') &&
-    !s.toLowerCase().startsWith('inspire') &&
-    !s.toLowerCase().startsWith('expire')
-  );
-
-  if (inspiringPhrases.length > 0) {
-    // Prendre une phrase du milieu ou de la fin (souvent plus profonde)
-    const idx = Math.floor(inspiringPhrases.length * 0.6);
-    return inspiringPhrases[idx];
-  }
-
-  // Fallback: prendre les premiers mots
-  if (cleaned.length <= maxLength) return cleaned;
-  const truncated = cleaned.substring(0, maxLength);
-  const lastSpace = truncated.lastIndexOf(' ');
-  return truncated.substring(0, lastSpace) + '...';
-}
+// Scale pour l'affichage preview
+const PREVIEW_SCALE = 0.22;
 
 /**
  * Parse une couleur hex en RGB
@@ -75,32 +31,39 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
     r: parseInt(result[1], 16),
     g: parseInt(result[2], 16),
     b: parseInt(result[3], 16)
-  } : { r: 102, g: 126, b: 234 }; // fallback
+  } : { r: 102, g: 126, b: 234 };
 }
 
 /**
- * Crée un gradient premium basé sur la couleur du mood
+ * Calcule la hauteur nécessaire pour le texte
  */
-function createGradient(
+function measureTextHeight(
   ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  moodColor: string
-): CanvasGradient {
-  const { r, g, b } = hexToRgb(moodColor);
+  text: string,
+  maxWidth: number,
+  lineHeight: number
+): number {
+  const words = text.split(' ');
+  let line = '';
+  let lines = 1;
 
-  // Gradient diagonal élégant
-  const gradient = ctx.createLinearGradient(0, 0, width, height);
-  gradient.addColorStop(0, `rgba(15, 23, 42, 1)`); // Slate-900
-  gradient.addColorStop(0.3, `rgba(${r}, ${g}, ${b}, 0.15)`);
-  gradient.addColorStop(0.7, `rgba(${r}, ${g}, ${b}, 0.08)`);
-  gradient.addColorStop(1, `rgba(15, 23, 42, 1)`);
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const metrics = ctx.measureText(testLine);
 
-  return gradient;
+    if (metrics.width > maxWidth && n > 0) {
+      line = words[n] + ' ';
+      lines++;
+    } else {
+      line = testLine;
+    }
+  }
+
+  return lines * lineHeight;
 }
 
 /**
- * Dessine du texte avec word wrap
+ * Dessine du texte avec word wrap - aligné à gauche pour lisibilité
  */
 function drawWrappedText(
   ctx: CanvasRenderingContext2D,
@@ -109,7 +72,7 @@ function drawWrappedText(
   y: number,
   maxWidth: number,
   lineHeight: number,
-  align: CanvasTextAlign = 'center'
+  align: CanvasTextAlign = 'left'
 ): number {
   ctx.textAlign = align;
   const words = text.split(' ');
@@ -133,6 +96,56 @@ function drawWrappedText(
   return currentY;
 }
 
+/**
+ * Dessine des paragraphes séparés
+ */
+function drawParagraphs(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  startY: number,
+  maxWidth: number,
+  lineHeight: number,
+  paragraphSpacing: number
+): number {
+  // Diviser en paragraphes (double newline ou phrases longues)
+  const paragraphs = text
+    .split(/\n\n+/)
+    .flatMap(p => {
+      // Si un paragraphe est très long, le diviser en sous-paragraphes
+      const cleaned = p.replace(/\s+/g, ' ').trim();
+      if (cleaned.length > 400) {
+        // Diviser aux points de respiration naturels
+        const sentences = cleaned.split(/(?<=[.!?])\s+/);
+        const chunks: string[] = [];
+        let current = '';
+        for (const sentence of sentences) {
+          if ((current + ' ' + sentence).length > 350 && current) {
+            chunks.push(current.trim());
+            current = sentence;
+          } else {
+            current = current ? current + ' ' + sentence : sentence;
+          }
+        }
+        if (current) chunks.push(current.trim());
+        return chunks;
+      }
+      return [cleaned];
+    })
+    .filter(p => p.length > 0);
+
+  let currentY = startY;
+
+  for (let i = 0; i < paragraphs.length; i++) {
+    currentY = drawWrappedText(ctx, paragraphs[i], x, currentY, maxWidth, lineHeight, 'left');
+    if (i < paragraphs.length - 1) {
+      currentY += paragraphSpacing;
+    }
+  }
+
+  return currentY;
+}
+
 export default function ShareCardPreview({
   session,
   format,
@@ -140,6 +153,7 @@ export default function ShareCardPreview({
 }: ShareCardPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isRendering, setIsRendering] = useState(true);
+  const [dimensions, setDimensions] = useState({ width: BASE_WIDTH, height: 1400 });
 
   const renderCard = useCallback(async () => {
     const canvas = canvasRef.current;
@@ -154,117 +168,187 @@ export default function ShareCardPreview({
       return;
     }
 
-    const { width, height } = DIMENSIONS[format];
-    canvas.width = width;
-    canvas.height = height;
+    const width = BASE_WIDTH;
+    const padding = 80;
+    const contentWidth = width - (padding * 2);
 
-    // === FOND AVEC GRADIENT ===
-    const gradient = createGradient(ctx, width, height, session.mood.color);
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+    // === CONFIGURATION TYPOGRAPHIQUE ===
+    const headerHeight = 280;
+    const fontSize = 36;
+    const lineHeight = 56;
+    const paragraphSpacing = 40;
+    const footerHeight = 200;
 
-    // === OVERLAY SUBTIL ===
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
-    ctx.fillRect(0, 0, width, height);
+    // === MESURER LA HAUTEUR NÉCESSAIRE ===
+    ctx.font = `400 ${fontSize}px Georgia, 'Times New Roman', serif`;
 
-    // === PARTICULES DÉCORATIVES ===
-    const { r, g, b } = hexToRgb(session.mood.color);
-    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.3)`;
-    for (let i = 0; i < 20; i++) {
-      const px = Math.random() * width;
-      const py = Math.random() * height;
-      const size = Math.random() * 3 + 1;
-      ctx.beginPath();
-      ctx.arc(px, py, size, 0, Math.PI * 2);
-      ctx.fill();
+    // Calculer la hauteur du texte
+    const meditationText = session.meditationText || '';
+    const paragraphs = meditationText
+      .split(/\n\n+/)
+      .flatMap(p => {
+        const cleaned = p.replace(/\s+/g, ' ').trim();
+        if (cleaned.length > 400) {
+          const sentences = cleaned.split(/(?<=[.!?])\s+/);
+          const chunks: string[] = [];
+          let current = '';
+          for (const sentence of sentences) {
+            if ((current + ' ' + sentence).length > 350 && current) {
+              chunks.push(current.trim());
+              current = sentence;
+            } else {
+              current = current ? current + ' ' + sentence : sentence;
+            }
+          }
+          if (current) chunks.push(current.trim());
+          return chunks;
+        }
+        return [cleaned];
+      })
+      .filter(p => p.length > 0);
+
+    let totalTextHeight = 0;
+    for (let i = 0; i < paragraphs.length; i++) {
+      totalTextHeight += measureTextHeight(ctx, paragraphs[i], contentWidth, lineHeight);
+      if (i < paragraphs.length - 1) {
+        totalTextHeight += paragraphSpacing;
+      }
     }
 
-    // === CARD CENTRALE (GLASSMORPHISM) ===
-    // Adapter les dimensions selon le format
-    const cardPadding = format === 'story' ? width * 0.06 : width * 0.08;
-    const cardWidth = width - (cardPadding * 2);
-    // Story: carte plus haute pour utiliser l'espace vertical
-    const cardHeight = format === 'story' ? height * 0.65 : format === 'wide' ? height * 0.75 : height * 0.7;
-    const cardY = (height - cardHeight) / 2;
+    // Hauteur totale avec marges
+    const height = Math.max(1200, headerHeight + totalTextHeight + footerHeight + 100);
 
-    // Fond de la card
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+    canvas.width = width;
+    canvas.height = height;
+    setDimensions({ width, height });
+
+    // === COULEURS DU MOOD ===
+    const { r, g, b } = hexToRgb(session.mood.color);
+
+    // === FOND GRADIENT PREMIUM ===
+    const bgGradient = ctx.createLinearGradient(0, 0, width, height);
+    bgGradient.addColorStop(0, '#0f172a');      // Slate 900
+    bgGradient.addColorStop(0.3, '#1e293b');    // Slate 800
+    bgGradient.addColorStop(0.7, '#0f172a');    // Slate 900
+    bgGradient.addColorStop(1, '#020617');      // Slate 950
+    ctx.fillStyle = bgGradient;
+    ctx.fillRect(0, 0, width, height);
+
+    // === OVERLAY COLORÉ SUBTIL ===
+    const colorOverlay = ctx.createRadialGradient(
+      width / 2, height * 0.3, 0,
+      width / 2, height * 0.3, width
+    );
+    colorOverlay.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.15)`);
+    colorOverlay.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, 0.05)`);
+    colorOverlay.addColorStop(1, 'transparent');
+    ctx.fillStyle = colorOverlay;
+    ctx.fillRect(0, 0, width, height);
+
+    // === ÉLÉMENTS DÉCORATIFS ZEN ===
+    // Cercle zen en haut à droite
     ctx.beginPath();
-    ctx.roundRect(cardPadding, cardY, cardWidth, cardHeight, format === 'story' ? 50 : 40);
-    ctx.fill();
+    ctx.arc(width - 100, 150, 200, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.1)`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
 
-    // Bordure de la card
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+    // Cercle zen en bas à gauche
+    ctx.beginPath();
+    ctx.arc(100, height - 150, 150, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Ligne verticale décorative gauche
+    ctx.beginPath();
+    ctx.moveTo(40, headerHeight);
+    ctx.lineTo(40, height - footerHeight);
+    const lineGradient = ctx.createLinearGradient(0, headerHeight, 0, height - footerHeight);
+    lineGradient.addColorStop(0, 'transparent');
+    lineGradient.addColorStop(0.2, `rgba(${r}, ${g}, ${b}, 0.3)`);
+    lineGradient.addColorStop(0.8, `rgba(${r}, ${g}, ${b}, 0.3)`);
+    lineGradient.addColorStop(1, 'transparent');
+    ctx.strokeStyle = lineGradient;
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // === ICÔNE MOOD ===
-    const iconSize = format === 'story' ? 100 : format === 'wide' ? 56 : 64;
-    const iconY = cardY + (format === 'story' ? 150 : format === 'wide' ? 70 : 90);
-    ctx.font = `${iconSize}px Arial`;
+    // === HEADER ===
+    let currentY = 80;
+
+    // Icône du mood
+    ctx.font = '72px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(session.mood.icon, width / 2, iconY);
+    ctx.fillText(session.mood.icon, width / 2, currentY + 60);
+    currentY += 100;
 
-    // === CITATION ===
-    const quoteMaxLength = format === 'story' ? 250 : format === 'wide' ? 120 : 150;
-    const quote = extractQuote(session.meditationText, quoteMaxLength);
-    const quoteY = iconY + (format === 'story' ? 120 : format === 'wide' ? 60 : 80);
-    const quoteMaxWidth = cardWidth - (format === 'story' ? 100 : 80);
+    // Nom du mood
+    ctx.font = `600 42px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 1)`;
+    ctx.fillText(session.mood.name, width / 2, currentY + 50);
+    currentY += 70;
 
-    const fontSize = format === 'story' ? 48 : format === 'wide' ? 26 : 32;
-    const lineHeight = format === 'story' ? 68 : format === 'wide' ? 36 : 46;
-
-    ctx.font = `italic ${fontSize}px Georgia, serif`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-
-    const finalQuoteY = drawWrappedText(
-      ctx,
-      `"${quote}"`,
-      width / 2,
-      quoteY,
-      quoteMaxWidth,
-      lineHeight
-    );
-
-    // === LIGNE SÉPARATRICE ===
-    const separatorY = finalQuoteY + (format === 'story' ? 80 : format === 'wide' ? 30 : 45);
+    // Ligne séparatrice élégante
+    const separatorWidth = 120;
+    ctx.beginPath();
+    ctx.moveTo((width - separatorWidth) / 2, currentY + 20);
+    ctx.lineTo((width + separatorWidth) / 2, currentY + 20);
     ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.4)`;
     ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(width / 2 - 60, separatorY);
-    ctx.lineTo(width / 2 + 60, separatorY);
     ctx.stroke();
+    currentY += 60;
 
-    // === DÉTAILS DE LA SESSION ===
-    const detailsY = separatorY + (format === 'story' ? 60 : format === 'wide' ? 30 : 40);
-    const detailsFontSize = format === 'story' ? 36 : format === 'wide' ? 22 : 26;
-    ctx.font = `600 ${detailsFontSize}px Inter, -apple-system, sans-serif`;
-    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.9)`;
-    ctx.fillText(session.mood.name, width / 2, detailsY);
+    // === TEXTE DE LA MÉDITATION ===
+    ctx.font = `400 ${fontSize}px Georgia, 'Times New Roman', serif`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+    ctx.textAlign = 'left';
 
-    // Durée et guide
-    const durationText = session.duration
-      ? `${session.duration} min avec ${session.guideType === 'meditation' ? 'Iza' : 'Dann'}`
-      : 'Méditation guidée';
-    const durationFontSize = format === 'story' ? 28 : format === 'wide' ? 18 : 22;
-    ctx.font = `400 ${durationFontSize}px Inter, -apple-system, sans-serif`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.fillText(durationText, width / 2, detailsY + (format === 'story' ? 50 : format === 'wide' ? 28 : 38));
+    currentY = drawParagraphs(
+      ctx,
+      meditationText,
+      padding,
+      currentY,
+      contentWidth,
+      lineHeight,
+      paragraphSpacing
+    );
 
-    // === LOGO / BRANDING ===
-    const brandY = cardY + cardHeight - (format === 'story' ? 100 : format === 'wide' ? 50 : 65);
+    // === FOOTER ===
+    currentY += 60;
 
-    // Texte "Halterra"
-    const brandFontSize = format === 'story' ? 42 : format === 'wide' ? 24 : 30;
-    ctx.font = `700 ${brandFontSize}px Inter, -apple-system, sans-serif`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.fillText('Halterra', width / 2, brandY);
+    // Ligne séparatrice
+    ctx.beginPath();
+    ctx.moveTo(padding, currentY);
+    ctx.lineTo(width - padding, currentY);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    currentY += 50;
+
+    // Infos de session
+    if (session.duration) {
+      ctx.font = `400 28px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.textAlign = 'center';
+      const guideText = `${session.duration} minutes avec ${session.guideType === 'meditation' ? 'Iza' : 'Dann'}`;
+      ctx.fillText(guideText, width / 2, currentY + 10);
+      currentY += 40;
+    }
+
+    // Logo Halterra
+    ctx.font = `700 48px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.textAlign = 'center';
+    ctx.fillText('Halterra', width / 2, currentY + 40);
+    currentY += 50;
 
     // Tagline
-    const taglineFontSize = format === 'story' ? 24 : format === 'wide' ? 16 : 18;
-    ctx.font = `400 ${taglineFontSize}px Inter, -apple-system, sans-serif`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.fillText('Méditations personnalisées par IA', width / 2, brandY + (format === 'story' ? 40 : format === 'wide' ? 24 : 30));
+    ctx.font = `400 24px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.fillText('Méditations personnalisées par IA', width / 2, currentY + 20);
+
+    // URL en bas
+    ctx.font = `500 22px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.7)`;
+    ctx.fillText('halterra.vercel.app', width / 2, height - 40);
 
     // === EXPORT ===
     setIsRendering(false);
@@ -284,10 +368,8 @@ export default function ShareCardPreview({
     renderCard();
   }, [renderCard]);
 
-  const { width, height } = DIMENSIONS[format];
-  const previewScale = PREVIEW_SCALES[format];
-  const previewWidth = width * previewScale;
-  const previewHeight = height * previewScale;
+  const previewWidth = dimensions.width * PREVIEW_SCALE;
+  const previewHeight = dimensions.height * PREVIEW_SCALE;
 
   return (
     <div className="share-card-preview-container">
@@ -295,16 +377,18 @@ export default function ShareCardPreview({
         className={`share-card-preview ${isRendering ? 'share-card-preview-loading' : ''}`}
         style={{
           width: previewWidth,
-          height: previewHeight,
-          aspectRatio: `${width} / ${height}`
+          height: Math.min(previewHeight, 350), // Limiter la hauteur du preview
+          overflow: 'hidden',
+          borderRadius: '16px',
         }}
       >
         <canvas
           ref={canvasRef}
           className="share-card-canvas"
           style={{
-            width: '100%',
-            height: '100%',
+            width: previewWidth,
+            height: previewHeight,
+            transform: previewHeight > 350 ? 'translateY(0)' : 'none',
           }}
         />
         {isRendering && (
@@ -313,6 +397,11 @@ export default function ShareCardPreview({
           </div>
         )}
       </div>
+      {previewHeight > 350 && (
+        <p className="share-card-scroll-hint">
+          La carte complète sera partagée
+        </p>
+      )}
     </div>
   );
 }

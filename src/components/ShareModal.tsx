@@ -10,7 +10,7 @@ import { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import type { SharePlatform, ShareableSession, ShareResult } from '../types/share';
 import { shareSession, isNativeShareAvailable, trackShare } from '../services/shareService';
-import ShareCardPreview, { type ShareCardFormat, useShareCardDownload, useShareCardClipboard } from './ShareCardPreview';
+import ShareCardPreview, { useShareCardDownload, useShareCardClipboard } from './ShareCardPreview';
 import './ShareModal.css';
 
 interface ShareModalProps {
@@ -63,7 +63,6 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
     message?: string;
     type?: 'success' | 'error';
   }>({});
-  const [selectedFormat, setSelectedFormat] = useState<ShareCardFormat>('square');
   const [cardBlob, setCardBlob] = useState<Blob | null>(null);
 
   const { downloadCard } = useShareCardDownload();
@@ -75,14 +74,13 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
 
   const handleDownload = useCallback(() => {
     if (cardBlob) {
-      const formatSuffix = selectedFormat === 'story' ? '-story' : selectedFormat === 'wide' ? '-wide' : '';
-      downloadCard(cardBlob, `halterra-meditation${formatSuffix}.png`);
+      downloadCard(cardBlob, 'halterra-meditation.png');
       setShareStatus({
         message: 'Image téléchargée!',
         type: 'success',
       });
     }
-  }, [cardBlob, selectedFormat, downloadCard]);
+  }, [cardBlob, downloadCard]);
 
   const handleCopyImage = useCallback(async () => {
     if (cardBlob) {
@@ -232,37 +230,9 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
         <div className="share-card-section">
           <ShareCardPreview
             session={session}
-            format={selectedFormat}
+            format="square"
             onImageReady={handleImageReady}
           />
-
-          {/* Format selector */}
-          <div className="share-format-selector">
-            <button
-              className={`share-format-btn ${selectedFormat === 'square' ? 'active' : ''}`}
-              onClick={() => setSelectedFormat('square')}
-              title="Carré (Instagram, Facebook)"
-            >
-              <div className="share-format-icon square" />
-              <span>Carré</span>
-            </button>
-            <button
-              className={`share-format-btn ${selectedFormat === 'story' ? 'active' : ''}`}
-              onClick={() => setSelectedFormat('story')}
-              title="Story (Instagram, TikTok)"
-            >
-              <div className="share-format-icon story" />
-              <span>Story</span>
-            </button>
-            <button
-              className={`share-format-btn ${selectedFormat === 'wide' ? 'active' : ''}`}
-              onClick={() => setSelectedFormat('wide')}
-              title="Large (Twitter, LinkedIn)"
-            >
-              <div className="share-format-icon wide" />
-              <span>Large</span>
-            </button>
-          </div>
 
           {/* Quick actions */}
           <div className="share-quick-actions">

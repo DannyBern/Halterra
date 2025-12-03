@@ -162,6 +162,16 @@
   height: 18px;
 }
 
+/* Scroll hint */
+.share-card-scroll-hint {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  font-style: italic;
+}
+
 /* Mobile responsive */
 @media (max-width: 480px) {
   .share-card-preview {
