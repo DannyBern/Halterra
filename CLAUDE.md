@@ -46,13 +46,19 @@ Halterra/
 | /api/quote | GET | Retourne une citation inspirante |
 | /api/humandesign | POST | Calcule le profil Human Design |
 
-## Commandes utiles
+## Commandes Claude Code
+| Commande | Quand | Description |
+|----------|-------|-------------|
+| `/sync` | Début de session | Pull GitHub, sync Vercel, prépare l'environnement |
+| `/done` | Fin de session | Commit, push, deploy, met à jour CLAUDE.md |
+
+## Commandes Terminal
 ```bash
-npm run dev          # Dev local
+npm run dev          # Dev local (frontend seulement)
+vercel dev           # Dev local (frontend + API)
 npm run build        # Build production
 vercel --prod        # Deploy production
-vercel env pull      # Sync env vars
-/sync                # Commande Claude: sync complet
+vercel env pull      # Sync env vars locales
 ```
 
 ## Stack technique
@@ -64,6 +70,11 @@ vercel env pull      # Sync env vars
 
 ## Workflow développement
 1. `/sync` au début de chaque session
-2. Développer localement avec `npm run dev`
-3. Tester les API avec `vercel dev`
-4. Commit + Push déclenche auto-deploy Vercel
+2. Développer localement avec `npm run dev` ou `vercel dev`
+3. Commit + Push déclenche auto-deploy Vercel
+4. `/done` à la fin de chaque session
+
+## Dernière mise à jour
+- **Date**: 2025-12-03
+- **Migration**: Passage de 2 repos (frontend + backend) vers monorepo unifié
+- **Ajout**: Commandes `/sync` et `/done` pour workflow multi-ordinateurs
