@@ -41,7 +41,9 @@
       "Bash(git remote remove:*)",
       "Bash(git pull:*)",
       "Bash(git reset:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(git rev-list:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []

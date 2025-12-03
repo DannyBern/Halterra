@@ -35,10 +35,10 @@ const PLATFORMS: Array<{
     available: true,
   },
   {
-    id: 'facebook',
+    id: 'messenger',
     name: 'Messenger',
     icon: '💬',
-    color: '#1877F2',
+    color: '#0084FF',
     available: true,
   },
   {
@@ -113,7 +113,8 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
       if (result.success) {
         const messages: Record<string, string> = {
           instagram: 'Texte copié! Ouvre Instagram pour partager.',
-          facebook: 'Ouverture de Messenger...',
+          messenger: 'Ouverture de Messenger...',
+          facebook: 'Ouverture de Facebook...',
           email: 'Ouverture de l\'application email...',
           sms: 'Ouverture des messages...',
           native: 'Partagé avec succès!',
@@ -127,8 +128,8 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
         // Track le partage
         await trackShare(result, session);
 
-        // Fermer automatiquement après 2s pour email/sms/facebook
-        if (['email', 'sms', 'facebook'].includes(platform)) {
+        // Fermer automatiquement après 2s pour email/sms/messenger
+        if (['email', 'sms', 'messenger'].includes(platform)) {
           setTimeout(() => {
             onClose();
           }, 2000);

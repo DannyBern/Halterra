@@ -15,7 +15,7 @@ import type {
 // Import du système de mock pour tests locaux
 import { USE_MOCK, mockGenerateImage, mockCreateShareLink, mockTrackShare } from './shareService.mock';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://halterra-backend.vercel.app';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://halterra.vercel.app';
 
 /**
  * Génère un extrait optimisé du texte de méditation
@@ -107,7 +107,8 @@ export async function generateShareImage(
 }
 
 /**
- * Crée un lien de partage court et trackable
+ * Crée un lien de partage
+ * Pour l'instant, retourne directement l'URL de l'app
  */
 export async function createShareLink(session: ShareableSession): Promise<string> {
   // Utiliser le mock en développement
@@ -115,23 +116,8 @@ export async function createShareLink(session: ShareableSession): Promise<string
     return mockCreateShareLink(session);
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/share/link`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      sessionId: session.id,
-      excerpt: generateExcerpt(session.meditationText, 200),
-      mood: session.mood,
-      intention: session.intention,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to create share link');
-  }
-
-  const data = await response.json();
-  return data.shortUrl;
+  // URL directe vers l'app Halterra (pas de backend requis)
+  return 'https://halterra.vercel.app';
 }
 
 /**
@@ -156,6 +142,11 @@ export async function prepareShareContent(
       title: `Ma méditation avec Halterra`,
       description: `${session.intention ? `${session.intention}\n\n` : ''}${excerpt}`,
       hashtags: hashtags.slice(0, 3),
+    },
+    messenger: {
+      title: `Ma méditation Halterra`,
+      description: `${session.mood.icon} ${generateExcerpt(session.meditationText, 150)}\n\nDécouvre Halterra!`,
+      hashtags: [],
     },
     email: {
       title: `Ma méditation Halterra`,
@@ -317,6 +308,39 @@ function shareSMS(content: ShareContent): ShareResult {
 }
 
 /**
+ * Partage via Facebook Messenger
+ */
+function shareMessenger(content: ShareContent): ShareResult {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    // Sur mobile, utiliser le deep link Messenger
+    const messengerUrl = `fb-messenger://share?link=${encodeURIComponent(content.url)}`;
+    window.location.href = messengerUrl;
+
+    // Fallback vers l'URL web après un court délai si l'app n'est pas installée
+    setTimeout(() => {
+      const webUrl = new URL('https://www.facebook.com/dialog/send');
+      webUrl.searchParams.set('link', content.url);
+      webUrl.searchParams.set('app_id', ''); // Fonctionne sans app_id pour le partage basique
+      webUrl.searchParams.set('redirect_uri', window.location.href);
+      window.open(webUrl.toString(), '_blank');
+    }, 1500);
+  } else {
+    // Sur desktop, ouvrir Messenger web
+    const webUrl = new URL('https://www.facebook.com/dialog/send');
+    webUrl.searchParams.set('link', content.url);
+    webUrl.searchParams.set('redirect_uri', window.location.href);
+    window.open(webUrl.toString(), '_blank', 'width=600,height=500');
+  }
+
+  return {
+    success: true,
+    platform: 'messenger',
+  };
+}
+
+/**
  * Fonction principale de partage
  */
 export async function shareSession(
@@ -347,6 +371,8 @@ export async function shareSession(
         return await shareInstagram(content, mediaUrl);
       case 'facebook':
         return shareFacebook(content);
+      case 'messenger':
+        return shareMessenger(content);
       case 'email':
         return shareEmail(content);
       case 'sms':

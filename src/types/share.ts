@@ -5,6 +5,7 @@
 export type SharePlatform =
   | 'instagram'
   | 'facebook'
+  | 'messenger'
   | 'email'
   | 'sms'
   | 'native';
