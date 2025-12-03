@@ -132,28 +132,13 @@ function measureTotalTextHeight(
 }
 
 /**
- * Compose une description personnelle et intime de la méditation
- * Combine le mood et l'intention de manière fluide et respectueuse
+ * Formate le nom du mood de manière élégante
  */
-function composePersonalDescription(moodName: string, intention?: string): string {
-  // Nettoyer le nom du mood (ex: "Motivé / Inspiré" -> "motivé et inspiré")
-  const moodFormatted = moodName
+function formatMoodName(moodName: string): string {
+  return moodName
     .toLowerCase()
     .replace(/\s*\/\s*/g, ' et ')
     .replace(/\s*-\s*/g, ' et ');
-
-  if (!intention || intention.trim().length === 0) {
-    // Sans intention, juste le mood de manière personnelle
-    return `Un moment pour moi, dans un élan ${moodFormatted}`;
-  }
-
-  // Avec intention - composer de manière fluide
-  const intentionClean = intention.trim();
-
-  // Première lettre en minuscule si ce n'est pas un nom propre
-  const intentionLower = intentionClean.charAt(0).toLowerCase() + intentionClean.slice(1);
-
-  return `Un moment ${moodFormatted}, à la recherche de ${intentionLower}`;
 }
 
 /**
@@ -309,24 +294,40 @@ export default function ShareCardPreview({
     ctx.textAlign = 'center';
     ctx.fillText(session.mood.icon, width / 2, currentY + 45);
     ctx.restore();
-    currentY += 110;
+    currentY += 105;
 
-    // Description personnelle - intime et respectueuse
-    const personalDescription = composePersonalDescription(session.mood.name, session.intention);
-    ctx.font = `italic 300 28px Georgia, 'Times New Roman', serif`;
-    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.85)`;
+    // Titre simple: "Un moment pour moi"
+    ctx.font = `300 26px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.textAlign = 'center';
+    ctx.fillText('Un moment pour moi', width / 2, currentY);
+    currentY += 45;
 
-    // Dessiner la description avec word wrap centré
-    currentY = drawCenteredWrappedText(
-      ctx,
-      personalDescription,
-      width / 2,
-      currentY,
-      contentWidth - 40, // Un peu plus étroit pour élégance
-      42
-    );
-    currentY += 60;
+    // Mood formaté
+    const moodFormatted = formatMoodName(session.mood.name);
+    ctx.font = `italic 300 30px Georgia, 'Times New Roman', serif`;
+    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.9)`;
+    ctx.fillText(moodFormatted, width / 2, currentY);
+    currentY += 55;
+
+    // Intention entre guillemets (si présente)
+    if (session.intention && session.intention.trim().length > 0) {
+      ctx.font = `italic 300 24px Georgia, 'Times New Roman', serif`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+
+      const intentionText = `« ${session.intention.trim()} »`;
+      currentY = drawCenteredWrappedText(
+        ctx,
+        intentionText,
+        width / 2,
+        currentY,
+        contentWidth - 80,
+        38
+      );
+      currentY += 50;
+    } else {
+      currentY += 20;
+    }
 
     // Petite ligne décorative
     const decorLineWidth = 50;
