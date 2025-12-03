@@ -91,20 +91,25 @@ Le système de partage permet de partager les méditations sur différentes plat
 - `shareService.ts` - Logique de partage par plateforme
 
 ### Design de la carte de partage (Ultra Premium)
-- Fond noir profond (#0a0a0a) avec glow subtil de la couleur du mood
-- Bordure fine premium avec la couleur du mood
-- Emoji avec effet shadow glow
-- Nom du mood en MAJUSCULES (typographie légère)
-- Paragraphes bien espacés (48px) préservant la structure originale
-- Typographie Georgia pour le texte de méditation
-- Logo HALTERRA minimaliste en footer
+- **5 templates visuels**: Noir, Turquoise, Minuit, Pêche, Nuage
+- Icône de catégorie d'intention (images .webp) au lieu d'emoji générique
+- Typographie Georgia avec présence forte (34px, weight 500-600)
+- En-tête harmonisé avec le texte principal (même poids de police)
+- Paragraphes bien espacés (90px) préservant la structure originale
+- Logo HALTERRA LITE minimaliste en footer
 - Hauteur dynamique selon la longueur du texte
+
+### Sélecteur de templates
+- 5 boutons miniatures avec aperçu du fond
+- Grid responsive (5 colonnes sur mobile)
+- Noms lisibles avec shadow sur tous les fonds
 
 ## Dernière mise à jour
 - **Date**: 2025-12-03
-- **Session**: Design ultra premium carte de partage + fix double déploiement
+- **Session**: Templates visuels + icônes de catégorie pour cartes de partage
 - **Changements**:
-  - Nouveau design minimaliste noir pour la carte de partage
-  - Correction espacement des paragraphes (préserve structure \n\n)
-  - Documentation: ne plus utiliser `vercel --prod` (auto-deploy via GitHub)
-  - React mis à jour vers 19.2.1 (security patch)
+  - Ajout de 5 templates visuels (dark, turquoise, midnight, peach, cloud)
+  - Sélecteur de templates dans ShareModal avec aperçus
+  - Icône de catégorie d'intention remplace l'emoji du mood
+  - Typographie renforcée pour en-tête et texte (présence accrue)
+  - Ajustements mobile pour modal (padding iOS 85px)
