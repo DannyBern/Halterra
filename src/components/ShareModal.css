@@ -141,10 +141,11 @@
 
 .template-option-name {
   font-size: 0.6rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 0, 0, 0.5);
+  color: white !important;
 }
 
 .template-option-check {
@@ -421,7 +422,7 @@
   }
 
   .share-modal-header {
-    padding: 1rem 1.25rem 0.75rem;
+    padding: 0.75rem 1.25rem 0.5rem;
   }
 
   .share-modal-title {
@@ -429,12 +430,11 @@
   }
 
   .template-selector {
-    padding: 0.75rem 1rem 0.5rem;
+    padding: 0.25rem 1rem 0.5rem;
   }
 
   .template-selector-label {
-    font-size: 0.75rem;
-    margin-bottom: 0.5rem;
+    display: none;
   }
 
   .template-options {
