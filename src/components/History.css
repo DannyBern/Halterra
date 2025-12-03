@@ -2,7 +2,7 @@
   min-height: 100vh;
   padding: 2rem;
   padding-top: 5rem; /* Space for sticky header */
-  padding-bottom: 5rem; /* Space at bottom for music button and scrolling */
+  padding-bottom: 8rem; /* Space at bottom for music button and scrolling */
   position: relative;
 }
 
