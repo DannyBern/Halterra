@@ -302,7 +302,7 @@ export async function generateDailyInsightAI(
   console.log('🆕 Generating new daily insight...');
 
   try {
-    const response = await fetch(`${BACKEND_URL}/api/daily-insight`, {
+    const response = await fetch(`${BACKEND_URL}/api/dailyInsight`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

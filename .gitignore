@@ -32,3 +32,4 @@ dist-ssr
 nul
 public/nul
 .env*.local
+.claude/settings.local.json
