@@ -1,6 +1,7 @@
 import './DateDisplay.css';
 import type { AstrologicalProfile } from '../types';
 import { getHumanDesignSignature } from '../utils/humanDesign';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 interface DateDisplayProps {
   userName: string;
@@ -9,13 +10,18 @@ interface DateDisplayProps {
 }
 
 export default function DateDisplay({ userName, astrologicalProfile, onContinue }: DateDisplayProps) {
+  const [isReady, setIsReady] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const touchStartY = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const today = new Date();
 
   const options: Intl.DateTimeFormatOptions = {
     weekday: 'long',
-    year: 'numeric',
+    day: 'numeric',
     month: 'long',
-    day: 'numeric'
+    year: 'numeric'
   };
 
   const formattedDate = today.toLocaleDateString('fr-FR', options);
@@ -28,35 +34,81 @@ export default function DateDisplay({ userName, astrologicalProfile, onContinue 
     return 'Bonsoir';
   };
 
+  useEffect(() => {
+    // Staggered reveal animation
+    const timer = setTimeout(() => setIsReady(true), 100);
+    // Show hint after a moment of contemplation
+    const hintTimer = setTimeout(() => setShowHint(true), 4000);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(hintTimer);
+    };
+  }, []);
+
+  // Handle swipe up gesture
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+    const deltaY = touchStartY.current - e.changedTouches[0].clientY;
+    // Swipe up threshold
+    if (deltaY > 50) {
+      onContinue();
+    }
+    touchStartY.current = null;
+  }, [onContinue]);
+
   return (
-    <div className="date-display fade-in">
-      <div className="date-bg"></div>
-      <div className="date-content">
-        <div className="date-ornament">✦</div>
+    <div
+      className={`welcome-sanctuary ${isReady ? 'is-ready' : ''}`}
+      ref={containerRef}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onClick={onContinue}
+    >
+      {/* Cinematic background */}
+      <div className="sanctuary-backdrop">
+        <div className="sanctuary-image"></div>
+        <div className="sanctuary-vignette"></div>
+        <div className="sanctuary-warmth"></div>
+      </div>
 
-        <h2 className="date-greeting">
-          {getGreeting()}, {userName}
-        </h2>
+      {/* Ambient breathing light */}
+      <div className="sanctuary-ambience">
+        <div className="ambience-orb ambience-orb-1"></div>
+        <div className="ambience-orb ambience-orb-2"></div>
+      </div>
 
-        <div className="date-main">
-          <p className="date-text">{capitalizedDate}</p>
+      {/* Content floating on the scene */}
+      <div className="sanctuary-content">
+        {/* Upper section - Greeting */}
+        <div className="sanctuary-header">
+          <div className="sanctuary-star">✦</div>
+          <h1 className="sanctuary-greeting">
+            {getGreeting()}, <span className="sanctuary-name">{userName}</span>
+          </h1>
+          <p className="sanctuary-date">{capitalizedDate}</p>
         </div>
 
+        {/* Center section - Personal insight */}
         {astrologicalProfile && (
-          <div className="human-design-signature">
-            <p className="signature-text">{getHumanDesignSignature(astrologicalProfile)}</p>
+          <div className="sanctuary-insight">
+            <p className="insight-text">{getHumanDesignSignature(astrologicalProfile)}</p>
           </div>
         )}
 
-        <p className="date-subtitle">
-          Prenons un moment pour honorer ce jour et votre état d'esprit.
-        </p>
-
-        <button className="date-button" onClick={onContinue}>
-          Comment vous sentez-vous ?
-        </button>
-
-        <div className="date-ornament-bottom">✦</div>
+        {/* Bottom section - Subtle invitation */}
+        <div className={`sanctuary-invitation ${showHint ? 'is-visible' : ''}`}>
+          <div className="invitation-line"></div>
+          <p className="invitation-text">Touchez pour commencer</p>
+          <div className="invitation-chevron">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M7 10L12 15L17 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        </div>
       </div>
     </div>
   );
