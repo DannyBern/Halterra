@@ -71,6 +71,7 @@
     { "source": "/api/audio", "destination": "/api/audio.js" },
     { "source": "/api/quote", "destination": "/api/quote.js" },
     { "source": "/api/daily-insight", "destination": "/api/daily-insight.js" },
+    { "source": "/api/dailyInsight", "destination": "/api/daily-insight.js" },
     { "source": "/api/humandesign", "destination": "/api/humandesign.js" },
     { "source": "/api/intentionDescriptions", "destination": "/api/intentionDescriptions.js" },
     {
