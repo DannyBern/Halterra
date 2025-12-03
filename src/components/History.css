@@ -417,7 +417,7 @@
   .history {
     padding: 1.5rem;
     padding-top: 5rem;
-    padding-bottom: 10rem; /* Space for music button on mobile */
+    padding-bottom: 6.5rem; /* Space for music button on mobile - ~104px */
   }
 
   .history-title {
