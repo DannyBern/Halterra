@@ -429,25 +429,29 @@
   }
 
   .template-selector {
-    padding: 0.5rem 1rem 0.25rem;
+    padding: 0.75rem 1rem 0.5rem;
   }
 
   .template-selector-label {
     font-size: 0.75rem;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
   }
 
   .template-options {
-    gap: 0.35rem;
-    flex-wrap: nowrap;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.4rem;
+    width: 100%;
+    max-width: 100%;
   }
 
   .template-option {
-    width: 54px;
-    height: 44px;
-    border-radius: 8px;
-    flex-shrink: 0;
+    width: 100%;
+    aspect-ratio: 1;
+    height: auto;
+    min-height: 0;
+    border-radius: 10px;
+    flex-shrink: 1;
   }
 
   .template-option-name {
@@ -455,11 +459,11 @@
   }
 
   .template-option-check {
-    width: 12px;
-    height: 12px;
-    font-size: 0.45rem;
-    top: 2px;
-    right: 2px;
+    width: 14px;
+    height: 14px;
+    font-size: 0.5rem;
+    top: 3px;
+    right: 3px;
   }
 
   .share-card-section {
