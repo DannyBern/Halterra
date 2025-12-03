@@ -505,8 +505,8 @@ export default function ShareCardPreview({
     // Intention entre guillemets (si présente)
     if (session.intention && session.intention.trim().length > 0) {
       ctx.font = `italic ${headerWeight} 30px Georgia, 'Times New Roman', serif`;
-      const intentionOpacity = templateConfig.isDark ? 0.8 : 0.85;
-      ctx.fillStyle = `rgba(${textRgbHeader.r}, ${textRgbHeader.g}, ${textRgbHeader.b}, ${intentionOpacity})`;
+      // Toujours utiliser du blanc pour l'intention
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
 
       const intentionText = `« ${session.intention.trim()} »`;
       currentY = drawCenteredWrappedText(
