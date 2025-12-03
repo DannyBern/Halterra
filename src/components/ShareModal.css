@@ -410,27 +410,28 @@
 /* Responsive mobile */
 @media (max-width: 768px) {
   .share-modal-overlay {
-    align-items: flex-end;
+    align-items: flex-start;
     padding: 0;
+    padding-top: env(safe-area-inset-top, 0);
   }
 
   .share-modal {
     max-width: 100%;
-    border-radius: 24px 24px 0 0;
-    max-height: 90vh;
+    border-radius: 0 0 24px 24px;
+    max-height: 100vh;
     margin: 0;
   }
 
   .share-modal-header {
-    padding: 0.75rem 1.25rem 0.5rem;
+    padding: 0.5rem 1rem 0.25rem;
   }
 
   .share-modal-title {
-    font-size: 1.15rem;
+    font-size: 1rem;
   }
 
   .template-selector {
-    padding: 0.25rem 1rem 0.5rem;
+    padding: 0 1rem 0.35rem;
   }
 
   .template-selector-label {
