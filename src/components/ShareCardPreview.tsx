@@ -398,41 +398,41 @@ export default function ShareCardPreview({
     // === HEADER ===
     let currentY = 100;
 
-    // Icône du mood avec glow subtil
+    // Icône du mood avec glow subtil - plus grand pour plus de présence
     ctx.save();
     if (templateConfig.isDark) {
       ctx.shadowColor = accentColor;
-      ctx.shadowBlur = 30;
+      ctx.shadowBlur = 35;
     }
-    ctx.font = '56px Arial';
+    ctx.font = '64px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(session.mood.icon, width / 2, currentY + 45);
+    ctx.fillText(session.mood.icon, width / 2, currentY + 50);
     ctx.restore();
-    currentY += 105;
+    currentY += 115;
 
     // Titre simple: "Un moment pour moi"
-    // Font-weight augmenté pour plus de présence
-    const headerWeight = templateConfig.isDark ? 400 : 500;
-    ctx.font = `${headerWeight} 28px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-    // Couleur plus visible
+    // Font-weight aligné avec le texte de méditation pour cohérence
+    const headerWeight = templateConfig.isDark ? 500 : 600;
+    ctx.font = `${headerWeight} 32px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    // Couleur avec opacité similaire au texte principal
     const textRgbHeader = hexToRgb(templateConfig.textColor);
-    const headerOpacity = templateConfig.isDark ? 0.75 : 0.8;
+    const headerOpacity = templateConfig.isDark ? 0.85 : 0.9;
     ctx.fillStyle = `rgba(${textRgbHeader.r}, ${textRgbHeader.g}, ${textRgbHeader.b}, ${headerOpacity})`;
     ctx.textAlign = 'center';
     ctx.fillText('Un moment pour moi', width / 2, currentY);
-    currentY += 45;
+    currentY += 50;
 
-    // Mood formaté
+    // Mood formaté - plus grand et plus présent
     const moodFormatted = formatMoodName(session.mood.name);
-    ctx.font = `italic ${headerWeight} 32px Georgia, 'Times New Roman', serif`;
+    ctx.font = `italic ${headerWeight} 38px Georgia, 'Times New Roman', serif`;
     ctx.fillStyle = accentColor;
     ctx.fillText(moodFormatted, width / 2, currentY);
-    currentY += 55;
+    currentY += 60;
 
     // Intention entre guillemets (si présente)
     if (session.intention && session.intention.trim().length > 0) {
-      ctx.font = `italic ${headerWeight} 26px Georgia, 'Times New Roman', serif`;
-      const intentionOpacity = templateConfig.isDark ? 0.7 : 0.75;
+      ctx.font = `italic ${headerWeight} 30px Georgia, 'Times New Roman', serif`;
+      const intentionOpacity = templateConfig.isDark ? 0.8 : 0.85;
       ctx.fillStyle = `rgba(${textRgbHeader.r}, ${textRgbHeader.g}, ${textRgbHeader.b}, ${intentionOpacity})`;
 
       const intentionText = `« ${session.intention.trim()} »`;
@@ -442,7 +442,7 @@ export default function ShareCardPreview({
         width / 2,
         currentY,
         contentWidth - 80,
-        38
+        44
       );
       currentY += 50;
     } else {
