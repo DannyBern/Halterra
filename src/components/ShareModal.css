@@ -420,7 +420,7 @@
     max-height: 100vh;
     margin: 0;
     /* Espace pour la barre de statut iOS + barre de navigation */
-    padding-top: calc(env(safe-area-inset-top, 20px) + 70px);
+    padding-top: calc(env(safe-area-inset-top, 20px) + 85px);
   }
 
   .share-modal-header {
