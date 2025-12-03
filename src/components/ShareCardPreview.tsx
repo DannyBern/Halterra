@@ -185,7 +185,7 @@ export default function ShareCardPreview({
     const headerHeight = 260;
     const fontSize = 32; // Légèrement plus petit pour plus de lignes courtes
     const lineHeight = 58; // Plus d'espace entre lignes
-    const paragraphSpacing = 70; // BEAUCOUP plus d'espace entre paragraphes
+    const paragraphSpacing = 90; // Encore plus d'espace entre paragraphes
     const footerHeight = 220;
 
     // === PARSER LE TEXTE EN PARAGRAPHES ===
@@ -291,11 +291,11 @@ export default function ShareCardPreview({
     ctx.stroke();
     currentY += 50;
 
-    // Logo Halterra - élégant
+    // Logo Halterra Lite - élégant
     ctx.font = `200 38px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
     ctx.textAlign = 'center';
-    ctx.fillText('HALTERRA', width / 2, currentY + 25);
+    ctx.fillText('HALTERRA LITE', width / 2, currentY + 25);
     currentY += 50;
 
     // Tagline subtile
@@ -303,10 +303,10 @@ export default function ShareCardPreview({
     ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
     ctx.fillText('Méditations personnalisées par IA', width / 2, currentY + 10);
 
-    // URL en bas - très subtile
+    // Company name en bas
     ctx.font = `400 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
     ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.4)`;
-    ctx.fillText('halterra.vercel.app', width / 2, height - 50);
+    ctx.fillText('Acolyte Solutions Inc', width / 2, height - 50);
 
     // === EXPORT ===
     setIsRendering(false);
