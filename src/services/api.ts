@@ -1,8 +1,8 @@
 import type { Mood, AstrologicalProfile, MeditationSession } from '../types';
 import { FALLBACK_LOADING_QUOTE } from '../constants/fallbackQuotes';
 
-// URL du backend Vercel sécurisé - Utilise l'alias principal
-const BACKEND_URL = 'https://halterra-backend.vercel.app';
+// API locale - Les fonctions serverless sont dans /api/ du même projet
+const BACKEND_URL = '';
 
 /**
  * Audio Request Cache
