@@ -322,8 +322,8 @@ export default function ShareCardPreview({
 
     // === CONFIGURATION TYPOGRAPHIQUE - AÉRÉ ===
     const headerHeight = 260;
-    const fontSize = 32;
-    const lineHeight = 58;
+    const fontSize = 34; // Augmenté pour plus de présence
+    const lineHeight = 60;
     const paragraphSpacing = 90;
     const footerHeight = 220;
 
@@ -456,8 +456,8 @@ export default function ShareCardPreview({
     currentY += 70;
 
     // === TEXTE DE LA MÉDITATION ===
-    // Font-weight plus gras pour les templates clairs (meilleure lisibilité)
-    const fontWeight = templateConfig.isDark ? 400 : 500;
+    // Font-weight plus gras pour plus de présence
+    const fontWeight = templateConfig.isDark ? 500 : 600;
     ctx.font = `${fontWeight} ${fontSize}px Georgia, 'Times New Roman', serif`;
     const textRgb = hexToRgb(templateConfig.textColor);
     ctx.fillStyle = `rgba(${textRgb.r}, ${textRgb.g}, ${textRgb.b}, ${templateConfig.textOpacity})`;
