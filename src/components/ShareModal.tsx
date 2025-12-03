@@ -99,21 +99,67 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
     }
   }, [cardBlob, copyToClipboard, handleDownload]);
 
+  // Partage avec image via Web Share API (pour Messenger, native, etc.)
+  const shareWithImage = async (platform: SharePlatform): Promise<ShareResult> => {
+    if (!cardBlob) {
+      return { success: false, platform, error: 'Image non prête' };
+    }
+
+    // Vérifier si le navigateur supporte le partage de fichiers
+    const canShareFiles = navigator.canShare?.({
+      files: [new File([cardBlob], 'meditation.png', { type: 'image/png' })]
+    });
+
+    if (!canShareFiles) {
+      // Fallback: copier l'image et informer l'utilisateur
+      const copied = await copyToClipboard(cardBlob);
+      if (copied) {
+        return { success: true, platform, error: 'Image copiée! Colle-la dans Messenger.' };
+      }
+      return { success: false, platform, error: 'Partage non supporté sur ce navigateur' };
+    }
+
+    try {
+      const file = new File([cardBlob], 'halterra-meditation.png', { type: 'image/png' });
+      const shareText = `${session.mood.icon} Ma méditation Halterra\n\nDécouvre Halterra - des méditations personnalisées par IA!\nhttps://halterra.vercel.app`;
+
+      await navigator.share({
+        title: 'Ma méditation Halterra',
+        text: shareText,
+        files: [file],
+      });
+
+      return { success: true, platform };
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return { success: false, platform, error: 'Partage annulé' };
+      }
+      return { success: false, platform, error: 'Erreur lors du partage' };
+    }
+  };
+
   const handleShare = async (platform: SharePlatform) => {
     setSharing(true);
     setShareStatus({});
 
     try {
-      const result: ShareResult = await shareSession(session, {
-        platform,
-        format: platform === 'instagram' ? 'image' : 'link',
-        includeQuote: true,
-      });
+      let result: ShareResult;
+
+      // Pour Messenger et native, utiliser le partage avec image
+      if (platform === 'messenger' || platform === 'native') {
+        result = await shareWithImage(platform);
+      } else {
+        result = await shareSession(session, {
+          platform,
+          format: platform === 'instagram' ? 'image' : 'link',
+          includeQuote: true,
+        });
+      }
 
       if (result.success) {
         const messages: Record<string, string> = {
           instagram: 'Texte copié! Ouvre Instagram pour partager.',
-          messenger: 'Ouverture de Messenger...',
+          messenger: 'Partagé avec succès!',
           facebook: 'Ouverture de Facebook...',
           email: 'Ouverture de l\'application email...',
           sms: 'Ouverture des messages...',
@@ -121,15 +167,15 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
         };
 
         setShareStatus({
-          message: messages[platform] || 'Partagé avec succès!',
+          message: result.error || messages[platform] || 'Partagé avec succès!',
           type: 'success',
         });
 
         // Track le partage
         await trackShare(result, session);
 
-        // Fermer automatiquement après 2s pour email/sms/messenger
-        if (['email', 'sms', 'messenger'].includes(platform)) {
+        // Fermer automatiquement après 2s pour email/sms
+        if (['email', 'sms'].includes(platform)) {
           setTimeout(() => {
             onClose();
           }, 2000);
