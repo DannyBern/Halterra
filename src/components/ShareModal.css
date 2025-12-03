@@ -423,15 +423,15 @@
   }
 
   .share-modal-header {
-    padding: 0.5rem 1rem 0.25rem;
+    padding: 1.25rem 1rem 0.5rem;
   }
 
   .share-modal-title {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .template-selector {
-    padding: 0 1rem 0.35rem;
+    padding: 0.25rem 1rem 0.5rem;
   }
 
   .template-selector-label {

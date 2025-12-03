@@ -37,10 +37,10 @@ export const TEMPLATES: Record<ShareCardTemplate, {
     name: 'Turquoise',
     background: '/backgrounds/bg-turquoise.jpeg',
     bgColor: '#3d9ca8',
-    textColor: '#1a3a3a', // Bleu-vert foncé pour contraste sur zones claires
-    textOpacity: 0.92,
-    accentColor: '#8b6914', // Or foncé
-    subtleTextColor: 'rgba(26, 58, 58, 0.7)',
+    textColor: '#0a1a1a', // Noir profond pour max contraste
+    textOpacity: 1,
+    accentColor: '#5a4510', // Or très foncé
+    subtleTextColor: 'rgba(10, 26, 26, 0.85)',
     isDark: false,
   },
   midnight: {
@@ -456,7 +456,9 @@ export default function ShareCardPreview({
     currentY += 70;
 
     // === TEXTE DE LA MÉDITATION ===
-    ctx.font = `400 ${fontSize}px Georgia, 'Times New Roman', serif`;
+    // Font-weight plus gras pour les templates clairs (meilleure lisibilité)
+    const fontWeight = templateConfig.isDark ? 400 : 500;
+    ctx.font = `${fontWeight} ${fontSize}px Georgia, 'Times New Roman', serif`;
     const textRgb = hexToRgb(templateConfig.textColor);
     ctx.fillStyle = `rgba(${textRgb.r}, ${textRgb.g}, ${textRgb.b}, ${templateConfig.textOpacity})`;
     ctx.textAlign = 'left';
