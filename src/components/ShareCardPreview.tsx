@@ -132,6 +132,71 @@ function measureTotalTextHeight(
 }
 
 /**
+ * Compose une description personnelle et intime de la méditation
+ * Combine le mood et l'intention de manière fluide et respectueuse
+ */
+function composePersonalDescription(moodName: string, intention?: string): string {
+  // Nettoyer le nom du mood (ex: "Motivé / Inspiré" -> "motivé et inspiré")
+  const moodFormatted = moodName
+    .toLowerCase()
+    .replace(/\s*\/\s*/g, ' et ')
+    .replace(/\s*-\s*/g, ' et ');
+
+  if (!intention || intention.trim().length === 0) {
+    // Sans intention, juste le mood de manière personnelle
+    return `Un moment pour moi, dans un élan ${moodFormatted}`;
+  }
+
+  // Avec intention - composer de manière fluide
+  const intentionClean = intention.trim();
+
+  // Première lettre en minuscule si ce n'est pas un nom propre
+  const intentionLower = intentionClean.charAt(0).toLowerCase() + intentionClean.slice(1);
+
+  return `Un moment ${moodFormatted}, à la recherche de ${intentionLower}`;
+}
+
+/**
+ * Dessine du texte centré avec word wrap pour le header
+ */
+function drawCenteredWrappedText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  centerX: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number
+): number {
+  const words = text.split(' ').filter(w => w.length > 0);
+  if (words.length === 0) return y;
+
+  let line = '';
+  let currentY = y;
+  const lines: string[] = [];
+
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const metrics = ctx.measureText(testLine);
+
+    if (metrics.width > maxWidth && n > 0) {
+      lines.push(line.trim());
+      line = words[n] + ' ';
+    } else {
+      line = testLine;
+    }
+  }
+  lines.push(line.trim());
+
+  // Dessiner chaque ligne centrée
+  for (const l of lines) {
+    ctx.fillText(l, centerX, currentY);
+    currentY += lineHeight;
+  }
+
+  return currentY - lineHeight; // Retourner la position de la dernière ligne
+}
+
+/**
  * Dessine tous les paragraphes avec espacement
  */
 function drawAllParagraphs(
@@ -240,26 +305,35 @@ export default function ShareCardPreview({
     ctx.save();
     ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
     ctx.shadowBlur = 30;
-    ctx.font = '56px Arial'; // Légèrement plus petit
+    ctx.font = '56px Arial';
     ctx.textAlign = 'center';
     ctx.fillText(session.mood.icon, width / 2, currentY + 45);
     ctx.restore();
-    currentY += 100; // Plus d'espace après l'emoji
+    currentY += 110;
 
-    // Nom du mood - typographie élégante
-    ctx.font = `300 32px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.9)`;
+    // Description personnelle - intime et respectueuse
+    const personalDescription = composePersonalDescription(session.mood.name, session.intention);
+    ctx.font = `italic 300 28px Georgia, 'Times New Roman', serif`;
+    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.85)`;
     ctx.textAlign = 'center';
-    ctx.letterSpacing = '4px';
-    ctx.fillText(session.mood.name.toUpperCase(), width / 2, currentY + 30);
-    currentY += 80; // Plus d'espace après le titre
+
+    // Dessiner la description avec word wrap centré
+    currentY = drawCenteredWrappedText(
+      ctx,
+      personalDescription,
+      width / 2,
+      currentY,
+      contentWidth - 40, // Un peu plus étroit pour élégance
+      42
+    );
+    currentY += 60;
 
     // Petite ligne décorative
-    const lineWidth = 50;
+    const decorLineWidth = 50;
     ctx.beginPath();
-    ctx.moveTo((width - lineWidth) / 2, currentY);
-    ctx.lineTo((width + lineWidth) / 2, currentY);
-    ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.3)`;
+    ctx.moveTo((width - decorLineWidth) / 2, currentY);
+    ctx.lineTo((width + decorLineWidth) / 2, currentY);
+    ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.25)`;
     ctx.lineWidth = 1;
     ctx.stroke();
     currentY += 70; // Plus d'espace avant le texte
