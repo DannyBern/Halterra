@@ -88,6 +88,24 @@ const BASE_WIDTH = 1080;
 // Scale pour l'affichage preview
 const PREVIEW_SCALE = 0.22;
 
+// Mapping des catégories vers leurs icônes
+const CATEGORY_ICONS: Record<string, string> = {
+  'sante-corps': 'Santé & Corps icon.webp',
+  'changement-habitudes': 'Changement & Habitudes icon.webp',
+  'eveil-preparation': 'Éveil & Préparation icon.webp',
+  'attention-cognition': 'Attention & Cognition icon.webp',
+  'performance-action': 'Performance & Action icon.webp',
+  'regulation-resilience': 'Régulation & Résilience icon.webp',
+  'flexibilite-psychologique': 'Flexibilité Psychologique icon.webp',
+  'relations-connexion': 'Relations & Connexion icon.webp',
+  'bien-etre-etats-positifs': 'Bien-être & États Positifs icon.webp',
+  'soi-developpement': 'Soi & Développement icon.webp',
+  'autonomie-valeurs': 'Autonomie & Valeurs.webp',
+  'spiritualite-transcendance': 'Spiritualité & Transcendance icon.webp',
+  'detente-sommeil': 'Détente & Sommeil icon.webp',
+  'intention-libre': 'Intention Libre icon.webp',
+};
+
 /**
  * Parse une couleur hex en RGB
  */
@@ -398,17 +416,32 @@ export default function ShareCardPreview({
     // === HEADER ===
     let currentY = 100;
 
-    // Icône du mood avec glow subtil - plus grand pour plus de présence
-    ctx.save();
-    if (templateConfig.isDark) {
-      ctx.shadowColor = accentColor;
-      ctx.shadowBlur = 35;
+    // Icône de la catégorie (image .webp) - sans transparence pour être bien visible
+    const categoryIconFile = session.category ? CATEGORY_ICONS[session.category] : null;
+    if (categoryIconFile) {
+      try {
+        const iconUrl = `/${categoryIconFile}`;
+        const iconImg = await loadImage(iconUrl);
+        // Taille de l'icône: 100x100 pixels, centrée
+        const iconSize = 100;
+        const iconX = (width - iconSize) / 2;
+        const iconY = currentY;
+        ctx.drawImage(iconImg, iconX, iconY, iconSize, iconSize);
+        currentY += iconSize + 25;
+      } catch {
+        // Fallback: utiliser l'emoji du mood si l'icône ne charge pas
+        ctx.font = '64px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(session.mood.icon, width / 2, currentY + 50);
+        currentY += 115;
+      }
+    } else {
+      // Pas de catégorie: utiliser l'emoji du mood
+      ctx.font = '64px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(session.mood.icon, width / 2, currentY + 50);
+      currentY += 115;
     }
-    ctx.font = '64px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(session.mood.icon, width / 2, currentY + 50);
-    ctx.restore();
-    currentY += 115;
 
     // Titre simple: "Un moment pour moi"
     // Font-weight aligné avec le texte de méditation pour cohérence
