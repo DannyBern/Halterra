@@ -304,13 +304,6 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
             </button>
           </div>
         </div>
-
-        {/* Footer avec tips */}
-        <div className="share-modal-footer">
-          <p className="share-tip">
-            💡 Le menu natif te permet de choisir Instagram, Messenger, WhatsApp et plus
-          </p>
-        </div>
       </div>
     </div>
   );
