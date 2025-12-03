@@ -60,6 +60,8 @@ const PLATFORMS: Array<{
 // Liste ordonnée des templates pour l'affichage
 const TEMPLATE_ORDER: ShareCardTemplate[] = ['dark', 'turquoise', 'midnight', 'peach', 'cloud'];
 
+type InstagramFormat = 'story' | 'post';
+
 export default function ShareModal({ session, isOpen, onClose }: ShareModalProps) {
   const [sharing, setSharing] = useState(false);
   const [shareStatus, setShareStatus] = useState<{
@@ -67,7 +69,10 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
     type?: 'success' | 'error';
   }>({});
   const [cardBlob, setCardBlob] = useState<Blob | null>(null);
+  const [instagramBlob, setInstagramBlob] = useState<Blob | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<ShareCardTemplate>('dark');
+  const [showInstagramPreview, setShowInstagramPreview] = useState(false);
+  const [instagramFormat, setInstagramFormat] = useState<InstagramFormat>('story');
   const modalRef = useRef<HTMLDivElement>(null);
 
   const { downloadCard } = useShareCardDownload();
@@ -82,6 +87,10 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
 
   const handleImageReady = useCallback((blob: Blob) => {
     setCardBlob(blob);
+  }, []);
+
+  const handleInstagramImageReady = useCallback((blob: Blob) => {
+    setInstagramBlob(blob);
   }, []);
 
   const handleDownload = useCallback(() => {
@@ -110,27 +119,24 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
   }, [cardBlob, copyToClipboard, handleDownload]);
 
   // Partage avec image via Web Share API (pour Messenger, native, etc.)
-  const shareWithImage = async (platform: SharePlatform): Promise<ShareResult> => {
-    if (!cardBlob) {
-      return { success: false, platform, error: 'Image non prête' };
-    }
-
+  const shareWithImage = async (platform: SharePlatform, blob: Blob, filename: string): Promise<ShareResult> => {
     // Vérifier si le navigateur supporte le partage de fichiers
     const canShareFiles = navigator.canShare?.({
-      files: [new File([cardBlob], 'meditation.png', { type: 'image/png' })]
+      files: [new File([blob], filename, { type: 'image/png' })]
     });
 
     if (!canShareFiles) {
       // Fallback: copier l'image et informer l'utilisateur
-      const copied = await copyToClipboard(cardBlob);
+      const copied = await copyToClipboard(blob);
       if (copied) {
-        return { success: true, platform, error: 'Image copiée! Colle-la dans Messenger.' };
+        const platformName = platform === 'instagram' ? 'Instagram' : 'Messenger';
+        return { success: true, platform, error: `Image copiée! Colle-la dans ${platformName}.` };
       }
       return { success: false, platform, error: 'Partage non supporté sur ce navigateur' };
     }
 
     try {
-      const file = new File([cardBlob], 'halterra-meditation.png', { type: 'image/png' });
+      const file = new File([blob], filename, { type: 'image/png' });
       const shareText = `${session.mood.icon} Ma méditation Halterra\n\nDécouvre Halterra - des méditations personnalisées par IA!\nhttps://halterra.vercel.app`;
 
       await navigator.share({
@@ -148,7 +154,52 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
     }
   };
 
+  // Handler pour afficher la preview Instagram
+  const handleInstagramClick = () => {
+    setShowInstagramPreview(true);
+    setShareStatus({});
+  };
+
+  // Handler pour le partage Instagram avec l'image
+  const handleInstagramShare = async () => {
+    if (!instagramBlob) {
+      setShareStatus({ message: 'Image en cours de génération...', type: 'error' });
+      return;
+    }
+    setSharing(true);
+    setShareStatus({});
+
+    const filename = instagramFormat === 'story' ? 'halterra-story.png' : 'halterra-post.png';
+    const result = await shareWithImage('instagram', instagramBlob, filename);
+
+    if (result.success) {
+      setShareStatus({
+        message: result.error || 'Image prête pour Instagram!',
+        type: 'success',
+      });
+      await trackShare(result, session);
+    } else {
+      setShareStatus({
+        message: result.error || 'Erreur lors du partage',
+        type: 'error',
+      });
+    }
+    setSharing(false);
+  };
+
+  // Retour à la vue principale depuis Instagram
+  const handleBackFromInstagram = () => {
+    setShowInstagramPreview(false);
+    setShareStatus({});
+  };
+
   const handleShare = async (platform: SharePlatform) => {
+    // Instagram a son propre flow avec preview
+    if (platform === 'instagram') {
+      handleInstagramClick();
+      return;
+    }
+
     setSharing(true);
     setShareStatus({});
 
@@ -157,11 +208,15 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
 
       // Pour Messenger et native, utiliser le partage avec image
       if (platform === 'messenger' || platform === 'native') {
-        result = await shareWithImage(platform);
+        if (!cardBlob) {
+          result = { success: false, platform, error: 'Image non prête' };
+        } else {
+          result = await shareWithImage(platform, cardBlob, 'halterra-meditation.png');
+        }
       } else {
         result = await shareSession(session, {
           platform,
-          format: platform === 'instagram' ? 'image' : 'link',
+          format: 'link',
           includeQuote: true,
         });
       }
@@ -224,7 +279,22 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
       <div className="share-modal" ref={modalRef} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="share-modal-header">
-          <h2 className="share-modal-title">Partager ma méditation</h2>
+          {showInstagramPreview ? (
+            <button className="share-modal-back" onClick={handleBackFromInstagram} aria-label="Retour">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M19 12H5M12 19l-7-7 7-7"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          ) : null}
+          <h2 className="share-modal-title">
+            {showInstagramPreview ? 'Partager sur Instagram' : 'Partager ma méditation'}
+          </h2>
           <button className="share-modal-close" onClick={onClose} aria-label="Fermer">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path
@@ -238,7 +308,7 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
           </button>
         </div>
 
-        {/* Template Selector */}
+        {/* Template Selector - visible dans les deux vues */}
         <div className="template-selector">
           <p className="template-selector-label">Choisis ton style</p>
           <div className="template-options">
@@ -268,69 +338,137 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
           </div>
         </div>
 
-        {/* Share Card Preview */}
-        <div className="share-card-section">
-          <ShareCardPreview
-            session={session}
-            format="square"
-            template={selectedTemplate}
-            onImageReady={handleImageReady}
-          />
+        {/* Vue principale ou Vue Instagram */}
+        {showInstagramPreview ? (
+          <>
+            {/* Sélecteur de format Instagram */}
+            <div className="instagram-format-selector">
+              <button
+                className={`instagram-format-btn ${instagramFormat === 'story' ? 'instagram-format-btn-active' : ''}`}
+                onClick={() => setInstagramFormat('story')}
+              >
+                <div className="instagram-format-icon instagram-format-icon-story" />
+                <span>Story</span>
+                <span className="instagram-format-ratio">9:16</span>
+              </button>
+              <button
+                className={`instagram-format-btn ${instagramFormat === 'post' ? 'instagram-format-btn-active' : ''}`}
+                onClick={() => setInstagramFormat('post')}
+              >
+                <div className="instagram-format-icon instagram-format-icon-post" />
+                <span>Post / Message</span>
+                <span className="instagram-format-ratio">Carré</span>
+              </button>
+            </div>
 
-          {/* Quick actions */}
-          <div className="share-quick-actions">
-            <button className="share-quick-btn" onClick={handleDownload} disabled={!cardBlob}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              <span>Télécharger</span>
-            </button>
-            <button className="share-quick-btn" onClick={handleCopyImage} disabled={!cardBlob}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-              </svg>
-              <span>Copier</span>
-            </button>
-          </div>
-        </div>
+            {/* Instagram Preview */}
+            <div className="share-card-section share-card-section-instagram">
+              <ShareCardPreview
+                session={session}
+                format={instagramFormat === 'story' ? 'story' : 'square'}
+                template={selectedTemplate}
+                onImageReady={handleInstagramImageReady}
+              />
 
-        {/* Status message */}
-        {shareStatus.message && (
-          <div className={`share-status share-status-${shareStatus.type}`}>
-            <span className="share-status-icon">
-              {shareStatus.type === 'success' ? '✓' : '⚠'}
-            </span>
-            <span className="share-status-message">{shareStatus.message}</span>
-          </div>
+              <p className="instagram-format-hint">
+                {instagramFormat === 'story' ? 'Format Story (9:16)' : 'Format carré pour posts et messages'}
+              </p>
+            </div>
+
+            {/* Status message */}
+            {shareStatus.message && (
+              <div className={`share-status share-status-${shareStatus.type}`}>
+                <span className="share-status-icon">
+                  {shareStatus.type === 'success' ? '✓' : '⚠'}
+                </span>
+                <span className="share-status-message">{shareStatus.message}</span>
+              </div>
+            )}
+
+            {/* Bouton de partage Instagram */}
+            <div className="instagram-share-actions">
+              <button
+                className="instagram-share-btn"
+                onClick={handleInstagramShare}
+                disabled={sharing || !instagramBlob}
+              >
+                <span className="instagram-share-icon">📷</span>
+                <span>{sharing ? 'Partage en cours...' : 'Partager sur Instagram'}</span>
+              </button>
+              <p className="instagram-share-hint">
+                {instagramFormat === 'story'
+                  ? 'Partage en Story ou envoie l\'image à tes amis'
+                  : 'Partage en post ou envoie en message privé'}
+              </p>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Share Card Preview - Format carré */}
+            <div className="share-card-section">
+              <ShareCardPreview
+                session={session}
+                format="square"
+                template={selectedTemplate}
+                onImageReady={handleImageReady}
+              />
+
+              {/* Quick actions */}
+              <div className="share-quick-actions">
+                <button className="share-quick-btn" onClick={handleDownload} disabled={!cardBlob}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  <span>Télécharger</span>
+                </button>
+                <button className="share-quick-btn" onClick={handleCopyImage} disabled={!cardBlob}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  <span>Copier</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Status message */}
+            {shareStatus.message && (
+              <div className={`share-status share-status-${shareStatus.type}`}>
+                <span className="share-status-icon">
+                  {shareStatus.type === 'success' ? '✓' : '⚠'}
+                </span>
+                <span className="share-status-message">{shareStatus.message}</span>
+              </div>
+            )}
+
+            {/* Grid de plateformes */}
+            <div className="share-platforms-grid">
+              {platformsToShow.map((platform) => (
+                <button
+                  key={platform.id}
+                  className={`share-platform-btn ${sharing ? 'share-platform-btn-loading' : ''}`}
+                  onClick={() => handleShare(platform.id)}
+                  disabled={sharing}
+                  style={{
+                    '--platform-color': platform.color,
+                  } as React.CSSProperties}
+                >
+                  <span className="share-platform-icon">{platform.icon}</span>
+                  <span className="share-platform-name">{platform.name}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Footer avec tips */}
+            <div className="share-modal-footer">
+              <p className="share-tip">
+                Partager ta méditation inspire d'autres personnes à prendre soin d'elles
+              </p>
+            </div>
+          </>
         )}
-
-        {/* Grid de plateformes */}
-        <div className="share-platforms-grid">
-          {platformsToShow.map((platform) => (
-            <button
-              key={platform.id}
-              className={`share-platform-btn ${sharing ? 'share-platform-btn-loading' : ''}`}
-              onClick={() => handleShare(platform.id)}
-              disabled={sharing}
-              style={{
-                '--platform-color': platform.color,
-              } as React.CSSProperties}
-            >
-              <span className="share-platform-icon">{platform.icon}</span>
-              <span className="share-platform-name">{platform.name}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Footer avec tips */}
-        <div className="share-modal-footer">
-          <p className="share-tip">
-            💡 Partager ta méditation inspire d'autres personnes à prendre soin d'elles
-          </p>
-        </div>
       </div>
     </div>
   );

@@ -73,6 +73,27 @@
   letter-spacing: -0.02em;
 }
 
+.share-modal-back {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 0.75rem;
+}
+
+.share-modal-back:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: scale(1.05);
+}
+
 .share-modal-close {
   width: 36px;
   height: 36px;
@@ -85,6 +106,7 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  margin-left: auto;
 }
 
 .share-modal-close:hover {
@@ -534,5 +556,185 @@
     .share-modal {
       padding-bottom: env(safe-area-inset-bottom);
     }
+  }
+}
+
+/* ============================================
+   INSTAGRAM SHARE VIEW
+   ============================================ */
+
+/* Sélecteur de format Instagram */
+.instagram-format-selector {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 2rem 0.75rem;
+  justify-content: center;
+}
+
+.instagram-format-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.875rem 1.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  max-width: 150px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.instagram-format-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.instagram-format-btn-active {
+  background: rgba(131, 58, 180, 0.15);
+  border-color: #E4405F;
+  color: white;
+  box-shadow: 0 0 0 1px rgba(228, 64, 95, 0.3);
+}
+
+.instagram-format-icon {
+  border: 2px solid currentColor;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.instagram-format-icon-story {
+  width: 20px;
+  height: 32px;
+}
+
+.instagram-format-icon-post {
+  width: 32px;
+  height: 32px;
+}
+
+.instagram-format-ratio {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+}
+
+.instagram-format-btn-active .instagram-format-ratio {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.share-card-section-instagram {
+  padding: 1rem 2rem 0.5rem;
+}
+
+.instagram-format-hint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  margin: 0.5rem 0 0;
+  font-weight: 500;
+}
+
+.instagram-share-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem 2rem;
+}
+
+.instagram-share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 320px;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(131, 58, 180, 0.3);
+}
+
+.instagram-share-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(131, 58, 180, 0.4);
+}
+
+.instagram-share-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.instagram-share-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.instagram-share-icon {
+  font-size: 1.25rem;
+}
+
+.instagram-share-hint {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  margin: 0;
+}
+
+/* Responsive mobile pour Instagram */
+@media (max-width: 768px) {
+  .instagram-format-selector {
+    padding: 0.75rem 1rem 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .instagram-format-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    max-width: none;
+  }
+
+  .instagram-format-icon-story {
+    width: 18px;
+    height: 28px;
+  }
+
+  .instagram-format-icon-post {
+    width: 28px;
+    height: 28px;
+  }
+
+  .instagram-format-ratio {
+    font-size: 0.65rem;
+  }
+
+  .share-card-section-instagram {
+    padding: 0.75rem 1rem 0.5rem;
+  }
+
+  .instagram-share-actions {
+    padding: 0.75rem 1.5rem 1.5rem;
+  }
+
+  .instagram-share-btn {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .share-modal-back {
+    width: 32px;
+    height: 32px;
+    margin-right: 0.5rem;
   }
 }

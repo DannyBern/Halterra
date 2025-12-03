@@ -82,11 +82,19 @@ interface ShareCardPreviewProps {
   onImageReady?: (blob: Blob, dataUrl: string) => void;
 }
 
-// Largeur fixe, hauteur dynamique selon le contenu
-const BASE_WIDTH = 1080;
+// Dimensions selon le format
+const FORMAT_DIMENSIONS: Record<ShareCardFormat, { width: number; height: number | 'dynamic' }> = {
+  square: { width: 1080, height: 'dynamic' },  // Hauteur dynamique selon contenu
+  story: { width: 1080, height: 1920 },        // Instagram Story 9:16
+  wide: { width: 1200, height: 630 },          // OG image format
+};
 
-// Scale pour l'affichage preview
-const PREVIEW_SCALE = 0.22;
+// Scale pour l'affichage preview selon le format
+const PREVIEW_SCALES: Record<ShareCardFormat, number> = {
+  square: 0.22,
+  story: 0.16,  // Plus petit car plus haut
+  wide: 0.28,
+};
 
 // Mapping des catégories vers leurs icônes
 const CATEGORY_ICONS: Record<string, string> = {
@@ -310,7 +318,7 @@ export default function ShareCardPreview({
 }: ShareCardPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isRendering, setIsRendering] = useState(true);
-  const [dimensions, setDimensions] = useState({ width: BASE_WIDTH, height: 1400 });
+  const [dimensions, setDimensions] = useState({ width: FORMAT_DIMENSIONS[format].width, height: format === 'story' ? 1920 : 1400 });
 
   const renderCard = useCallback(async () => {
     const canvas = canvasRef.current;
@@ -334,24 +342,24 @@ export default function ShareCardPreview({
       ? `rgba(${moodR}, ${moodG}, ${moodB}, 0.9)`
       : templateConfig.accentColor;
 
-    const width = BASE_WIDTH;
-    const padding = 120;
+    const formatConfig = FORMAT_DIMENSIONS[format];
+    const width = formatConfig.width;
+    const isStoryFormat = format === 'story';
+    const padding = isStoryFormat ? 80 : 120;
     const contentWidth = width - (padding * 2);
 
-    // === CONFIGURATION TYPOGRAPHIQUE - AÉRÉ ===
-    const headerHeight = 260;
-    const fontSize = 34; // Augmenté pour plus de présence
-    const lineHeight = 60;
-    const paragraphSpacing = 90;
-    const footerHeight = 220;
+    // === CONFIGURATION TYPOGRAPHIQUE - ADAPTÉE AU FORMAT ===
+    const fontSize = isStoryFormat ? 30 : 34;
+    const lineHeight = isStoryFormat ? 52 : 60;
+    const paragraphSpacing = isStoryFormat ? 70 : 90;
 
     // === PARSER LE TEXTE EN PARAGRAPHES ===
     const meditationText = session.meditationText || '';
-    const paragraphs = parseMeditationText(meditationText);
+    let paragraphs = parseMeditationText(meditationText);
 
     // === MESURER LA HAUTEUR NÉCESSAIRE ===
     ctx.font = `400 ${fontSize}px Georgia, 'Times New Roman', serif`;
-    const totalTextHeight = measureTotalTextHeight(
+    let totalTextHeight = measureTotalTextHeight(
       ctx,
       paragraphs,
       contentWidth,
@@ -359,8 +367,32 @@ export default function ShareCardPreview({
       paragraphSpacing
     );
 
-    // Hauteur totale avec marges très généreuses
-    const height = Math.max(1400, headerHeight + totalTextHeight + footerHeight + 180);
+    // === CALCULER LA HAUTEUR FINALE ===
+    let height: number;
+    const headerHeight = isStoryFormat ? 320 : 260;
+    const footerHeight = isStoryFormat ? 200 : 220;
+
+    if (formatConfig.height === 'dynamic') {
+      // Format carré: hauteur dynamique selon le contenu
+      height = Math.max(1400, headerHeight + totalTextHeight + footerHeight + 180);
+    } else {
+      // Format story: hauteur fixe 1920px
+      height = formatConfig.height;
+
+      // Pour le format story, on doit peut-être tronquer le texte si trop long
+      const maxTextHeight = height - headerHeight - footerHeight - 180;
+      if (totalTextHeight > maxTextHeight) {
+        // Tronquer le texte pour qu'il rentre dans la story
+        const maxParagraphs = Math.max(3, Math.floor(paragraphs.length * (maxTextHeight / totalTextHeight)));
+        paragraphs = paragraphs.slice(0, maxParagraphs);
+        // Ajouter une ellipse au dernier paragraphe
+        if (paragraphs.length > 0) {
+          paragraphs[paragraphs.length - 1] = paragraphs[paragraphs.length - 1].replace(/[.!?]?\s*$/, '...');
+        }
+        // Recalculer
+        totalTextHeight = measureTotalTextHeight(ctx, paragraphs, contentWidth, lineHeight, paragraphSpacing);
+      }
+    }
 
     canvas.width = width;
     canvas.height = height;
@@ -414,7 +446,15 @@ export default function ShareCardPreview({
     }
 
     // === HEADER ===
-    let currentY = 100;
+    // Pour le format story, centrer verticalement le contenu
+    let currentY: number;
+    if (isStoryFormat) {
+      // Calculer la position de départ pour centrer le contenu
+      const totalContentHeight = headerHeight + totalTextHeight + 100; // header + text + spacing
+      currentY = Math.max(120, (height - totalContentHeight - footerHeight) / 2);
+    } else {
+      currentY = 100;
+    }
 
     // Icône de la catégorie (image .webp) - sans transparence pour être bien visible
     const categoryIconFile = session.category ? CATEGORY_ICONS[session.category] : null;
@@ -568,8 +608,12 @@ export default function ShareCardPreview({
     renderCard();
   }, [renderCard]);
 
-  const previewWidth = dimensions.width * PREVIEW_SCALE;
-  const previewHeight = dimensions.height * PREVIEW_SCALE;
+  const previewScale = PREVIEW_SCALES[format];
+  const previewWidth = dimensions.width * previewScale;
+  const previewHeight = dimensions.height * previewScale;
+
+  // Hauteur max du preview selon le format
+  const maxPreviewHeight = format === 'story' ? 320 : 350;
 
   return (
     <div className="share-card-preview-container">
@@ -577,9 +621,9 @@ export default function ShareCardPreview({
         className={`share-card-preview ${isRendering ? 'share-card-preview-loading' : ''}`}
         style={{
           width: previewWidth,
-          height: Math.min(previewHeight, 350), // Limiter la hauteur du preview
+          height: Math.min(previewHeight, maxPreviewHeight),
           overflow: 'hidden',
-          borderRadius: '16px',
+          borderRadius: format === 'story' ? '12px' : '16px',
         }}
       >
         <canvas
@@ -588,7 +632,7 @@ export default function ShareCardPreview({
           style={{
             width: previewWidth,
             height: previewHeight,
-            transform: previewHeight > 350 ? 'translateY(0)' : 'none',
+            transform: previewHeight > maxPreviewHeight ? 'translateY(0)' : 'none',
           }}
         />
         {isRendering && (
@@ -597,7 +641,7 @@ export default function ShareCardPreview({
           </div>
         )}
       </div>
-      {previewHeight > 350 && (
+      {previewHeight > maxPreviewHeight && (
         <p className="share-card-scroll-hint">
           La carte complète sera partagée
         </p>
