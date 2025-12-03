@@ -10,15 +10,28 @@
 - Le repo `halterra-backend` est ARCHIVE - ne plus utiliser
 - Toutes les API sont dans `/api/` du monorepo principal
 
-## Actions requises
+## Actions à exécuter automatiquement
 
-### 1. Vérification de synchronisation
-Exécute ces commandes et analyse les résultats:
-- `git fetch origin && git status` - Vérifie si local est à jour avec GitHub
-- `git log --oneline -3` vs `git log origin/main --oneline -3` - Compare les commits
-- `vercel ls | head -5` - Vérifie le dernier déploiement Vercel
+### 1. Synchronisation Git (AUTOMATIQUE)
+Exécute ces commandes dans l'ordre:
+```bash
+git fetch origin
+git pull origin main
+git status
+git log --oneline -3
+```
 
-### 2. Structure à valider
+### 2. Vérification Vercel
+```bash
+vercel ls | head -5
+```
+
+### 3. Pull des variables d'environnement si nécessaire
+```bash
+vercel env pull
+```
+
+## Structure du projet
 ```
 Halterra/
 ├── api/          ← Serverless functions (audio.js, meditation.js, etc.)
@@ -28,16 +41,11 @@ Halterra/
 └── .env.local    ← Variables locales (ne pas commiter)
 ```
 
-### 3. Variables d'environnement
-Vercel doit avoir: `ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY` (Production + Development + Preview)
-
-### 4. Si désynchronisation détectée
-- Pull GitHub: `git pull origin main`
-- Pull env vars: `vercel env pull`
-- Redeploy si nécessaire: `vercel --prod --yes`
+## Variables d'environnement requises
+Vercel: `ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY` (Production + Development + Preview)
 
 ## Rapport attendu
-Après vérification, indique:
-- État sync Local/GitHub/Vercel (OK ou actions requises)
-- Dernier commit déployé
-- Prêt à travailler ou problèmes à résoudre
+Après exécution, fournis un rapport concis:
+- Sync status: Local/GitHub/Vercel
+- Dernier commit local et déployé
+- Prêt à travailler ou problèmes détectés
