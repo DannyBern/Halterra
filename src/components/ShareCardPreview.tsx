@@ -91,9 +91,9 @@ const FORMAT_DIMENSIONS: Record<ShareCardFormat, { width: number; height: number
 
 // Scale pour l'affichage preview selon le format
 const PREVIEW_SCALES: Record<ShareCardFormat, number> = {
-  square: 0.18,
-  story: 0.13,  // Plus petit car plus haut
-  wide: 0.24,
+  square: 0.15,
+  story: 0.11,  // Plus petit car plus haut
+  wide: 0.20,
 };
 
 // Mapping des catégories vers leurs icônes
@@ -613,7 +613,7 @@ export default function ShareCardPreview({
   const previewHeight = dimensions.height * previewScale;
 
   // Hauteur max du preview selon le format
-  const maxPreviewHeight = format === 'story' ? 260 : 280;
+  const maxPreviewHeight = format === 'story' ? 220 : 240;
 
   return (
     <div className="share-card-preview-container">

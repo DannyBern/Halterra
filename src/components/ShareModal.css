@@ -117,13 +117,13 @@
 
 /* Template Selector */
 .template-selector {
-  padding: 0.75rem 2rem 0.5rem;
+  padding: 0.5rem 2rem 0.25rem;
 }
 
 .template-selector-label {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.6);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.5rem 0;
   text-align: center;
   font-weight: 500;
 }
@@ -191,8 +191,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 2rem;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem;
 }
 
 /* Format Selector */
@@ -416,17 +416,17 @@
 
 /* Footer */
 .share-modal-footer {
-  padding: 1.25rem 2rem;
+  padding: 0.75rem 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
 }
 
 .share-tip {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.6);
   margin: 0;
   text-align: center;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 /* Responsive mobile */
@@ -564,14 +564,14 @@
    ============================================ */
 
 .share-format-selector-section {
-  padding: 0.5rem 2rem 0.75rem;
+  padding: 0.25rem 2rem 0.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .format-selector-label {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.6);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.5rem 0;
   text-align: center;
   font-weight: 500;
 }
@@ -579,14 +579,14 @@
 .format-selector {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .format-btn {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
   background: rgba(255, 255, 255, 0.04);
   border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
@@ -666,8 +666,8 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0.75rem;
-  padding: 1rem 2rem 1.5rem;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem 1.25rem;
 }
 
 .share-main-btn {
