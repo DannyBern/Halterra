@@ -74,7 +74,29 @@ vercel env pull      # Sync env vars locales
 3. Commit + Push déclenche auto-deploy Vercel
 4. `/done` à la fin de chaque session
 
+## Fonctionnalité de partage
+Le système de partage permet de partager les méditations sur différentes plateformes:
+- **Messenger/Native**: Partage l'image de la carte de méditation via Web Share API
+- **Instagram**: Copie le texte, l'utilisateur ouvre Instagram manuellement
+- **Email/SMS**: Ouvre l'app native avec le contenu pré-rempli
+
+### Composants clés
+- `ShareModal.tsx` - Modal de sélection de plateforme
+- `ShareCardPreview.tsx` - Génère une image Canvas avec la méditation complète
+- `shareService.ts` - Logique de partage par plateforme
+
+### Design de la carte de partage
+- Hauteur dynamique selon la longueur du texte
+- Fond gradient slate avec overlay coloré du mood
+- Typographie Georgia pour le texte de méditation
+- Éléments zen décoratifs (cercles, ligne verticale)
+- Branding Halterra en footer
+
 ## Dernière mise à jour
 - **Date**: 2025-12-03
-- **Migration**: Passage de 2 repos (frontend + backend) vers monorepo unifié
-- **Ajout**: Commandes `/sync` et `/done` pour workflow multi-ordinateurs
+- **Session**: Implémentation du partage Messenger fonctionnel avec carte premium
+- **Changements**:
+  - Ajout plateforme `messenger` distincte de `facebook`
+  - Carte de partage affiche la méditation complète (pas juste un extrait)
+  - Design premium zen avec hauteur dynamique
+  - Web Share API pour partager l'image directement
