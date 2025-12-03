@@ -201,6 +201,8 @@
 /* Contenu de l'app */
 .pull-content {
   will-change: transform;
+  min-height: 100vh;
+  position: relative;
 }
 
 /* Responsive - plus petit sur mobile */

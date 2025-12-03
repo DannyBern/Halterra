@@ -45,7 +45,9 @@
       "Bash(git rev-list:*)",
       "Bash(ls:*)",
       "Bash(npm show:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(timeout /t 3)",
+      "Bash(Select-Object -First 6)"
     ],
     "deny": [],
     "ask": []

@@ -2,6 +2,7 @@
   min-height: 100vh;
   padding: 2rem;
   padding-top: 5rem; /* Space for sticky header */
+  padding-bottom: 3rem; /* Space at bottom for scrolling */
   position: relative;
 }
 
