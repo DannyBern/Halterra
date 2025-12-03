@@ -69,48 +69,9 @@ export default function FixedBackground({
     touchStartPos.current = null;
   }, []);
 
-  // Vérifie si l'élément touché est un élément UI interactif
-  const isInteractiveElement = useCallback((element: EventTarget | null): boolean => {
-    if (!element || !(element instanceof HTMLElement)) return false;
-
-    // Liste des éléments interactifs à ignorer
-    const interactiveTags = ['BUTTON', 'A', 'INPUT', 'TEXTAREA', 'SELECT', 'LABEL'];
-    const interactiveRoles = ['button', 'link', 'menuitem', 'tab', 'checkbox', 'radio'];
-
-    let current: HTMLElement | null = element;
-    while (current) {
-      // Vérifier le tag
-      if (interactiveTags.includes(current.tagName)) return true;
-
-      // Vérifier le role ARIA
-      const role = current.getAttribute('role');
-      if (role && interactiveRoles.includes(role)) return true;
-
-      // Vérifier les classes spécifiques de l'app (boutons, cards cliquables, etc.)
-      if (current.classList.contains('floating-history-button') ||
-          current.classList.contains('music-toggle-button') ||
-          current.classList.contains('back-button') ||
-          current.classList.contains('mood-card') ||
-          current.classList.contains('duration-card') ||
-          current.classList.contains('category-button') ||
-          current.classList.contains('guide-card') ||
-          current.classList.contains('session-card') ||
-          current.classList.contains('intro-replay-link') ||
-          current.onclick !== null) {
-        return true;
-      }
-
-      current = current.parentElement;
-    }
-    return false;
-  }, []);
-
   // Gestion du long press - Touch
   const handleTouchStart = useCallback((e: TouchEvent) => {
     if (!enableViewer || isViewing) return;
-
-    // Ignorer si l'utilisateur touche un élément UI interactif
-    if (isInteractiveElement(e.target)) return;
 
     const touch = e.touches[0];
     touchStartPos.current = { x: touch.clientX, y: touch.clientY };
@@ -118,7 +79,7 @@ export default function FixedBackground({
     longPressTimer.current = setTimeout(() => {
       openViewer();
     }, LONG_PRESS_DURATION);
-  }, [enableViewer, isViewing, openViewer, isInteractiveElement]);
+  }, [enableViewer, isViewing, openViewer]);
 
   const handleTouchEnd = useCallback(() => {
     clearLongPressTimer();
@@ -138,16 +99,13 @@ export default function FixedBackground({
   }, [clearLongPressTimer]);
 
   // Mouse events pour desktop
-  const handleMouseDown = useCallback((e: MouseEvent) => {
+  const handleMouseDown = useCallback(() => {
     if (!enableViewer || isViewing) return;
-
-    // Ignorer si l'utilisateur clique sur un élément UI interactif
-    if (isInteractiveElement(e.target)) return;
 
     longPressTimer.current = setTimeout(() => {
       openViewer();
     }, LONG_PRESS_DURATION);
-  }, [enableViewer, isViewing, openViewer, isInteractiveElement]);
+  }, [enableViewer, isViewing, openViewer]);
 
   const handleMouseUp = useCallback(() => {
     clearLongPressTimer();
