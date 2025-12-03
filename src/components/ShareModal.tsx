@@ -6,7 +6,7 @@
  * car les éléments avec transform (comme PullToRefresh) cassent position: fixed.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type { SharePlatform, ShareableSession, ShareResult } from '../types/share';
 import { shareSession, isNativeShareAvailable, trackShare } from '../services/shareService';
@@ -68,9 +68,17 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
   }>({});
   const [cardBlob, setCardBlob] = useState<Blob | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<ShareCardTemplate>('dark');
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const { downloadCard } = useShareCardDownload();
   const { copyToClipboard } = useShareCardClipboard();
+
+  // Scroll au top quand le modal s'ouvre
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      modalRef.current.scrollTop = 0;
+    }
+  }, [isOpen]);
 
   const handleImageReady = useCallback((blob: Blob) => {
     setCardBlob(blob);
@@ -213,7 +221,7 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
   // Cela évite les problèmes de position: fixed causés par le transform de PullToRefresh
   const modalContent = (
     <div className="share-modal-overlay" onClick={onClose}>
-      <div className="share-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="share-modal" ref={modalRef} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="share-modal-header">
           <h2 className="share-modal-title">Partager ma méditation</h2>
