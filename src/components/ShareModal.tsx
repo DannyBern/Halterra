@@ -10,7 +10,7 @@ import { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import type { SharePlatform, ShareableSession, ShareResult } from '../types/share';
 import { shareSession, isNativeShareAvailable, trackShare } from '../services/shareService';
-import ShareCardPreview, { useShareCardDownload, useShareCardClipboard } from './ShareCardPreview';
+import ShareCardPreview, { useShareCardDownload, useShareCardClipboard, TEMPLATES, type ShareCardTemplate } from './ShareCardPreview';
 import './ShareModal.css';
 
 interface ShareModalProps {
@@ -57,6 +57,9 @@ const PLATFORMS: Array<{
   },
 ];
 
+// Liste ordonnée des templates pour l'affichage
+const TEMPLATE_ORDER: ShareCardTemplate[] = ['dark', 'turquoise', 'midnight', 'peach', 'cloud'];
+
 export default function ShareModal({ session, isOpen, onClose }: ShareModalProps) {
   const [sharing, setSharing] = useState(false);
   const [shareStatus, setShareStatus] = useState<{
@@ -64,6 +67,7 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
     type?: 'success' | 'error';
   }>({});
   const [cardBlob, setCardBlob] = useState<Blob | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<ShareCardTemplate>('dark');
 
   const { downloadCard } = useShareCardDownload();
   const { copyToClipboard } = useShareCardClipboard();
@@ -226,11 +230,44 @@ export default function ShareModal({ session, isOpen, onClose }: ShareModalProps
           </button>
         </div>
 
+        {/* Template Selector */}
+        <div className="template-selector">
+          <p className="template-selector-label">Choisis ton style</p>
+          <div className="template-options">
+            {TEMPLATE_ORDER.map((templateId) => {
+              const tmpl = TEMPLATES[templateId];
+              return (
+                <button
+                  key={templateId}
+                  className={`template-option ${selectedTemplate === templateId ? 'template-option-active' : ''}`}
+                  onClick={() => setSelectedTemplate(templateId)}
+                  aria-label={tmpl.name}
+                  style={{
+                    background: tmpl.background
+                      ? `url(${tmpl.background}) center/cover`
+                      : tmpl.bgColor,
+                  }}
+                >
+                  <span className="template-option-name" style={{
+                    color: tmpl.isDark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)',
+                  }}>
+                    {tmpl.name}
+                  </span>
+                  {selectedTemplate === templateId && (
+                    <span className="template-option-check">✓</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Share Card Preview */}
         <div className="share-card-section">
           <ShareCardPreview
             session={session}
             format="square"
+            template={selectedTemplate}
             onImageReady={handleImageReady}
           />
 

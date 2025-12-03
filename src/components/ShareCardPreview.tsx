@@ -2,6 +2,7 @@
  * ShareCardPreview - Génération d'images de partage ULTRA PREMIUM
  * Design minimaliste et élégant inspiré des apps de luxe
  * Préserve exactement la structure des paragraphes de la méditation
+ * Supporte 5 templates visuels différents
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -9,10 +10,75 @@ import type { ShareableSession } from '../types/share';
 import './ShareCardPreview.css';
 
 export type ShareCardFormat = 'story' | 'square' | 'wide';
+export type ShareCardTemplate = 'dark' | 'turquoise' | 'midnight' | 'peach' | 'cloud';
+
+// Configuration des templates
+export const TEMPLATES: Record<ShareCardTemplate, {
+  name: string;
+  background: string | null; // null = couleur unie
+  bgColor: string;
+  textColor: string;
+  textOpacity: number;
+  accentColor: string;
+  subtleTextColor: string;
+  isDark: boolean;
+}> = {
+  dark: {
+    name: 'Noir',
+    background: null,
+    bgColor: '#0a0a0a',
+    textColor: '#ffffff',
+    textOpacity: 0.88,
+    accentColor: 'mood', // Utilise la couleur du mood
+    subtleTextColor: 'rgba(255, 255, 255, 0.55)',
+    isDark: true,
+  },
+  turquoise: {
+    name: 'Turquoise',
+    background: '/backgrounds/bg-turquoise.jpeg',
+    bgColor: '#3d9ca8',
+    textColor: '#ffffff',
+    textOpacity: 0.95,
+    accentColor: '#d4a853', // Or
+    subtleTextColor: 'rgba(255, 255, 255, 0.75)',
+    isDark: false,
+  },
+  midnight: {
+    name: 'Minuit',
+    background: '/backgrounds/bg-midnight.jpeg',
+    bgColor: '#1a2030',
+    textColor: '#ffffff',
+    textOpacity: 0.95,
+    accentColor: '#d4a853', // Or
+    subtleTextColor: 'rgba(255, 255, 255, 0.7)',
+    isDark: true,
+  },
+  peach: {
+    name: 'Pêche',
+    background: '/backgrounds/bg-peach.jpeg',
+    bgColor: '#e8d5c4',
+    textColor: '#2d2419', // Brun foncé
+    textOpacity: 0.9,
+    accentColor: '#8b5a2b', // Brun doré
+    subtleTextColor: 'rgba(45, 36, 25, 0.6)',
+    isDark: false,
+  },
+  cloud: {
+    name: 'Nuage',
+    background: '/backgrounds/bg-cloud.jpeg',
+    bgColor: '#d0d0d0',
+    textColor: '#1a1a1a', // Gris anthracite
+    textOpacity: 0.9,
+    accentColor: '#4a4a4a', // Gris foncé
+    subtleTextColor: 'rgba(26, 26, 26, 0.55)',
+    isDark: false,
+  },
+};
 
 interface ShareCardPreviewProps {
   session: ShareableSession;
   format: ShareCardFormat;
+  template?: ShareCardTemplate;
   onImageReady?: (blob: Blob, dataUrl: string) => void;
 }
 
@@ -205,9 +271,23 @@ function drawAllParagraphs(
   return currentY;
 }
 
+/**
+ * Charge une image depuis une URL
+ */
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
 export default function ShareCardPreview({
   session,
   format,
+  template = 'dark',
   onImageReady
 }: ShareCardPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -227,15 +307,24 @@ export default function ShareCardPreview({
       return;
     }
 
+    // === CONFIGURATION DU TEMPLATE ===
+    const templateConfig = TEMPLATES[template];
+    const { r: moodR, g: moodG, b: moodB } = hexToRgb(session.mood.color);
+
+    // Couleur d'accent: soit la couleur du mood, soit celle du template
+    const accentColor = templateConfig.accentColor === 'mood'
+      ? `rgba(${moodR}, ${moodG}, ${moodB}, 0.9)`
+      : templateConfig.accentColor;
+
     const width = BASE_WIDTH;
-    const padding = 120; // Plus de marge latérale
+    const padding = 120;
     const contentWidth = width - (padding * 2);
 
     // === CONFIGURATION TYPOGRAPHIQUE - AÉRÉ ===
     const headerHeight = 260;
-    const fontSize = 32; // Légèrement plus petit pour plus de lignes courtes
-    const lineHeight = 58; // Plus d'espace entre lignes
-    const paragraphSpacing = 90; // Encore plus d'espace entre paragraphes
+    const fontSize = 32;
+    const lineHeight = 58;
+    const paragraphSpacing = 90;
     const footerHeight = 220;
 
     // === PARSER LE TEXTE EN PARAGRAPHES ===
@@ -259,37 +348,62 @@ export default function ShareCardPreview({
     canvas.height = height;
     setDimensions({ width, height });
 
-    // === COULEURS DU MOOD ===
-    const { r, g, b } = hexToRgb(session.mood.color);
-
-    // === FOND NOIR PROFOND PREMIUM ===
-    ctx.fillStyle = '#0a0a0a';
+    // === FOND DU TEMPLATE ===
+    // D'abord remplir avec la couleur de base
+    ctx.fillStyle = templateConfig.bgColor;
     ctx.fillRect(0, 0, width, height);
 
-    // === GRADIENT SUBTIL EN HAUT ===
-    const topGlow = ctx.createRadialGradient(
-      width / 2, 0, 0,
-      width / 2, 0, height * 0.6
-    );
-    topGlow.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.08)`);
-    topGlow.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, 0.02)`);
-    topGlow.addColorStop(1, 'transparent');
-    ctx.fillStyle = topGlow;
-    ctx.fillRect(0, 0, width, height);
+    // Charger et dessiner l'image de fond si présente
+    if (templateConfig.background) {
+      try {
+        const bgImage = await loadImage(templateConfig.background);
+        // Dessiner l'image en couvrant tout le canvas (cover)
+        const scale = Math.max(width / bgImage.width, height / bgImage.height);
+        const scaledWidth = bgImage.width * scale;
+        const scaledHeight = bgImage.height * scale;
+        const x = (width - scaledWidth) / 2;
+        const y = (height - scaledHeight) / 2;
+        ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
 
-    // === BORDURE FINE PREMIUM ===
-    const borderPadding = 24;
-    ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.2)`;
-    ctx.lineWidth = 1;
-    ctx.strokeRect(borderPadding, borderPadding, width - borderPadding * 2, height - borderPadding * 2);
+        // Overlay semi-transparent pour améliorer la lisibilité
+        ctx.fillStyle = templateConfig.isDark
+          ? 'rgba(0, 0, 0, 0.3)'
+          : 'rgba(255, 255, 255, 0.15)';
+        ctx.fillRect(0, 0, width, height);
+      } catch {
+        // Si l'image ne charge pas, on garde la couleur de base
+        console.warn('Could not load background image');
+      }
+    } else {
+      // Template dark: ajouter le glow subtil
+      const topGlow = ctx.createRadialGradient(
+        width / 2, 0, 0,
+        width / 2, 0, height * 0.6
+      );
+      topGlow.addColorStop(0, `rgba(${moodR}, ${moodG}, ${moodB}, 0.08)`);
+      topGlow.addColorStop(0.5, `rgba(${moodR}, ${moodG}, ${moodB}, 0.02)`);
+      topGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = topGlow;
+      ctx.fillRect(0, 0, width, height);
+    }
+
+    // === BORDURE FINE (seulement pour template dark) ===
+    if (template === 'dark') {
+      const borderPadding = 24;
+      ctx.strokeStyle = `rgba(${moodR}, ${moodG}, ${moodB}, 0.2)`;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(borderPadding, borderPadding, width - borderPadding * 2, height - borderPadding * 2);
+    }
 
     // === HEADER ===
-    let currentY = 100; // Plus d'espace en haut
+    let currentY = 100;
 
     // Icône du mood avec glow subtil
     ctx.save();
-    ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
-    ctx.shadowBlur = 30;
+    if (templateConfig.isDark) {
+      ctx.shadowColor = accentColor;
+      ctx.shadowBlur = 30;
+    }
     ctx.font = '56px Arial';
     ctx.textAlign = 'center';
     ctx.fillText(session.mood.icon, width / 2, currentY + 45);
@@ -298,7 +412,7 @@ export default function ShareCardPreview({
 
     // Titre simple: "Un moment pour moi"
     ctx.font = `300 26px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.fillStyle = templateConfig.subtleTextColor;
     ctx.textAlign = 'center';
     ctx.fillText('Un moment pour moi', width / 2, currentY);
     currentY += 45;
@@ -306,14 +420,14 @@ export default function ShareCardPreview({
     // Mood formaté
     const moodFormatted = formatMoodName(session.mood.name);
     ctx.font = `italic 300 30px Georgia, 'Times New Roman', serif`;
-    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.9)`;
+    ctx.fillStyle = accentColor;
     ctx.fillText(moodFormatted, width / 2, currentY);
     currentY += 55;
 
     // Intention entre guillemets (si présente)
     if (session.intention && session.intention.trim().length > 0) {
       ctx.font = `italic 300 24px Georgia, 'Times New Roman', serif`;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+      ctx.fillStyle = templateConfig.subtleTextColor;
 
       const intentionText = `« ${session.intention.trim()} »`;
       currentY = drawCenteredWrappedText(
@@ -334,14 +448,17 @@ export default function ShareCardPreview({
     ctx.beginPath();
     ctx.moveTo((width - decorLineWidth) / 2, currentY);
     ctx.lineTo((width + decorLineWidth) / 2, currentY);
-    ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.25)`;
+    ctx.strokeStyle = templateConfig.isDark
+      ? `rgba(${moodR}, ${moodG}, ${moodB}, 0.25)`
+      : `${templateConfig.textColor}22`;
     ctx.lineWidth = 1;
     ctx.stroke();
-    currentY += 70; // Plus d'espace avant le texte
+    currentY += 70;
 
     // === TEXTE DE LA MÉDITATION ===
     ctx.font = `400 ${fontSize}px Georgia, 'Times New Roman', serif`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+    const textRgb = hexToRgb(templateConfig.textColor);
+    ctx.fillStyle = `rgba(${textRgb.r}, ${textRgb.g}, ${textRgb.b}, ${templateConfig.textOpacity})`;
     ctx.textAlign = 'left';
 
     currentY = drawAllParagraphs(
@@ -355,32 +472,41 @@ export default function ShareCardPreview({
     );
 
     // === FOOTER MINIMALISTE ===
-    currentY += 100; // Beaucoup plus d'espace avant le footer
+    currentY += 100;
 
     // Ligne fine
     ctx.beginPath();
     ctx.moveTo(width * 0.35, currentY);
     ctx.lineTo(width * 0.65, currentY);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.strokeStyle = templateConfig.isDark
+      ? 'rgba(255, 255, 255, 0.06)'
+      : 'rgba(0, 0, 0, 0.08)';
     ctx.lineWidth = 1;
     ctx.stroke();
     currentY += 50;
 
     // Logo Halterra Lite - élégant
     ctx.font = `200 38px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.fillStyle = templateConfig.isDark
+      ? 'rgba(255, 255, 255, 0.85)'
+      : `rgba(${textRgb.r}, ${textRgb.g}, ${textRgb.b}, 0.85)`;
     ctx.textAlign = 'center';
     ctx.fillText('HALTERRA LITE', width / 2, currentY + 25);
     currentY += 50;
 
     // Tagline subtile
     ctx.font = `300 18px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.fillStyle = templateConfig.isDark
+      ? 'rgba(255, 255, 255, 0.3)'
+      : `rgba(${textRgb.r}, ${textRgb.g}, ${textRgb.b}, 0.4)`;
     ctx.fillText('Méditations personnalisées par IA', width / 2, currentY + 10);
 
     // Company name en bas
     ctx.font = `400 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.4)`;
+    const accentRgb = templateConfig.accentColor === 'mood'
+      ? { r: moodR, g: moodG, b: moodB }
+      : hexToRgb(templateConfig.accentColor);
+    ctx.fillStyle = `rgba(${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b}, 0.5)`;
     ctx.fillText('Acolyte Solutions Inc', width / 2, height - 50);
 
     // === EXPORT ===
@@ -394,7 +520,7 @@ export default function ShareCardPreview({
         }
       }, 'image/png', 1.0);
     }
-  }, [session, format, onImageReady]);
+  }, [session, format, template, onImageReady]);
 
   useEffect(() => {
     setIsRendering(true);
