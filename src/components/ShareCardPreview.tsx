@@ -411,23 +411,29 @@ export default function ShareCardPreview({
     currentY += 105;
 
     // Titre simple: "Un moment pour moi"
-    ctx.font = `300 26px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-    ctx.fillStyle = templateConfig.subtleTextColor;
+    // Font-weight augmenté pour plus de présence
+    const headerWeight = templateConfig.isDark ? 400 : 500;
+    ctx.font = `${headerWeight} 28px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    // Couleur plus visible
+    const textRgbHeader = hexToRgb(templateConfig.textColor);
+    const headerOpacity = templateConfig.isDark ? 0.75 : 0.8;
+    ctx.fillStyle = `rgba(${textRgbHeader.r}, ${textRgbHeader.g}, ${textRgbHeader.b}, ${headerOpacity})`;
     ctx.textAlign = 'center';
     ctx.fillText('Un moment pour moi', width / 2, currentY);
     currentY += 45;
 
     // Mood formaté
     const moodFormatted = formatMoodName(session.mood.name);
-    ctx.font = `italic 300 30px Georgia, 'Times New Roman', serif`;
+    ctx.font = `italic ${headerWeight} 32px Georgia, 'Times New Roman', serif`;
     ctx.fillStyle = accentColor;
     ctx.fillText(moodFormatted, width / 2, currentY);
     currentY += 55;
 
     // Intention entre guillemets (si présente)
     if (session.intention && session.intention.trim().length > 0) {
-      ctx.font = `italic 300 24px Georgia, 'Times New Roman', serif`;
-      ctx.fillStyle = templateConfig.subtleTextColor;
+      ctx.font = `italic ${headerWeight} 26px Georgia, 'Times New Roman', serif`;
+      const intentionOpacity = templateConfig.isDark ? 0.7 : 0.75;
+      ctx.fillStyle = `rgba(${textRgbHeader.r}, ${textRgbHeader.g}, ${textRgbHeader.b}, ${intentionOpacity})`;
 
       const intentionText = `« ${session.intention.trim()} »`;
       currentY = drawCenteredWrappedText(
