@@ -210,6 +210,7 @@
 .sanctuary-insight {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 2rem 0;
@@ -222,6 +223,15 @@
 .welcome-sanctuary.is-ready .sanctuary-insight {
   opacity: 1;
   transform: translateY(0);
+}
+
+.insight-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: lowercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  font-weight: 400;
 }
 
 .insight-text {

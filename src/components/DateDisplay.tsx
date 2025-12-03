@@ -1,7 +1,7 @@
 import './DateDisplay.css';
 import type { AstrologicalProfile } from '../types';
-import { getHumanDesignSignature } from '../utils/humanDesign';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { generateDailyInsight, getInsightLabel } from '../utils/dailyInsight';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 
 interface DateDisplayProps {
   userName: string;
@@ -60,6 +60,14 @@ export default function DateDisplay({ userName, astrologicalProfile, onContinue 
     touchStartY.current = null;
   }, [onContinue]);
 
+  // Generate daily insight - memoized so it doesn't change during the session
+  const dailyInsight = useMemo(() => {
+    if (!astrologicalProfile) return null;
+    return generateDailyInsight(astrologicalProfile);
+  }, [astrologicalProfile]);
+
+  const insightLabel = useMemo(() => getInsightLabel(), []);
+
   return (
     <div
       className={`welcome-sanctuary ${isReady ? 'is-ready' : ''}`}
@@ -93,9 +101,10 @@ export default function DateDisplay({ userName, astrologicalProfile, onContinue 
         </div>
 
         {/* Center section - Personal insight */}
-        {astrologicalProfile && (
+        {astrologicalProfile && dailyInsight && (
           <div className="sanctuary-insight">
-            <p className="insight-text">{getHumanDesignSignature(astrologicalProfile)}</p>
+            <span className="insight-label">{insightLabel}</span>
+            <p className="insight-text">{dailyInsight}</p>
           </div>
         )}
 
