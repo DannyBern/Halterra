@@ -418,7 +418,7 @@
     padding-left: 1.5rem;
     padding-right: 1.5rem;
     padding-top: 5rem;
-    padding-bottom: calc(9rem + env(safe-area-inset-bottom, 0px)); /* Space for music button + iOS safe area */
+    padding-bottom: calc(12rem + env(safe-area-inset-bottom, 0px)); /* Large space for music button + action buttons + iOS safe area */
   }
 
   .history-title {
