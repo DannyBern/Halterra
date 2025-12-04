@@ -90,7 +90,7 @@ export default async function handler(req, res) {
     // Méditation = Voix féminine Iza, Réflexion = Voix masculine Dann
     const voiceId = guideType === 'reflection'
       ? '93nuHbke4dTER9x2pDwE'  // Voix masculine Dann pour réflexion
-      : 'pjcYQlDFKMbcOUp6F5GD';  // Voix féminine Iza (voix pro ElevenLabs)
+      : 'xsNzdCmWJpYoa80FaXJi';  // Voix féminine Iza (voix personnalisée)
 
     // Voice settings optimisés par guide
     const voiceSettings = guideType === 'reflection'

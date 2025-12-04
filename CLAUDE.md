@@ -107,7 +107,7 @@ Le système de partage permet de partager les méditations sur différentes plat
 - Noms lisibles avec shadow sur tous les fonds
 
 ## Configuration Narration Audio
-- **Voix principale (méditation)**: Iza - Voice ID `pjcYQlDFKMbcOUp6F5GD` (voix pro ElevenLabs)
+- **Voix principale (méditation)**: Iza - Voice ID `xsNzdCmWJpYoa80FaXJi` (voix personnalisée)
 - **Voix secondaire (réflexion)**: Dann - Voice ID `93nuHbke4dTER9x2pDwE`
 - **Qualité audio**: MP3 44.1kHz 192kbps (qualité maximale)
 - **Modèle TTS**: ElevenLabs Multilingual V2
@@ -121,8 +121,8 @@ Le système de partage permet de partager les méditations sur différentes plat
 
 ## Dernière mise à jour
 - **Date**: 2025-12-04
-- **Session**: Changement voix Iza + activation lunar transit
+- **Session**: Restauration voix Iza originale + activation lunar transit
 - **Changements**:
-  - **Voice ID Iza**: Migration vers voix pro ElevenLabs (`pjcYQlDFKMbcOUp6F5GD`)
+  - **Voice ID Iza**: Restauré voix personnalisée (`xsNzdCmWJpYoa80FaXJi`)
   - **Lunar transit**: Activé avec astronomy-engine (calcul position lune + phase)
   - **Import fix**: Utilisation createRequire pour compatibilité Vercel serverless
