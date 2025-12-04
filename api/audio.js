@@ -81,10 +81,10 @@ export default async function handler(req, res) {
         model_id: 'eleven_multilingual_v2',  // ✅ OPTIMAL - Meilleur modèle pour méditations
         language_code: 'fr',                 // Force la langue française
         voice_settings: {
-          // OPTIMISÉ 2025-12-03 - Clarté audio améliorée
-          stability: 0.75,               // AUGMENTÉ: 0.72→0.75 Plus de clarté et moins d'artefacts
-          similarity_boost: 0.80,        // AUGMENTÉ: 0.78→0.80 Meilleure fidélité au clone
-          style: 0,                      // ✅ Zéro style = voix stable
+          // OPTIMISÉ 2025-12-04 - Voix plus dynamique et humaine pour voix remixée
+          stability: 0.60,               // RÉDUIT: 0.75→0.60 Plus de variations naturelles
+          similarity_boost: 0.80,        // Maintenu: Excellente fidélité au clone
+          style: 0.35,                   // AUGMENTÉ: 0→0.35 Expressivité humaine ajoutée
           use_speaker_boost: true        // ✅ Améliore la clarté du clone vocal
         },
         seed: 42,                        // Seed fixe pour génération déterministe
