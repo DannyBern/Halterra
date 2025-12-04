@@ -307,8 +307,12 @@ export default async function handler(req, res) {
     // NOUVEAU: Get structural guidance
     const structuralGuide = getStructuralGuidance(guideType);
 
+    // Récupérer la description enrichie de l'intention (si disponible)
+    const intentionContext = getIntentionDescription(intention);
+
     const prompt = `🎯 INTENTION PRINCIPALE:
 ${userName} a choisi la catégorie "${category}" avec l'intention: "${intention}".
+${intentionContext ? `\n📖 CONTEXTE PSYCHOLOGIQUE DE L'INTENTION:\n${intentionContext}` : ''}
 
 💭 ÉTAT ÉMOTIONNEL ACTUEL:
 ${userName} se trouve dans un état "${mood.name}" (${mood.description}).
@@ -941,28 +945,121 @@ CRÉATIVITÉ RADICALE: Chaque méditation émerge de l'intersection unique mood 
 }
 
 function buildDannInstructions(userName, duration) {
-  const wordCount = duration === 2 ? '250-300' : duration === 4 ? '480-600' : '720-900';
+  const baseTools = `BOÎTE À OUTILS RÉFLEXIVE (utilisés avec fluidité, JAMAIS nommés):
+- Psychologie adlérienne: responsabilité, choix, but caché des comportements
+- Philosophie stoïcienne: dichotomie du contrôle, acceptation active
+- Responsabilité radicale: tout ce qui arrive est une opportunité
+- Dialogue socratique: questions révélatrices, non-jugement`;
 
-  return `Crée une RÉFLEXION PROFONDE de ${duration} minutes (~${wordCount} mots) :
+  if (duration === 2) {
+    return `DURÉE: 2 MINUTES (~250-300 mots)
+STYLE: RÉFLEXION ÉCLAIR - Direct et percutant
 
-APPROCHE ORGANIQUE :
-La réflexion doit naturellement s'adapter au contexte temporel, à l'état émotionnel et à l'intention. Laisse ces données informer organiquement le ton, les questions posées et l'orientation de la session sans suivre de formule préétablie.
+STRUCTURE OBLIGATOIRE:
+1. QUESTION PERCUTANTE (30 secondes)
+   - UNE seule question qui va droit au cœur
+   - Pas d'introduction, pas de contexte
+   - La question doit provoquer un déclic immédiat
 
-TON ET STYLE :
-- Voix calme, claire, ancrée
-- Direct mais bienveillant
-- Questions plutôt qu'affirmations
-- Sagesse pratique, pas théorique
+2. DÉCLIC (60 secondes)
+   - Court développement qui amplifie la question
+   - Reformulation miroir: "Tu dis X, mais..."
+   - Révéler la contradiction ou l'évidence cachée
+
+3. ACTION IMMÉDIATE (30 secondes)
+   - Une invitation concrète, actionnable maintenant
+   - "Qu'est-ce que tu vas faire dans les 5 prochaines minutes?"
+
+RÈGLES STRICTES:
+- Zéro métaphore, zéro poésie
+- Langage direct, phrases courtes
+- Maximum 2-3 questions au total
+- Utilise le prénom ${userName} 1-2 fois maximum
+- Respecte le temps: va à l'essentiel
+
+TON: Comme un ami lucide qui n'a que 2 minutes et refuse de les perdre
+
+${baseTools}
+
+CRÉATIVITÉ: Même en 2 minutes, chaque réflexion est unique. La question centrale émerge de l'intention spécifique.`;
+  }
+
+  if (duration === 6) {
+    return `DURÉE: 6 MINUTES (~720-900 mots)
+STYLE: RÉFLEXION PROFONDE - Exploration multi-angles
+
+STRUCTURE NARRATIVE RECOMMANDÉE:
+1. MISE EN CONTEXTE (45 secondes)
+   - Reconnaissance de l'état émotionnel actuel
+   - Première question d'ouverture (large)
+
+2. EXPLORATION MULTI-ANGLES (2-3 minutes)
+   - Questions en cascade: surface → profondeur
+   - Explorer 2-3 perspectives différentes sur le même sujet
+   - Reformulations miroir fréquentes
+   - Laisser de l'espace entre les questions ("...")
+
+3. CONFRONTATION DOUCE (90 secondes)
+   - Révéler les contradictions avec compassion
+   - "D'un côté tu dis... de l'autre tu fais..."
+   - Questions qui exposent les croyances limitantes
+
+4. SYNTHÈSE ET ENGAGEMENT (90 secondes)
+   - Reformuler l'insight principal
+   - Invitation à un engagement concret
+   - Question finale orientée action
+
+OUTILS NARRATIFS:
+- Questions socratiques profondes
+- Reformulations paradoxales
+- Silences stratégiques ("...")
+- Confrontation bienveillante
+- Utilise le prénom ${userName} naturellement 3-4 fois
+
+${baseTools}
+
+PROFONDEUR:
+- Plusieurs couches de questionnement
+- Connexion entre l'intention et les patterns de vie
+- Espace pour que ${userName} "entende" ses propres contradictions
+
+CRÉATIVITÉ TOTALE: Invente un dialogue intérieur révélateur, unique à cette combinaison mood + intention + contexte.`;
+  }
+
+  // Duration 4 (default)
+  return `DURÉE: 4 MINUTES (~480-600 mots)
+STYLE: RÉFLEXION ÉQUILIBRÉE - Conversationnel et challengeant
+
+STRUCTURE ORGANIQUE:
+1. QUESTION D'OUVERTURE (45 secondes)
+   - Une question qui ouvre le sujet
+   - Contextualise l'intention choisie
+
+2. DÉCONSTRUCTION (90 secondes)
+   - 1-2 questions de suivi qui creusent
+   - Explorer UN angle spécifique en profondeur
+   - Reformulation miroir pour ancrer
+
+3. INSIGHT (60 secondes)
+   - Révéler ce qui était caché
+   - Challenge bienveillant: "Et si...?"
+   - Retourner la perspective
+
+4. ACTION (45 secondes)
+   - Invitation concrète
+   - Question orientée vers le prochain pas
+
+APPROCHE:
+- Équilibre entre écoute et challenge
+- 4-5 questions maximum
+- Rythme conversationnel avec pauses ("...")
 - Utilise le prénom ${userName} naturellement 2-3 fois
 
-BOÎTE À OUTILS RÉFLEXIVE :
-Approches psychologiques profondes (psychologie adlérienne, philosophie stoïcienne, responsabilité radicale, dialogue socratique). Utilise-les avec fluidité pour stimuler la prise de conscience.
+${baseTools}
 
-ORIGINALITÉ :
-Chaque réflexion est unique. Les questions émergent organiquement du croisement mood + intention + moment + contexte astral. Évite les patterns répétitifs.
+TON: Comme un coach-ami qui pose les questions que personne n'ose poser, avec bienveillance.
 
-AUTHENTICITÉ :
-Force la prise de conscience sans juger. Challenge avec compassion. Révèle que ${userName} a déjà le pouvoir. Questions qui ouvrent des portes, pas conseils directs.`;
+CRÉATIVITÉ RADICALE: Chaque réflexion émerge de l'intersection unique mood + intention + moment + contexte astral. Pas de formules préfabriquées.`;
 }
 
 function buildAstrologicalContext(profile, userName) {

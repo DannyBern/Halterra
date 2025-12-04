@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   console.log(`✅ Rate limit check passed - Remaining: ${rateLimit.remaining}/${15}`);
 
   /**
-   * Convert text to SSML for meditation - SIMPLIFIED VERSION
+   * Convert text to SSML for meditation (Iza) - SIMPLIFIED VERSION
    * Uses only essential SSML to avoid conflicts with remixed voice
    */
   function convertToMeditationSSML(text, speed = 'normal') {
@@ -50,6 +50,24 @@ export default async function handler(req, res) {
     return `<speak><prosody rate="${rate}">${text}</prosody></speak>`;
   }
 
+  /**
+   * Convert text to SSML for reflection (Dann)
+   * More conversational pace with slower questions to invite reflection
+   */
+  function convertToReflectionSSML(text) {
+    // Nettoyage similaire à méditation
+    text = text.replace(/\.\.\./g, '... '); // Keep ellipsis natural
+    text = text.replace(/\n\n+/g, '. '); // Paragraph breaks become natural pauses
+    text = text.replace(/\n/g, ', '); // Line breaks become slight pauses
+
+    // Questions → plus lentes (0.62) pour inviter à réfléchir
+    // Le reste sera au rythme de base (0.72, plus vif qu'Iza)
+    text = text.replace(/([^.!?]*\?)/g, '<prosody rate="0.62">$1</prosody>');
+
+    // Rythme conversationnel de base (plus vif que méditation)
+    return `<speak><prosody rate="0.72">${text}</prosody></speak>`;
+  }
+
   try {
     const { text, guideType } = req.body;
 
@@ -57,10 +75,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing text field' });
     }
 
-    // Apply SSML for meditation voice (clone was trained on normal conversation)
+    // Apply SSML for both guides with appropriate pacing
     const processedText = guideType === 'meditation'
       ? convertToMeditationSSML(text)
-      : text;
+      : convertToReflectionSSML(text);
 
     // Log du texte complet envoyé à ElevenLabs
     console.log('=== FULL TEXT SENT TO ELEVENLABS ===');
@@ -74,7 +92,26 @@ export default async function handler(req, res) {
       ? '93nuHbke4dTER9x2pDwE'  // Voix masculine Dann pour réflexion
       : 'GiS6AIV70BEfI1ncL4Vg';  // Voix féminine Iza remixée pour méditation
 
-    // ElevenLabs API - avec SSML pour forcer rythme méditatif
+    // Voice settings optimisés par guide
+    // Iza: voix remixée → besoin de plus de stabilité, moins de style
+    // Dann: voix native → plus de liberté, plus expressif pour les questions
+    const voiceSettings = guideType === 'reflection'
+      ? {
+          // DANN - Voix native, plus conversationnel et expressif
+          stability: 0.65,           // Plus naturel/conversationnel
+          similarity_boost: 0.75,    // Standard
+          style: 0.30,               // Plus expressif (questions, emphase)
+          use_speaker_boost: true
+        }
+      : {
+          // IZA - Voix remixée, besoin de stabilité pour éviter artifacts
+          stability: 0.78,           // AUGMENTÉ pour stabilité
+          similarity_boost: 0.80,    // Légèrement réduit
+          style: 0.15,               // RÉDUIT pour moins d'artifacts
+          use_speaker_boost: true
+        };
+
+    // ElevenLabs API - avec SSML pour contrôle du rythme
     // Format mp3_44100_192 = meilleure qualité MP3 disponible (192kbps vs 128kbps)
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
@@ -85,18 +122,12 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         text: processedText,
-        model_id: 'eleven_multilingual_v2',  // ✅ OPTIMAL - Meilleur modèle pour méditations
+        model_id: 'eleven_multilingual_v2',  // ✅ OPTIMAL - Meilleur modèle multilingue
         language_code: 'fr',                 // Force la langue française
-        voice_settings: {
-          // OPTIMISÉ 2025-12-04 - Stabilité pour voix remixée
-          stability: 0.70,               // Équilibré: stable mais naturel
-          similarity_boost: 0.85,        // AUGMENTÉ: Meilleure fidélité au remix
-          style: 0.20,                   // RÉDUIT: Expressivité modérée pour éviter artifacts
-          use_speaker_boost: true        // ✅ Améliore la clarté du clone vocal
-        },
-        seed: 42,                        // Seed fixe pour génération déterministe
+        voice_settings: voiceSettings,       // Settings conditionnels par guide
+        seed: 42,                            // Seed fixe pour génération déterministe
         pronunciation_dictionary_locators: [],
-        output_format: 'mp3_44100_192'   // AMÉLIORÉ: 128kbps→192kbps (qualité maximale MP3)
+        output_format: 'mp3_44100_192'       // Qualité maximale MP3 (192kbps)
       })
     });
 
