@@ -52,6 +52,12 @@ export default async function handler(req, res) {
     // Fix pronunciation issues first
     text = fixPronunciation(text);
 
+    // Add 4-second pauses between paragraphs (double line breaks)
+    text = text.replace(/\n\n+/g, '<break time="4s"/>');
+
+    // Add 2-second pauses for single line breaks
+    text = text.replace(/\n/g, '<break time="2s"/>');
+
     // Vitesses ajustées: normale = 0.68, lente = 0.55, très lente = 0.45
     const speedMap = {
       'fast': 0.80,      // Vitesse rapide (ancienne normale)
