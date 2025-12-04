@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { getIntentionDescription } from './intentionDescriptions.js';
 import { checkRateLimit, addRateLimitHeaders } from '../lib/rateLimit.js';
 import { handleCORS } from '../lib/corsConfig.js';
+import * as Astronomy from 'astronomy-engine';
 
 /**
  * Retry wrapper with exponential backoff for Claude API calls
@@ -296,14 +297,12 @@ export default async function handler(req, res) {
       }
     }
 
-    // Lunar transit for daily personalization
-    // TEMPORARILY DISABLED: astronomy-engine causes Vercel deployment issues
-    // TODO: Fix ES6 import compatibility or use alternative lunar calculation
+    // Lunar transit for daily personalization (astronomy-engine)
     let lunarContext = '';
-    // const lunarTransit = await getCurrentLunarTransit(new Date());
-    // if (lunarTransit) {
-    //   lunarContext = `\n\nCONTEXTE LUNAIRE ACTUEL:\nLune en ${lunarTransit.moonSign} (${lunarTransit.moonElement})\nPhase: ${lunarTransit.phaseName}\n${lunarTransit.transitGuidance}\n`;
-    // }
+    const lunarTransit = getCurrentLunarTransit(new Date());
+    if (lunarTransit) {
+      lunarContext = `\n\nCONTEXTE LUNAIRE ACTUEL:\nLune en ${lunarTransit.moonSign} (${lunarTransit.moonElement})\nPhase: ${lunarTransit.phaseName}\n${lunarTransit.transitGuidance}\n`;
+    }
 
     // NOUVEAU: Get structural guidance
     const structuralGuide = getStructuralGuidance(guideType);
@@ -671,13 +670,11 @@ function getMoodPatternAdaptation(mood, frequency) {
 /**
  * Calculate current Moon position and phase using astronomy-engine
  * Returns subtle astrological influence for meditation tone
+ * Uses static import for Vercel compatibility
  */
-async function getCurrentLunarTransit(currentDateTime) {
+function getCurrentLunarTransit(currentDateTime) {
   try {
-    // Dynamic import - astronomy-engine exports functions directly (no default export)
-    const Astronomy = await import('astronomy-engine');
-
-    // Create AstroTime from current date
+    // Create AstroTime from current date (Astronomy imported at top of file)
     const now = new Astronomy.AstroTime(currentDateTime);
 
     // Get Moon phase (0 = new moon, 0.5 = full moon, 1 = new moon)
@@ -709,6 +706,8 @@ async function getCurrentLunarTransit(currentDateTime) {
     else if (phase < 0.625) phaseName = 'Pleine Lune';
     else if (phase < 0.875) phaseName = 'Dernier Croissant';
     else phaseName = 'Nouvelle Lune';
+
+    console.log(`🌙 Lunar transit calculated: ${moonSign} (${moonElement}), Phase: ${phaseName}`);
 
     return {
       moonSign,
