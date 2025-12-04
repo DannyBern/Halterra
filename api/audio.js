@@ -52,6 +52,9 @@ export default async function handler(req, res) {
     // Fix pronunciation issues first
     text = fixPronunciation(text);
 
+    // Add 2-second pauses at ellipsis (...)
+    text = text.replace(/\.\.\./g, '<break time="2s"/>');
+
     // Add 4-second pauses between paragraphs (double line breaks)
     text = text.replace(/\n\n+/g, '<break time="4s"/>');
 
