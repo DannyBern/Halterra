@@ -2,7 +2,11 @@ import Anthropic from '@anthropic-ai/sdk';
 import { getIntentionDescription } from './intentionDescriptions.js';
 import { checkRateLimit, addRateLimitHeaders } from '../lib/rateLimit.js';
 import { handleCORS } from '../lib/corsConfig.js';
-import * as Astronomy from 'astronomy-engine';
+import { createRequire } from 'module';
+
+// Use createRequire to import CommonJS module (avoids ESM issues on Vercel)
+const require = createRequire(import.meta.url);
+const Astronomy = require('astronomy-engine');
 
 /**
  * Retry wrapper with exponential backoff for Claude API calls
