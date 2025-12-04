@@ -40,7 +40,7 @@ type AppScreen =
 type GuideType = 'meditation' | 'reflection';
 
 function App() {
-  const { user: clerkUser, isLoaded, isSignedIn } = useHalterraAuth();
+  const { isLoaded } = useHalterraAuth();
   const [screen, setScreen] = useState<AppScreen>('video-intro');
   const [user, setUser] = useState<User | null>(null);
   const [selectedGuideType, setSelectedGuideType] = useState<GuideType | null>(null);
