@@ -4,10 +4,17 @@ import './index.css'
 import './mobile-override.css'
 import './components/StickyHeader.css'
 import App from './App.tsx'
+import { HalterraAuthProvider } from './services/auth/clerkProvider'
 
+/**
+ * 🌟 Halterra Premium - Main Application Entry Point
+ * Ultra-sophisticated authentication-wrapped application
+ */
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <HalterraAuthProvider>
+      <App />
+    </HalterraAuthProvider>
   </StrictMode>,
 )
 

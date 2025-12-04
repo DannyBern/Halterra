@@ -47,7 +47,9 @@
       "Bash(npm show:*)",
       "Bash(npm install:*)",
       "Bash(timeout /t 3)",
-      "Bash(Select-Object -First 6)"
+      "Bash(Select-Object -First 6)",
+      "Bash(mkdir:*)",
+      "Bash(\".env.local\" <<'EOF'\n# 🌟 Halterra Premium - Local Environment Configuration\n# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n# 🔐 AUTHENTICATION FEATURE FLAG\n# Set to 'true' to enable Clerk authentication\n# Set to 'false' for seamless development with mock auth\nVITE_AUTH_ENABLED=false\n\n# 🔑 CLERK CONFIGURATION (Required when AUTH_ENABLED=true)\n# Get these keys from: https://dashboard.clerk.com\n# VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_key_here\n\n# 📝 INSTRUCTIONS:\n# 1. Keep AUTH_ENABLED=false while developing core features\n# 2. When ready to test auth:\n#    a. Create Clerk account at https://clerk.com\n#    b. Create application \"Halterra\"\n#    c. Enable Google OAuth + Apple Sign-In\n#    d. Copy publishable key above\n#    e. Set AUTH_ENABLED=true\n# 3. App will seamlessly switch from mock to real auth!\n\n# ⚡ DEVELOPMENT NOTES:\n# - Mock auth provides: dev@halterra.app\n# - All auth flows work identically in mock mode\n# - No impact on core app development\n# - Switch to real auth anytime without code changes\nEOF)"
     ],
     "deny": [],
     "ask": []
