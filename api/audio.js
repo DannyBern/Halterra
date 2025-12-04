@@ -87,14 +87,12 @@ export default async function handler(req, res) {
     console.log('=== END TEXT ===');
 
     // Choisir la voix selon le type de guide
-    // Méditation = Voix féminine Iza (remixée pour méditation), Réflexion = Voix masculine Dann
+    // Méditation = Voix féminine Iza, Réflexion = Voix masculine Dann
     const voiceId = guideType === 'reflection'
       ? '93nuHbke4dTER9x2pDwE'  // Voix masculine Dann pour réflexion
-      : 'GiS6AIV70BEfI1ncL4Vg';  // Voix féminine Iza remixée pour méditation
+      : 'pjcYQlDFKMbcOUp6F5GD';  // Voix féminine Iza (voix pro ElevenLabs)
 
     // Voice settings optimisés par guide
-    // Iza: voix remixée → besoin de plus de stabilité, moins de style
-    // Dann: voix native → plus de liberté, plus expressif pour les questions
     const voiceSettings = guideType === 'reflection'
       ? {
           // DANN - Voix native, plus conversationnel et expressif
@@ -104,10 +102,10 @@ export default async function handler(req, res) {
           use_speaker_boost: true
         }
       : {
-          // IZA - Voix remixée, besoin de stabilité pour éviter artifacts
-          stability: 0.78,           // AUGMENTÉ pour stabilité
-          similarity_boost: 0.80,    // Légèrement réduit
-          style: 0.15,               // RÉDUIT pour moins d'artifacts
+          // IZA - Voix pro, équilibrée pour méditation
+          stability: 0.70,           // Équilibré stable/naturel
+          similarity_boost: 0.85,    // Fidélité haute
+          style: 0.20,               // Expressivité modérée
           use_speaker_boost: true
         };
 
