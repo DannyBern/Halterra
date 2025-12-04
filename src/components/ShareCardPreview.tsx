@@ -601,12 +601,12 @@ export default function ShareCardPreview({
       : `rgba(${textRgb.r}, ${textRgb.g}, ${textRgb.b}, 0.65)`;
     ctx.fillText('Méditations personnalisées par IA', width / 2, currentY + 10);
 
-    // Company name en bas
+    // Company name en bas - sans transparence
     ctx.font = `400 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
     const accentRgb = templateConfig.accentColor === 'mood'
       ? { r: moodR, g: moodG, b: moodB }
       : hexToRgb(templateConfig.accentColor);
-    ctx.fillStyle = `rgba(${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b}, 0.5)`;
+    ctx.fillStyle = `rgb(${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b})`;
     ctx.fillText('Acolyte Solutions Inc', width / 2, height - 50);
 
     // === EXPORT ===
