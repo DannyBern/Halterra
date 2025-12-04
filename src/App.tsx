@@ -1,4 +1,6 @@
 import { useState, useEffect, lazy, Suspense, useCallback } from 'react';
+import { SignIn, SignedIn, SignedOut } from '@clerk/clerk-react';
+import { useHalterraAuth } from './services/auth';
 import VideoIntro from './components/VideoIntro';
 import DateDisplay from './components/DateDisplay';
 import GuideSelector from './components/GuideSelector';
@@ -38,6 +40,7 @@ type AppScreen =
 type GuideType = 'meditation' | 'reflection';
 
 function App() {
+  const { user: clerkUser, isLoaded, isSignedIn } = useHalterraAuth();
   const [screen, setScreen] = useState<AppScreen>('video-intro');
   const [user, setUser] = useState<User | null>(null);
   const [selectedGuideType, setSelectedGuideType] = useState<GuideType | null>(null);
@@ -229,9 +232,29 @@ function App() {
   // Désactiver pull-to-refresh pendant la méditation et la lecture de session
   const disablePullToRefresh = screen === 'meditation' || screen === 'session-view' || screen === 'video-intro';
 
+  // Show loading while Clerk is initializing
+  if (!isLoaded) {
+    return (
+      <div className="app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <LoadingFallback />
+      </div>
+    );
+  }
+
   return (
-    <PullToRefresh disabled={disablePullToRefresh}>
-    <div className="app">
+    <>
+      <SignedOut>
+        <div className="app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px' }}>
+          <SignIn
+            routing="hash"
+            signUpUrl="#/sign-up"
+          />
+        </div>
+      </SignedOut>
+
+      <SignedIn>
+        <PullToRefresh disabled={disablePullToRefresh}>
+        <div className="app">
       {/* Musique de fond - fade out pendant la méditation */}
       <BackgroundMusic
         shouldFadeOut={screen === 'meditation' || screen === 'session-view'}
@@ -385,6 +408,8 @@ function App() {
       )}
     </div>
     </PullToRefresh>
+      </SignedIn>
+    </>
   );
 }
 
