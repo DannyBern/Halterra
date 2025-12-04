@@ -357,6 +357,12 @@ export default function ShareCardPreview({
     const meditationText = session.meditationText || '';
     let paragraphs = parseMeditationText(meditationText);
 
+    // === LIMITER À 3 PARAGRAPHES MAX POUR GARDER UN FORMAT PROPRE ===
+    const isTruncated = paragraphs.length > 3;
+    if (isTruncated) {
+      paragraphs = paragraphs.slice(0, 3);
+    }
+
     // === MESURER LA HAUTEUR NÉCESSAIRE ===
     ctx.font = `400 ${fontSize}px Georgia, 'Times New Roman', serif`;
     let totalTextHeight = measureTotalTextHeight(
@@ -374,24 +380,12 @@ export default function ShareCardPreview({
 
     if (formatConfig.height === 'dynamic') {
       // Format carré: hauteur dynamique selon le contenu
-      height = Math.max(1400, headerHeight + totalTextHeight + footerHeight + 180);
+      // Ajouter de l'espace pour la note de continuation si texte tronqué
+      const extraSpace = isTruncated ? 100 : 0;
+      height = Math.max(1400, headerHeight + totalTextHeight + footerHeight + 180 + extraSpace);
     } else {
       // Format story: hauteur fixe 1920px
       height = formatConfig.height;
-
-      // Pour le format story, on doit peut-être tronquer le texte si trop long
-      const maxTextHeight = height - headerHeight - footerHeight - 180;
-      if (totalTextHeight > maxTextHeight) {
-        // Tronquer le texte pour qu'il rentre dans la story
-        const maxParagraphs = Math.max(3, Math.floor(paragraphs.length * (maxTextHeight / totalTextHeight)));
-        paragraphs = paragraphs.slice(0, maxParagraphs);
-        // Ajouter une ellipse au dernier paragraphe
-        if (paragraphs.length > 0) {
-          paragraphs[paragraphs.length - 1] = paragraphs[paragraphs.length - 1].replace(/[.!?]?\s*$/, '...');
-        }
-        // Recalculer
-        totalTextHeight = measureTotalTextHeight(ctx, paragraphs, contentWidth, lineHeight, paragraphSpacing);
-      }
     }
 
     canvas.width = width;
@@ -551,6 +545,29 @@ export default function ShareCardPreview({
       lineHeight,
       paragraphSpacing
     );
+
+    // === NOTE DE CONTINUATION (si texte tronqué) ===
+    if (isTruncated) {
+      currentY += 70;
+
+      // Petite icône audio (note de musique)
+      ctx.font = '28px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('🎧', width / 2, currentY);
+      currentY += 45;
+
+      // Message marketing
+      ctx.font = `italic 500 ${isStoryFormat ? 24 : 26}px Georgia, 'Times New Roman', serif`;
+      ctx.fillStyle = accentColor;
+      ctx.textAlign = 'center';
+
+      const continueText = 'Écoute la méditation complète avec narration vocale';
+      ctx.fillText(continueText, width / 2, currentY);
+      currentY += isStoryFormat ? 36 : 38;
+
+      ctx.fillText('personnalisée dans l\'app Halterra', width / 2, currentY);
+      currentY += 20;
+    }
 
     // === FOOTER MINIMALISTE ===
     currentY += 100;
