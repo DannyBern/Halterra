@@ -1,6 +1,6 @@
 .app {
   min-height: 100vh;
-  min-height: 100dvh; /* Dynamic viewport height for mobile */
+  /* Removed 100dvh - it prevents scrolling beyond viewport on mobile */
   position: relative;
   background: transparent;
 }
