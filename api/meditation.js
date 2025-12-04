@@ -296,13 +296,12 @@ export default async function handler(req, res) {
       }
     }
 
-    // TEMPORARILY DISABLED: Lunar transit causing deployment issues
-    // TODO: Fix astronomy-engine ES6 import compatibility
+    // Lunar transit for daily personalization
     let lunarContext = '';
-    // const lunarTransit = await getCurrentLunarTransit(new Date());
-    // if (lunarTransit) {
-    //   lunarContext = `\n\nCONTEXTE LUNAIRE ACTUEL:\nLune en ${lunarTransit.moonSign} (${lunarTransit.moonElement})\nPhase: ${lunarTransit.phaseName}\n${lunarTransit.transitGuidance}\n`;
-    // }
+    const lunarTransit = await getCurrentLunarTransit(new Date());
+    if (lunarTransit) {
+      lunarContext = `\n\nCONTEXTE LUNAIRE ACTUEL:\nLune en ${lunarTransit.moonSign} (${lunarTransit.moonElement})\nPhase: ${lunarTransit.phaseName}\n${lunarTransit.transitGuidance}\n`;
+    }
 
     // NOUVEAU: Get structural guidance
     const structuralGuide = getStructuralGuidance(guideType);
@@ -673,8 +672,8 @@ function getMoodPatternAdaptation(mood, frequency) {
  */
 async function getCurrentLunarTransit(currentDateTime) {
   try {
-    // Dynamic import for CommonJS module compatibility
-    const Astronomy = (await import('astronomy-engine')).default;
+    // Dynamic import - astronomy-engine exports functions directly (no default export)
+    const Astronomy = await import('astronomy-engine');
 
     // Create AstroTime from current date
     const now = new Astronomy.AstroTime(currentDateTime);

@@ -1,5 +1,5 @@
 import type { AstrologicalProfile } from '../types';
-import { calculateAstrologicalProfile as calcAstro, formatProfileForMeditation } from './astrologicalProfile';
+import { calculateAstrologicalProfile as calcAstro } from './astrologicalProfile';
 
 interface BirthData {
   date: string; // YYYY-MM-DD
@@ -33,26 +33,4 @@ export async function calculateHumanDesign(birthData: BirthData): Promise<Astrol
     signature: profile.signature,
     description: profile.description
   };
-}
-
-/**
- * Get a description of the Astrological Profile for meditation personalization
- */
-export function getHumanDesignDescription(profile: AstrologicalProfile): string {
-  return profile.description;
-}
-
-/**
- * Format Astrological Profile data for AI meditation prompts
- */
-export function formatHumanDesignForPrompt(profile: AstrologicalProfile): string {
-  return formatProfileForMeditation(profile);
-}
-
-/**
- * Get a signature phrase for the user based on their Astrological Profile
- * Simple, powerful, and deeply personal - Steve Jobs style
- */
-export function getHumanDesignSignature(profile: AstrologicalProfile): string {
-  return profile.signature;
 }

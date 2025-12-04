@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Mood, AstrologicalProfile } from '../types';
-import { generateMeditation, generateMeditationStreaming, generateAudio as generateAudioAPI, fetchLoadingQuote as fetchQuoteAPI } from '../services/api';
+import { generateMeditation, generateAudio as generateAudioAPI, fetchLoadingQuote as fetchQuoteAPI } from '../services/api';
 import { storage } from '../utils/storage';
 import { FALLBACK_LOADING_QUOTE } from '../constants/fallbackQuotes';
 import MoodIcon from './MoodIcon';
@@ -70,9 +70,6 @@ export default function Meditation({
   const [showSharePrompt, setShowSharePrompt] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [savedSessionId, setSavedSessionId] = useState<string | null>(null);
-  // TEMPORARILY DISABLED: Streaming causes issues on mobile browsers
-  // Force non-streaming mode for all devices until SSE issues are resolved
-  const [useStreaming] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioTextRef = useRef<string>(''); // Store audioText for later audio generation
 
@@ -117,62 +114,6 @@ export default function Meditation({
         // Continue without session history - don't block meditation generation
       }
 
-      // 🌊 STREAMING MODE - Progressive rendering with instant feedback
-      if (useStreaming) {
-        setStatus('generating-text');
-
-        await generateMeditationStreaming(
-          userName,
-          mood,
-          category,
-          intention,
-          guideType,
-          duration,
-          astrologicalProfile,
-          last10Sessions,
-          // onChunk: Accumulate but don't display (contains JSON)
-          () => {
-            // Chunks contain raw JSON - we'll parse and display on complete
-            // Just show loading for now
-          },
-          // onComplete: Display text immediately, generate audio in background
-          async (result) => {
-            // ✅ Display the clean text immediately
-            setMeditationText(result.displayText);
-            setDailyInspiration(result.dailyInspiration);
-            audioTextRef.current = result.audioText;
-
-            console.log('✅ Streaming completed');
-            console.log(`📝 Display text: ${result.displayText.length} chars`);
-            console.log(`🎙️ Audio text: ${result.audioText.length} chars`);
-
-            // Skip audio generation if user chose text-only
-            if (!generateAudio) {
-              setStatus('ready');
-              return;
-            }
-
-            // 🎵 Generate audio IN BACKGROUND without hiding the text
-            setStatus('generating-audio');
-
-            try {
-              const audioDataUrl = await generateAudioAPI(result.audioText, guideType);
-              setAudioBase64(audioDataUrl);
-              setAudioUrl(audioDataUrl);
-              setStatus('ready');
-            } catch (audioError) {
-              console.error('Erreur audio:', audioError);
-              // Audio error shouldn't block the experience - text is already ready
-              console.warn('Audio generation failed, but text is available');
-              setStatus('ready');
-            }
-          }
-        );
-
-        return;
-      }
-
-      // 📦 FALLBACK MODE - Traditional non-streaming (for compatibility)
       setStatus('generating-text');
       console.log('📡 Calling generateMeditation API...');
       console.log('   userName:', userName);

@@ -80,32 +80,3 @@ export async function mockTrackShare(platform: string, sessionId: string): Promi
   // Simuler un petit délai
   await new Promise((resolve) => setTimeout(resolve, 200));
 }
-
-/**
- * Statistiques mock pour debug
- */
-export const mockStats = {
-  imageGenerations: 0,
-  linkCreations: 0,
-  sharesTracked: 0,
-
-  increment(type: 'image' | 'link' | 'track') {
-    if (type === 'image') this.imageGenerations++;
-    if (type === 'link') this.linkCreations++;
-    if (type === 'track') this.sharesTracked++;
-  },
-
-  reset() {
-    this.imageGenerations = 0;
-    this.linkCreations = 0;
-    this.sharesTracked = 0;
-  },
-
-  print() {
-    console.table({
-      'Images générées': this.imageGenerations,
-      'Liens créés': this.linkCreations,
-      'Partages trackés': this.sharesTracked,
-    });
-  },
-};
