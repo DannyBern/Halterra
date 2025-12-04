@@ -173,8 +173,6 @@ export function HalterraAuthProvider({ children }: { children: ReactNode }) {
       }}
       afterSignInUrl="/"
       afterSignUpUrl="/"
-      signInUrl="/sign-in"
-      signUpUrl="/sign-up"
     >
       <ClerkAuthBridge>{children}</ClerkAuthBridge>
     </ClerkProvider>
