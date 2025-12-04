@@ -107,22 +107,23 @@ Le système de partage permet de partager les méditations sur différentes plat
 - Noms lisibles avec shadow sur tous les fonds
 
 ## Configuration Narration Audio
-- **Voix principale (méditation)**: Iza - Voice ID `xsNzdCmWJpYoa80FaXJi` (voix personnalisée)
+- **Voix principale (méditation)**: Iza - Voice ID `xsNzdCmWJpYoa80FaXJi` (voix personnalisée québécoise)
 - **Voix secondaire (réflexion)**: Dann - Voice ID `93nuHbke4dTER9x2pDwE`
 - **Qualité audio**: MP3 44.1kHz 192kbps (qualité maximale)
 - **Modèle TTS**: ElevenLabs Multilingual V2
-- **Settings optimisés (voix Iza)**:
-  - Stability: 0.70 (équilibré stable/naturel)
-  - Similarity Boost: 0.85 (fidélité haute)
-  - Style: 0.20 (expressivité modérée)
-  - Speaker Boost: enabled (clarté vocale)
-- **SSML simplifié**: Prosody rate uniquement, pas de break/phoneme tags (prévient artifacts)
+- **Settings optimisés (voix Iza - stabilité accent)**:
+  - Stability: 0.85 (HAUTE - consistance accent québécois)
+  - Similarity Boost: 0.90 (HAUTE - fidélité à la voix originale)
+  - Style: 0.0 (ZÉRO - recommandé ElevenLabs pour stabilité)
+  - Speed: 0.75 (LENT - méditation posée, min ElevenLabs = 0.7)
+  - Speaker Boost: enabled
+- **PAS de SSML**: Utilise le paramètre `speed` natif d'ElevenLabs (plus stable que prosody)
 - **Pauses naturelles**: Ponctuation native (". " pour paragraphes, ", " pour lignes)
 
 ## Dernière mise à jour
 - **Date**: 2025-12-04
-- **Session**: Restauration voix Iza originale + activation lunar transit
+- **Session**: Optimisation stabilité accent Iza + lunar transit
 - **Changements**:
-  - **Voice ID Iza**: Restauré voix personnalisée (`xsNzdCmWJpYoa80FaXJi`)
+  - **Stabilité accent**: Paramètres optimisés selon doc ElevenLabs (stability 0.85, style 0, speed 0.75)
+  - **Suppression SSML**: Remplacé par paramètre `speed` natif (plus stable pour accents)
   - **Lunar transit**: Activé avec astronomy-engine (calcul position lune + phase)
-  - **Import fix**: Utilisation createRequire pour compatibilité Vercel serverless
