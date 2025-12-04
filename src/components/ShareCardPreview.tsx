@@ -499,8 +499,9 @@ export default function ShareCardPreview({
     // Intention entre guillemets (si présente)
     if (session.intention && session.intention.trim().length > 0) {
       ctx.font = `italic ${headerWeight} 30px Georgia, 'Times New Roman', serif`;
-      // Toujours utiliser du blanc pour l'intention
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      // Utiliser la couleur du texte principal pour contraste optimal
+      const intentionRgb = hexToRgb(templateConfig.textColor);
+      ctx.fillStyle = `rgba(${intentionRgb.r}, ${intentionRgb.g}, ${intentionRgb.b}, 0.95)`;
 
       const intentionText = `« ${session.intention.trim()} »`;
       currentY = drawCenteredWrappedText(
@@ -556,9 +557,10 @@ export default function ShareCardPreview({
       ctx.fillText('🎧', width / 2, currentY);
       currentY += 45;
 
-      // Message marketing
-      ctx.font = `italic 500 ${isStoryFormat ? 24 : 26}px Georgia, 'Times New Roman', serif`;
-      ctx.fillStyle = accentColor;
+      // Message marketing - utiliser la couleur du texte pour visibilité maximale
+      ctx.font = `italic 600 ${isStoryFormat ? 24 : 26}px Georgia, 'Times New Roman', serif`;
+      const continueRgb = hexToRgb(templateConfig.textColor);
+      ctx.fillStyle = `rgba(${continueRgb.r}, ${continueRgb.g}, ${continueRgb.b}, ${templateConfig.isDark ? 0.85 : 0.9})`;
       ctx.textAlign = 'center';
 
       const continueText = 'Écoute la méditation complète avec narration vocale';
@@ -583,20 +585,20 @@ export default function ShareCardPreview({
     ctx.stroke();
     currentY += 50;
 
-    // Logo Halterra Lite - élégant
-    ctx.font = `200 38px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    // Logo Halterra Lite - plus présent
+    ctx.font = `300 42px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
     ctx.fillStyle = templateConfig.isDark
-      ? 'rgba(255, 255, 255, 0.85)'
-      : `rgba(${textRgb.r}, ${textRgb.g}, ${textRgb.b}, 0.85)`;
+      ? 'rgba(255, 255, 255, 0.9)'
+      : `rgba(${textRgb.r}, ${textRgb.g}, ${textRgb.b}, 0.95)`;
     ctx.textAlign = 'center';
     ctx.fillText('HALTERRA LITE', width / 2, currentY + 25);
     currentY += 50;
 
-    // Tagline subtile
-    ctx.font = `300 18px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    // Tagline plus visible
+    ctx.font = `400 19px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
     ctx.fillStyle = templateConfig.isDark
-      ? 'rgba(255, 255, 255, 0.3)'
-      : `rgba(${textRgb.r}, ${textRgb.g}, ${textRgb.b}, 0.4)`;
+      ? 'rgba(255, 255, 255, 0.5)'
+      : `rgba(${textRgb.r}, ${textRgb.g}, ${textRgb.b}, 0.65)`;
     ctx.fillText('Méditations personnalisées par IA', width / 2, currentY + 10);
 
     // Company name en bas
