@@ -96,8 +96,10 @@ Le système de partage permet de partager les méditations sur différentes plat
 - Typographie Georgia avec présence forte (34px, weight 500-600)
 - En-tête harmonisé avec le texte principal (même poids de police)
 - Paragraphes bien espacés (90px) préservant la structure originale
-- Logo HALTERRA LITE minimaliste en footer
+- Logo HALTERRA LITE minimaliste en footer (42px, weight 300, opacité 0.95)
 - Hauteur dynamique selon la longueur du texte
+- **Limitation intelligente**: Max 3 paragraphes avec note "Écoute la méditation complète avec narration vocale" pour inciter au téléchargement
+- Adaptation automatique des couleurs: texte noir sur fonds clairs, blanc sur fonds sombres
 
 ### Sélecteur de templates
 - 5 boutons miniatures avec aperçu du fond
@@ -106,10 +108,10 @@ Le système de partage permet de partager les méditations sur différentes plat
 
 ## Dernière mise à jour
 - **Date**: 2025-12-03
-- **Session**: Templates visuels + icônes de catégorie pour cartes de partage
+- **Session**: Optimisations cartes de partage + fix scroll History
 - **Changements**:
-  - Ajout de 5 templates visuels (dark, turquoise, midnight, peach, cloud)
-  - Sélecteur de templates dans ShareModal avec aperçus
-  - Icône de catégorie d'intention remplace l'emoji du mood
-  - Typographie renforcée pour en-tête et texte (présence accrue)
-  - Ajustements mobile pour modal (padding iOS 85px)
+  - **Cartes de partage**: Limitation à 3 paragraphes max avec note marketing pour l'audio
+  - **Visibilité**: Texte intention et footer adaptés aux templates clairs (noir) et sombres (blanc)
+  - **UX History**: Bouton musique caché sur page History pour éviter chevauchement avec boutons delete/share
+  - **Fix scroll critique**: Correction `height: 100vh` → `min-height: 100vh` dans index.html pour permettre scroll complet
+  - **Footer**: Logo HALTERRA LITE plus présent (42px, 0.95 opacité), Acolyte Solutions Inc sans transparence
