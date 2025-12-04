@@ -62,10 +62,10 @@ export default async function handler(req, res) {
     console.log('=== END TEXT ===');
 
     // Choisir la voix selon le type de guide
-    // Méditation = Voix féminine Iza, Réflexion = Voix masculine Dann
+    // Méditation = Voix féminine Iza (remixée pour méditation), Réflexion = Voix masculine Dann
     const voiceId = guideType === 'reflection'
       ? '93nuHbke4dTER9x2pDwE'  // Voix masculine Dann pour réflexion
-      : 'xsNzdCmWJpYoa80FaXJi';  // Voix féminine Iza pour méditation (clone conversation)
+      : 'GiS6AIV70BEfI1ncL4Vg';  // Voix féminine Iza remixée pour méditation
 
     // ElevenLabs API - avec SSML pour forcer rythme méditatif
     // Format mp3_44100_192 = meilleure qualité MP3 disponible (192kbps vs 128kbps)

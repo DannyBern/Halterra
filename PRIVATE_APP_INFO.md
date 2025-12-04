@@ -9,7 +9,7 @@ Cette application est configurée avec **vos clés API privées** intégrées di
 Les clés suivantes sont intégrées dans l'application déployée :
 - ✅ Anthropic API Key (Claude Sonnet 4.5)
 - ✅ ElevenLabs API Key
-- ✅ Voice ID personnalisé : `xsNzdCmWJpYoa80FaXJi`
+- ✅ Voice ID personnalisé : `GiS6AIV70BEfI1ncL4Vg` (Iza - voix remixée pour méditation)
 
 ### 🌐 Accès à l'Application
 
