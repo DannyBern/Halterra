@@ -265,8 +265,8 @@ export async function generateAudio(
 }
 
 /**
- * Daily Insight Cache
- * Stores the generated insight for the current day to avoid regeneration
+ * Daily Insight Cache - Persisted in localStorage
+ * Generates insight once per day, then reuses from cache
  */
 interface CachedInsight {
   insight: string;
@@ -274,7 +274,33 @@ interface CachedInsight {
   date: string; // YYYY-MM-DD format
 }
 
-let insightCache: CachedInsight | null = null;
+const INSIGHT_CACHE_KEY = 'halterra_daily_insight';
+
+/**
+ * Load cached insight from localStorage
+ */
+function loadCachedInsight(): CachedInsight | null {
+  try {
+    const cached = localStorage.getItem(INSIGHT_CACHE_KEY);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (e) {
+    console.warn('Failed to load insight cache:', e);
+  }
+  return null;
+}
+
+/**
+ * Save insight to localStorage
+ */
+function saveCachedInsight(cache: CachedInsight): void {
+  try {
+    localStorage.setItem(INSIGHT_CACHE_KEY, JSON.stringify(cache));
+  } catch (e) {
+    console.warn('Failed to save insight cache:', e);
+  }
+}
 
 /**
  * Generates a personalized daily insight using AI
@@ -283,7 +309,7 @@ let insightCache: CachedInsight | null = null;
  * - Concrete and actionable (not vague or poetic)
  * - Based on personality profile + current cosmic factors
  * - Written in plain, direct language
- * - Cached for the entire day
+ * - Generated ONCE per day, then cached in localStorage
  *
  * @param profile - User's astrological profile
  * @returns Promise with insight text and label
@@ -293,13 +319,14 @@ export async function generateDailyInsightAI(
 ): Promise<{ insight: string; label: string }> {
   const today = new Date().toISOString().split('T')[0];
 
-  // Return cached insight if same day
-  if (insightCache && insightCache.date === today) {
-    console.log('🔄 Daily insight cache HIT');
-    return { insight: insightCache.insight, label: insightCache.label };
+  // Check localStorage cache first (persists across app restarts)
+  const cached = loadCachedInsight();
+  if (cached && cached.date === today) {
+    console.log('🔄 Daily insight cache HIT (localStorage) - no API call');
+    return { insight: cached.insight, label: cached.label };
   }
 
-  console.log('🆕 Generating new daily insight...');
+  console.log('🆕 Generating new daily insight (first time today)...');
 
   try {
     const response = await fetch(`${BACKEND_URL}/api/daily-insight`, {
@@ -326,12 +353,12 @@ export async function generateDailyInsightAI(
 
     const data = await response.json();
 
-    // Cache the result
-    insightCache = {
+    // Cache to localStorage (persists across app restarts)
+    saveCachedInsight({
       insight: data.insight,
       label: data.label,
       date: today
-    };
+    });
 
     return { insight: data.insight, label: data.label };
   } catch (error) {
@@ -348,7 +375,11 @@ export async function generateDailyInsightAI(
  * Clears the daily insight cache (useful for testing)
  */
 export function clearDailyInsightCache(): void {
-  insightCache = null;
+  try {
+    localStorage.removeItem(INSIGHT_CACHE_KEY);
+  } catch (e) {
+    console.warn('Failed to clear insight cache:', e);
+  }
 }
 
 export async function fetchLoadingQuote(): Promise<{ quote: string; author: string }> {
