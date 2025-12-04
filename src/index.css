@@ -140,6 +140,7 @@ body {
   overscroll-behavior-y: none;
   position: relative;
   overflow-x: hidden;
+  overflow-y: auto; /* Explicit vertical scroll */
 }
 
 /* Les pseudo-éléments du body sont désactivés car FixedBackground gère le fond */
