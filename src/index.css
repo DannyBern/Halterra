@@ -174,7 +174,8 @@ body::after {
 */
 
 html {
-  height: -webkit-fill-available;
+  /* Removed height: -webkit-fill-available to allow scrolling beyond viewport */
+  min-height: -webkit-fill-available;
 }
 
 h1, h2, h3, h4, h5, h6 {
