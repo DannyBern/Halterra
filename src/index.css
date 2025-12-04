@@ -130,7 +130,7 @@ body {
   color: var(--color-text-primary);
   background: transparent; /* Transparent pour laisser voir le FixedBackground */
   min-height: 100vh;
-  min-height: -webkit-fill-available;
+  /* Removed min-height: -webkit-fill-available to allow content to grow beyond viewport */
   line-height: 1.6;
   font-size: var(--font-size-base);
   -webkit-font-smoothing: antialiased;
