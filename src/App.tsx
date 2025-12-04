@@ -239,7 +239,7 @@ function App() {
       />
 
       {/* Bouton mute/unmute sophistiqué */}
-      {screen !== 'video-intro' && (
+      {screen !== 'video-intro' && screen !== 'history' && (
         <button
           className="music-toggle-button"
           onClick={() => setIsMusicMuted(!isMusicMuted)}
