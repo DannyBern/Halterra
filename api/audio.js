@@ -27,11 +27,31 @@ export default async function handler(req, res) {
   console.log(`✅ Rate limit check passed - Remaining: ${rateLimit.remaining}/${15}`);
 
   /**
+   * Fix pronunciation issues in French text
+   * Corrects common mispronunciations by the TTS voice
+   */
+  function fixPronunciation(text) {
+    // Fix "sens" - don't pronounce the final 's'
+    // Use phoneme substitution: replace with "sen" phonetically
+    text = text.replace(/\bsens\b/gi, (match) => {
+      // Preserve original case
+      if (match === 'SENS') return '<phoneme alphabet="ipa" ph="sɑ̃">sens</phoneme>';
+      if (match === 'Sens') return '<phoneme alphabet="ipa" ph="sɑ̃">Sens</phoneme>';
+      return '<phoneme alphabet="ipa" ph="sɑ̃">sens</phoneme>';
+    });
+
+    return text;
+  }
+
+  /**
    * Convert text to SSML for meditation - forces slow, calm delivery
    * Clone was created with normal conversation, so we force meditation pacing
    * Vitesse normale: 0.68 (15% plus lent que 0.80 précédent)
    */
   function convertToMeditationSSML(text, speed = 'normal') {
+    // Fix pronunciation issues first
+    text = fixPronunciation(text);
+
     // Vitesses ajustées: normale = 0.68, lente = 0.55, très lente = 0.45
     const speedMap = {
       'fast': 0.80,      // Vitesse rapide (ancienne normale)
