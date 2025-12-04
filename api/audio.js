@@ -27,49 +27,27 @@ export default async function handler(req, res) {
   console.log(`✅ Rate limit check passed - Remaining: ${rateLimit.remaining}/${15}`);
 
   /**
-   * Fix pronunciation issues in French text
-   * Corrects common mispronunciations by the TTS voice
-   */
-  function fixPronunciation(text) {
-    // Fix "sens" - don't pronounce the final 's'
-    // Use phoneme substitution: replace with "sen" phonetically
-    text = text.replace(/\bsens\b/gi, (match) => {
-      // Preserve original case
-      if (match === 'SENS') return '<phoneme alphabet="ipa" ph="sɑ̃">sens</phoneme>';
-      if (match === 'Sens') return '<phoneme alphabet="ipa" ph="sɑ̃">Sens</phoneme>';
-      return '<phoneme alphabet="ipa" ph="sɑ̃">sens</phoneme>';
-    });
-
-    return text;
-  }
-
-  /**
-   * Convert text to SSML for meditation - forces slow, calm delivery
-   * Clone was created with normal conversation, so we force meditation pacing
-   * Vitesse normale: 0.68 (15% plus lent que 0.80 précédent)
+   * Convert text to SSML for meditation - SIMPLIFIED VERSION
+   * Uses only essential SSML to avoid conflicts with remixed voice
    */
   function convertToMeditationSSML(text, speed = 'normal') {
-    // Fix pronunciation issues first
-    text = fixPronunciation(text);
+    // Simple text replacements without complex SSML nesting
+    // Add pauses for meditation pacing
+    text = text.replace(/\.\.\./g, '... '); // Keep ellipsis natural
+    text = text.replace(/\n\n+/g, '. '); // Paragraph breaks become natural pauses
+    text = text.replace(/\n/g, ', '); // Line breaks become slight pauses
 
-    // Add 2-second pauses at ellipsis (...)
-    text = text.replace(/\.\.\./g, '<break time="2s"/>');
-
-    // Add 4-second pauses between paragraphs (double line breaks)
-    text = text.replace(/\n\n+/g, '<break time="4s"/>');
-
-    // Add 2-second pauses for single line breaks
-    text = text.replace(/\n/g, '<break time="2s"/>');
-
-    // Vitesses ajustées: normale = 0.68, lente = 0.55, très lente = 0.45
+    // Vitesses ajustées: normale = 0.68
     const speedMap = {
-      'fast': 0.80,      // Vitesse rapide (ancienne normale)
-      'normal': 0.68,    // Vitesse normale (-15% vs ancienne)
-      'slow': 0.55,      // Vitesse lente
-      'very-slow': 0.45  // Très lent pour méditations profondes
+      'fast': 0.80,
+      'normal': 0.68,
+      'slow': 0.55,
+      'very-slow': 0.45
     };
     const rate = speedMap[speed] || 0.68;
-    return `<speak><prosody rate="${rate}" pitch="-4%">${text}</prosody></speak>`;
+
+    // Simple SSML - just rate control, no pitch adjustment for remixed voice
+    return `<speak><prosody rate="${rate}">${text}</prosody></speak>`;
   }
 
   try {
@@ -110,10 +88,10 @@ export default async function handler(req, res) {
         model_id: 'eleven_multilingual_v2',  // ✅ OPTIMAL - Meilleur modèle pour méditations
         language_code: 'fr',                 // Force la langue française
         voice_settings: {
-          // OPTIMISÉ 2025-12-04 - Voix plus dynamique et humaine pour voix remixée
-          stability: 0.60,               // RÉDUIT: 0.75→0.60 Plus de variations naturelles
-          similarity_boost: 0.80,        // Maintenu: Excellente fidélité au clone
-          style: 0.35,                   // AUGMENTÉ: 0→0.35 Expressivité humaine ajoutée
+          // OPTIMISÉ 2025-12-04 - Stabilité pour voix remixée
+          stability: 0.70,               // Équilibré: stable mais naturel
+          similarity_boost: 0.85,        // AUGMENTÉ: Meilleure fidélité au remix
+          style: 0.20,                   // RÉDUIT: Expressivité modérée pour éviter artifacts
           use_speaker_boost: true        // ✅ Améliore la clarté du clone vocal
         },
         seed: 42,                        // Seed fixe pour génération déterministe
