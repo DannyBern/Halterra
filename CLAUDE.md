@@ -106,12 +106,25 @@ Le système de partage permet de partager les méditations sur différentes plat
 - Grid responsive (5 colonnes sur mobile)
 - Noms lisibles avec shadow sur tous les fonds
 
+## Configuration Narration Audio
+- **Voix principale (méditation)**: Iza - Voice ID `GiS6AIV70BEfI1ncL4Vg` (remix optimisé méditation)
+- **Voix secondaire (réflexion)**: Dann - Voice ID `93nuHbke4dTER9x2pDwE`
+- **Qualité audio**: MP3 44.1kHz 192kbps (qualité maximale)
+- **Modèle TTS**: ElevenLabs Multilingual V2
+- **Settings optimisés (voix Iza remixée)**:
+  - Stability: 0.70 (équilibré stable/naturel)
+  - Similarity Boost: 0.85 (fidélité au remix)
+  - Style: 0.20 (expressivité modérée, évite artifacts)
+  - Speaker Boost: enabled (clarté vocale)
+- **SSML simplifié**: Prosody rate uniquement, pas de break/phoneme tags (prévient artifacts)
+- **Pauses naturelles**: Ponctuation native (". " pour paragraphes, ", " pour lignes)
+
 ## Dernière mise à jour
-- **Date**: 2025-12-03
-- **Session**: Optimisations cartes de partage + fix scroll History
+- **Date**: 2025-12-04
+- **Session**: Optimisation voix narration + fix artifacts audio
 - **Changements**:
-  - **Cartes de partage**: Limitation à 3 paragraphes max avec note marketing pour l'audio
-  - **Visibilité**: Texte intention et footer adaptés aux templates clairs (noir) et sombres (blanc)
-  - **UX History**: Bouton musique caché sur page History pour éviter chevauchement avec boutons delete/share
-  - **Fix scroll critique**: Correction `height: 100vh` → `min-height: 100vh` dans index.html pour permettre scroll complet
-  - **Footer**: Logo HALTERRA LITE plus présent (42px, 0.95 opacité), Acolyte Solutions Inc sans transparence
+  - **Voice ID**: Migration vers voix Iza remixée (`GiS6AIV70BEfI1ncL4Vg`) optimisée pour méditation
+  - **Prompt structure**: Réorganisé pour prioriser intention → émotion → astrologie → temporel
+  - **Audio quality**: Fix artifacts critiques en simplifiant SSML (suppression `<phoneme>` et `<break>` tags)
+  - **Voice settings**: Ajustés pour stability 0.70, similarity_boost 0.85, style 0.20
+  - **Pauses**: Remplacé SSML breaks par ponctuation naturelle pour éviter sons étranges
