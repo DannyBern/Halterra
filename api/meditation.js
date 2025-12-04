@@ -307,18 +307,15 @@ export default async function handler(req, res) {
     // NOUVEAU: Get structural guidance
     const structuralGuide = getStructuralGuidance(guideType);
 
-    const prompt = `CONTEXTE TEMPOREL:
-📅 Date: ${currentDate}
-⏰ Heure: ${currentTime}
-🌅 Moment: ${timeOfDay}
-
-ÉTAT ÉMOTIONNEL:
-${userName} se trouve dans un état "${mood.name}" (${mood.description}).
-
-INTENTION:
+    const prompt = `🎯 INTENTION PRINCIPALE:
 ${userName} a choisi la catégorie "${category}" avec l'intention: "${intention}".
 
-${astrologicalSection}${lunarContext}${moodPatternContext}
+💭 ÉTAT ÉMOTIONNEL ACTUEL:
+${userName} se trouve dans un état "${mood.name}" (${mood.description}).
+${astrologicalSection}${moodPatternContext}
+CONTEXTE TEMPOREL:
+📅 ${currentDate} | ⏰ ${currentTime} | 🌅 ${timeOfDay}
+${lunarContext}
 INSPIRATION SUBTILE (ne jamais citer explicitement):
 ${dailyInspiration}
 
