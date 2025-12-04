@@ -297,11 +297,13 @@ export default async function handler(req, res) {
     }
 
     // Lunar transit for daily personalization
+    // TEMPORARILY DISABLED: astronomy-engine causes Vercel deployment issues
+    // TODO: Fix ES6 import compatibility or use alternative lunar calculation
     let lunarContext = '';
-    const lunarTransit = await getCurrentLunarTransit(new Date());
-    if (lunarTransit) {
-      lunarContext = `\n\nCONTEXTE LUNAIRE ACTUEL:\nLune en ${lunarTransit.moonSign} (${lunarTransit.moonElement})\nPhase: ${lunarTransit.phaseName}\n${lunarTransit.transitGuidance}\n`;
-    }
+    // const lunarTransit = await getCurrentLunarTransit(new Date());
+    // if (lunarTransit) {
+    //   lunarContext = `\n\nCONTEXTE LUNAIRE ACTUEL:\nLune en ${lunarTransit.moonSign} (${lunarTransit.moonElement})\nPhase: ${lunarTransit.phaseName}\n${lunarTransit.transitGuidance}\n`;
+    // }
 
     // NOUVEAU: Get structural guidance
     const structuralGuide = getStructuralGuidance(guideType);
