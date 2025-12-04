@@ -244,10 +244,14 @@ function App() {
   return (
     <>
       <SignedOut>
-        <div className="app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px' }}>
+        <div className="app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
           <SignIn
-            routing="hash"
-            signUpUrl="#/sign-up"
+            appearance={{
+              elements: {
+                rootBox: "mx-auto",
+                card: "shadow-2xl"
+              }
+            }}
           />
         </div>
       </SignedOut>
