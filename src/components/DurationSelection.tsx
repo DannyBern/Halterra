@@ -8,7 +8,7 @@ import './DurationSelection.css';
 interface DurationSelectionProps {
   guideType: 'meditation' | 'reflection';
   mood: Mood;
-  onSelect: (duration: 2 | 5 | 10, generateAudio: boolean) => void;
+  onSelect: (duration: 2 | 4 | 6, generateAudio: boolean) => void;
   onBack: () => void;
   onHistory: () => void;
 }
@@ -56,27 +56,27 @@ export const DurationSelection: React.FC<DurationSelectionProps> = ({
 
           <button
             className="duration-button featured"
-            onClick={() => onSelect(5, generateAudio)}
+            onClick={() => onSelect(4, generateAudio)}
             style={{
               borderColor: `${mood.color}30`,
               background: `linear-gradient(135deg, ${mood.color}13, ${mood.color}08)`,
               boxShadow: `0 8px 32px ${mood.color}18`
             }}
           >
-            <span className="duration-time" style={{ color: mood.color }}>5</span>
+            <span className="duration-time" style={{ color: mood.color }}>4</span>
             <span className="duration-label">minutes</span>
             <span className="duration-badge" style={{ background: mood.color }}>Recommandé</span>
           </button>
 
           <button
             className="duration-button"
-            onClick={() => onSelect(10, generateAudio)}
+            onClick={() => onSelect(6, generateAudio)}
             style={{
               borderColor: `${mood.color}20`,
               background: `linear-gradient(135deg, ${mood.color}0B, ${mood.color}03)`
             }}
           >
-            <span className="duration-time" style={{ color: mood.color }}>10</span>
+            <span className="duration-time" style={{ color: mood.color }}>6</span>
             <span className="duration-label">minutes</span>
           </button>
         </div>

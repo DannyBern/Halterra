@@ -180,7 +180,7 @@ export default async function handler(req, res) {
   console.log(`✅ Rate limit check passed - Remaining: ${rateLimit.remaining}/${10}`);
 
   try {
-    const { userName, mood, category, intention, guideType = 'meditation', duration = 5, astrologicalProfile, sessionHistory, stream = false } = req.body;
+    const { userName, mood, category, intention, guideType = 'meditation', duration = 4, astrologicalProfile, sessionHistory, stream = false } = req.body;
 
     if (!userName || !mood || !category || !intention) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -872,54 +872,52 @@ ${baseTools}
 CRÉATIVITÉ: Même en 2 minutes, chaque méditation est unique. Change la technique choisie selon l'intention.`;
   }
 
-  if (duration === 10) {
-    return `DURÉE: 10 MINUTES (~1200-1500 mots)
-STYLE: VOYAGE ÉLABORÉ ET IMMERSIF
+  if (duration === 6) {
+    return `DURÉE: 6 MINUTES (~720-900 mots)
+STYLE: VOYAGE IMMERSIF ET COMPLET
 
 STRUCTURE NARRATIVE RECOMMANDÉE:
-1. SEUIL D'ENTRÉE (90 secondes)
-   - Transition graduelle du monde extérieur
-   - Établissement d'un espace intérieur riche
-   - Invitation sensorielle multi-couches
+1. SEUIL D'ENTRÉE (60 secondes)
+   - Transition douce du monde extérieur
+   - Établissement d'un espace intérieur
+   - Invitation sensorielle
 
-2. EXPLORATION PROFONDE (4-5 minutes)
-   - Développement d'un univers métaphorique complet
-   - Voyage à travers différents niveaux (corporel → émotionnel → mental → spirituel)
-   - Techniques entrelacées (pas une seule pratique, mais un tissage)
+2. EXPLORATION PROFONDE (2-3 minutes)
+   - Développement d'un univers métaphorique cohérent
+   - Voyage à travers différents niveaux (corporel → émotionnel → mental)
+   - Techniques entrelacées avec fluidité
    - Moments de silence intégrés ("...")
 
-3. TRANSFORMATION EN COUCHES (2-3 minutes)
-   - Travail sur plusieurs dimensions simultanément
-   - Recadrage progressif et approfondi
-   - Expériences sensorielles riches et détaillées
+3. TRANSFORMATION (90 secondes)
+   - Travail sur plusieurs dimensions
+   - Recadrage progressif
+   - Expériences sensorielles détaillées
 
-4. INTÉGRATION ET ANCRAGE (90 secondes)
+4. INTÉGRATION ET ANCRAGE (60 secondes)
    - Consolidation des insights
    - Création d'un pont vers le quotidien
    - Fermeture en douceur avec ouverture
 
 OUTILS NARRATIFS DISPONIBLES:
-- Architecture de conte (début/milieu/fin avec arc transformationnel)
-- Métaphores élaborées et cohérentes (développer UN univers complet)
-- Symbolisme riche mais naturel
-- Rythme variable (accélération/ralentissement intentionnels)
-- Silences stratégiques pour digestion
-- Plusieurs perspectives (observer, ressentir, comprendre, être)
+- Architecture narrative (début/milieu/fin avec arc transformationnel)
+- Métaphores cohérentes (développer UN univers complet)
+- Symbolisme naturel
+- Rythme variable (accélération/ralentissement)
+- Silences stratégiques pour absorption
 - Utilise le prénom ${userName} naturellement 3-4 fois
 
 ${baseTools}
 
 PROFONDEUR:
-- Plusieurs couches de sens (littéral, métaphorique, symbolique)
+- Plusieurs couches de sens (littéral, métaphorique)
 - Connexion à des thèmes universels
-- Espace pour réflexion personnelle profonde
-- Pas de précipitation - chaque moment compte
+- Espace pour réflexion personnelle
 
-CRÉATIVITÉ TOTALE: Invente un voyage complet, original, une expérience sensorielle et psychologique riche et cohérente.`;
+CRÉATIVITÉ TOTALE: Invente un voyage complet, original, une expérience sensorielle et psychologique riche.`;
   }
 
-  // Duration 5 (default)
-  return `DURÉE: 5 MINUTES (~600-750 mots)
+  // Duration 4 (default)
+  return `DURÉE: 4 MINUTES (~480-600 mots)
 STYLE: ÉQUILIBRÉ ET TRANSFORMATEUR
 
 STRUCTURE ORGANIQUE:
@@ -943,7 +941,7 @@ CRÉATIVITÉ RADICALE: Chaque méditation émerge de l'intersection unique mood 
 }
 
 function buildDannInstructions(userName, duration) {
-  const wordCount = duration === 2 ? '250-300' : duration === 5 ? '600-750' : '1200-1500';
+  const wordCount = duration === 2 ? '250-300' : duration === 4 ? '480-600' : '720-900';
 
   return `Crée une RÉFLEXION PROFONDE de ${duration} minutes (~${wordCount} mots) :
 

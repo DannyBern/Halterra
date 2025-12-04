@@ -17,7 +17,7 @@ interface MeditationProps {
   category: string;
   intention: string;
   guideType: 'meditation' | 'reflection';
-  duration: 2 | 5 | 10;
+  duration: 2 | 4 | 6;
   generateAudio: boolean;
   astrologicalProfile?: AstrologicalProfile;
   onComplete: (meditationText: string, audioBase64?: string) => Promise<void>;

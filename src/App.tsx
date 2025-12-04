@@ -42,7 +42,7 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [selectedGuideType, setSelectedGuideType] = useState<GuideType | null>(null);
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
-  const [selectedDuration, setSelectedDuration] = useState<2 | 5 | 10 | null>(null);
+  const [selectedDuration, setSelectedDuration] = useState<2 | 4 | 6 | null>(null);
   const [generateAudio, setGenerateAudio] = useState<boolean>(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedIntention, setSelectedIntention] = useState<string | null>(null);
@@ -97,7 +97,7 @@ function App() {
     setScreen('guide');
   };
 
-  const handleDurationSelect = (duration: 2 | 5 | 10, audioEnabled: boolean) => {
+  const handleDurationSelect = (duration: 2 | 4 | 6, audioEnabled: boolean) => {
     setSelectedDuration(duration);
     setGenerateAudio(audioEnabled);
     setScreen('category');
@@ -155,7 +155,7 @@ function App() {
       userName: user.name,
       mood: selectedMood.id,
       guideType: selectedGuideType || 'meditation',
-      duration: selectedDuration || 5,
+      duration: selectedDuration || 4,
       category: selectedCategory || undefined,
       intention: selectedIntention || undefined,
       meditationText,

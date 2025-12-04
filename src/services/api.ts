@@ -35,7 +35,7 @@ export async function generateMeditationStreaming(
   category: string,
   intention: string,
   guideType: 'meditation' | 'reflection' = 'meditation',
-  duration: 2 | 5 | 10 = 5,
+  duration: 2 | 4 | 6 = 4,
   astrologicalProfile: AstrologicalProfile | undefined,
   sessionHistory: MeditationSession[] | undefined,
   onChunk: (chunk: string) => void,
@@ -129,7 +129,7 @@ export async function generateMeditation(
   category: string,
   intention: string,
   guideType: 'meditation' | 'reflection' = 'meditation',
-  duration: 2 | 5 | 10 = 5,
+  duration: 2 | 4 | 6 = 4,
   astrologicalProfile?: AstrologicalProfile,
   sessionHistory?: MeditationSession[]
 ): Promise<{ displayText: string; audioText: string; dailyInspiration?: string }> {

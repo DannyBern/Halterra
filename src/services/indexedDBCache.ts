@@ -28,7 +28,7 @@ interface HalterraDB extends DBSchema {
       userName: string;
       mood: string;
       guideType?: 'meditation' | 'reflection';
-      duration?: 2 | 5 | 10;
+      duration?: 2 | 4 | 6;
       category?: string;
       intention?: string;
       meditationText: string;
