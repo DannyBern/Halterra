@@ -110,23 +110,26 @@ Le système de partage permet de partager les méditations sur différentes plat
 - **Voix principale (méditation)**: Iza - Voice ID `xsNzdCmWJpYoa80FaXJi` (voix personnalisée québécoise)
 - **Voix secondaire (réflexion)**: Dann - Voice ID `93nuHbke4dTER9x2pDwE`
 - **Qualité audio**: MP3 44.1kHz 192kbps (qualité maximale)
-- **Modèle TTS**: ElevenLabs Multilingual V2
-- **Technique d'injection émotionnelle**: Utilise `previous_text` et `next_text` pour injecter le ton méditatif
-  - Ces textes ne sont PAS prononcés mais guident le ton de la voix
-  - Comme des didascalies/indications de jeu pour un acteur
-- **Settings optimisés (voix Iza - ton méditatif)**:
-  - Stability: 0.75 (équilibré - le contexte émotionnel compense)
-  - Similarity Boost: 0.85 (fidélité à la voix)
-  - Style: 0.12 (léger - pour douceur)
-  - Speed: 0.78 (lent et posé)
+- **Modèle TTS**: ElevenLabs Multilingual V2 + `language_code: 'fr'`
+- **Technique combinée pour stabilité d'accent + ton méditatif**:
+  1. **Texte entre guillemets**: Simule un dialogue lu ("texte")
+  2. **next_text COURT**: Comme une didascalie de scénario (`, murmure-t-elle doucement...`)
+  3. **Stabilité maximale**: 0.90 pour l'accent québécois
+  4. **Style à zéro**: Aucune variation stylistique
+- **Settings optimisés (voix Iza - accent stable)**:
+  - Stability: 0.90 (TRÈS HAUT - accent québécois stable)
+  - Similarity Boost: 0.90 (fidélité maximale à la voix originale)
+  - Style: 0.0 (ZÉRO - aucune variation)
+  - Speed: 0.75 (lent et posé pour méditation)
   - Speaker Boost: enabled
 - **Pauses naturelles**: Ponctuation native (". " pour paragraphes, ", " pour lignes)
 
 ## Dernière mise à jour
 - **Date**: 2025-12-04
-- **Session**: Injection émotionnelle pour ton méditatif stable
+- **Session**: Stabilisation accent québécois voix Iza
 - **Changements**:
-  - **Injection émotionnelle**: Ajout de `previous_text`/`next_text` pour guider le ton sans être prononcé
-  - **Contexte méditatif**: "voix douce, calme, apaisante, québécoise, enveloppante, maternelle"
-  - **Voice settings réajustés**: Moins de stability (0.75) car le contexte émotionnel compense
-  - **Lunar transit**: Actif avec astronomy-engine
+  - **Technique guillemets + next_text court**: Texte entouré de guillemets + didascalie courte
+  - **Language code**: Ajout `language_code: 'fr'` pour forcer le français
+  - **Stabilité maximale**: 0.90 pour l'accent, 0.0 pour style
+  - **Recherche ElevenLabs**: Documentation sur previous_text/next_text
+  - **Lunar transit**: Actif avec astronomy-engine (createRequire fix)
