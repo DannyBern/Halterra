@@ -2,40 +2,30 @@ import { checkRateLimit, addRateLimitHeaders } from '../lib/rateLimit.js';
 import { handleCORS } from '../lib/corsConfig.js';
 
 /**
- * TECHNIQUE D'INJECTION ÉMOTIONNELLE ELEVENLABS
+ * TECHNIQUE D'INJECTION ÉMOTIONNELLE ELEVENLABS (CORRIGÉE)
  *
- * Utilise previous_text et next_text pour injecter un contexte émotionnel
- * sans que ce texte soit prononcé. C'est comme si on lisait un livre
- * avec des didascalies/indications de jeu.
+ * Le next_text doit être COURT - comme une didascalie de scénario.
+ * Le texte principal est entre guillemets pour simuler un dialogue lu.
+ * Ajout du language_code pour forcer le français canadien.
  *
  * Sources:
- * - https://elevenlabs.io/docs/capabilities/text-to-speech
- * - https://medium.com/@tommywilczek/how-to-add-emotion-to-ai-voices-elevenlabs-2025
+ * - https://elevenlabs.io/docs/api-reference/text-to-speech/convert
+ * - https://elevenlabs.io/docs/best-practices/prompting/controls
  */
 
-// Contexte émotionnel pour méditation (voix Iza)
+// Contexte émotionnel COURT pour méditation (voix Iza)
+// Format: comme si on lisait un livre avec indication de jeu
 const MEDITATION_EMOTIONAL_CONTEXT = {
-  // Texte qui "précède" - établit le ton initial
-  previous_text: `Elle ferme les yeux, inspire profondément, et commence à parler d'une voix douce,
-    calme et apaisante. Son ton est celui d'une guide de méditation expérimentée,
-    chaleureux et rassurant. Elle parle lentement, avec des pauses naturelles,
-    comme si chaque mot était une caresse pour l'âme. Sa voix québécoise est
-    enveloppante et maternelle.`,
-
-  // Texte qui "suit" - renforce l'intention tout au long
-  next_text: `murmure-t-elle doucement, sa voix restant calme et méditative jusqu'à la fin,
-    comme une berceuse pour adulte. Elle maintient ce ton apaisant et bienveillant,
-    guidant l'auditeur vers un état de paix intérieure.`
+  // Texte qui "précède" - établit le contexte émotionnel initial (COURT)
+  previous_text: `Elle ferme les yeux et inspire profondément.`,
+  // Texte qui "suit" - indique COMMENT le texte est prononcé (COURT - clé!)
+  next_text: `, murmure-t-elle doucement, sa voix restant calme et apaisante.`
 };
 
-// Contexte émotionnel pour réflexion (voix Dann)
+// Contexte émotionnel COURT pour réflexion (voix Dann)
 const REFLECTION_EMOTIONAL_CONTEXT = {
-  previous_text: `Il s'adresse à toi comme un ami sage et bienveillant. Sa voix est
-    posée, réfléchie, avec une pointe de curiosité sincère. Il pose des questions
-    qui invitent à l'introspection, sans jugement.`,
-
-  next_text: `dit-il d'un ton encourageant mais direct, t'invitant à réfléchir
-    avec lui plutôt que de te donner des réponses toutes faites.`
+  previous_text: `Il te regarde avec bienveillance.`,
+  next_text: `, dit-il d'un ton posé et réfléchi.`
 };
 
 export default async function handler(req, res) {
@@ -65,7 +55,8 @@ export default async function handler(req, res) {
 
   /**
    * Prépare le texte pour la synthèse vocale
-   * Ajoute des indices de ton via la ponctuation
+   * - Entoure de guillemets (technique dialogue lu)
+   * - Ajoute pauses naturelles via ponctuation
    */
   function prepareText(text, isMeditation) {
     // Nettoyage du texte pour pauses naturelles via ponctuation
@@ -73,7 +64,9 @@ export default async function handler(req, res) {
     text = text.replace(/\n\n+/g, '. ');    // Paragraphes → pause longue
     text = text.replace(/\n/g, ', ');       // Lignes → pause courte
 
-    return text;
+    // Entourer de guillemets pour simuler un dialogue lu
+    // Cela permet au next_text d'agir comme une indication de jeu
+    return `"${text}"`;
   }
 
   try {
@@ -88,12 +81,15 @@ export default async function handler(req, res) {
     // Préparer le texte
     const processedText = prepareText(text, isMeditation);
 
-    // Log du texte complet envoyé à ElevenLabs
-    console.log('=== FULL TEXT SENT TO ELEVENLABS ===');
+    // Log complet des paramètres envoyés à ElevenLabs
+    console.log('=== ELEVENLABS REQUEST CONFIG ===');
     console.log('Guide Type:', guideType);
-    console.log('Emotional Context: ENABLED');
-    console.log(processedText);
-    console.log('=== END TEXT ===');
+    console.log('Voice ID:', guideType === 'reflection' ? '93nuHbke4dTER9x2pDwE (Dann)' : 'xsNzdCmWJpYoa80FaXJi (Iza)');
+    console.log('Emotional Injection: ENABLED (short format)');
+    console.log('Text wrapped in quotes: YES');
+    console.log('Language Code: fr');
+    console.log('Text preview:', processedText.substring(0, 100) + '...');
+    console.log('=== END CONFIG ===');
 
     // Choisir la voix selon le type de guide
     const voiceId = guideType === 'reflection'
@@ -105,30 +101,31 @@ export default async function handler(req, res) {
       ? MEDITATION_EMOTIONAL_CONTEXT
       : REFLECTION_EMOTIONAL_CONTEXT;
 
-    // Voice settings optimisés pour TON MÉDITATIF STABLE
-    // Équilibre entre stabilité d'accent et expressivité minimale
+    // Voice settings optimisés pour STABILITÉ D'ACCENT MAXIMALE
+    // La technique next_text + guillemets gère le ton méditatif
+    // On peut donc pousser la stabilité au maximum pour l'accent
     const voiceSettings = guideType === 'reflection'
       ? {
           // DANN - Réflexion socratique, conversationnel mais posé
-          stability: 0.65,           // Équilibré
-          similarity_boost: 0.80,    // Bonne fidélité
-          style: 0.10,               // Très peu - évite variations excessives
+          stability: 0.70,           // Équilibré
+          similarity_boost: 0.85,    // Bonne fidélité
+          style: 0.05,               // Minimal - accent stable
           speed: 0.82,               // Légèrement ralenti
           use_speaker_boost: true
         }
       : {
-          // IZA - Méditation calme, douce, stable
-          // L'injection émotionnelle via previous_text/next_text
-          // permet de réduire la stability tout en gardant le bon ton
-          stability: 0.75,           // RÉDUIT - le contexte émotionnel compense
-          similarity_boost: 0.85,    // Bonne fidélité à la voix
-          style: 0.12,               // LÉGÈREMENT AUGMENTÉ - pour douceur
-          speed: 0.78,               // Lent et posé
-          use_speaker_boost: true
+          // IZA - Méditation calme, ACCENT QUÉBÉCOIS STABLE
+          // Stabilité MAXIMALE pour l'accent
+          // Le ton méditatif vient du next_text + guillemets
+          stability: 0.90,           // TRÈS HAUT - accent stable
+          similarity_boost: 0.90,    // TRÈS HAUT - fidélité maximale à la voix originale
+          style: 0.0,                // ZÉRO - aucune variation stylistique
+          speed: 0.75,               // Lent et posé pour méditation
+          use_speaker_boost: true    // Clarté vocale
         };
 
-    // ElevenLabs API avec INJECTION ÉMOTIONNELLE
-    // previous_text et next_text donnent le contexte sans être prononcés
+    // ElevenLabs API avec INJECTION ÉMOTIONNELLE + LANGUAGE CODE
+    // Technique combinée: guillemets + next_text court + stabilité max
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
       headers: {
@@ -139,12 +136,12 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         text: processedText,
         model_id: 'eleven_multilingual_v2',
+        language_code: 'fr',           // Force le français (aide stabilité accent)
         voice_settings: voiceSettings,
-        // 🎭 INJECTION ÉMOTIONNELLE - Le secret pour un ton consistant
+        // 🎭 INJECTION ÉMOTIONNELLE - Didascalies courtes
         previous_text: emotionalContext.previous_text,
         next_text: emotionalContext.next_text,
-        seed: 42,
-        pronunciation_dictionary_locators: [],
+        seed: 42,                       // Reproductibilité
         output_format: 'mp3_44100_192'
       })
     });
