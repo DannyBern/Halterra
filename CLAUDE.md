@@ -8,7 +8,8 @@ PWA React déployée sur Vercel.
 ```
 Halterra/
 ├── api/                 # Serverless functions Vercel
-│   ├── audio.js         # TTS ElevenLabs (voix Iza/Dann)
+│   ├── audio.js         # TTS ElevenLabs (segmentation + concaténation)
+│   ├── silence.js       # Buffer MP3 silence 2s (base64)
 │   ├── meditation.js    # Génération méditation (Claude)
 │   ├── daily-insight.js # Insight quotidien (Claude Haiku)
 │   ├── quote.js         # Citations inspirantes
@@ -107,29 +108,45 @@ Le système de partage permet de partager les méditations sur différentes plat
 - Noms lisibles avec shadow sur tous les fonds
 
 ## Configuration Narration Audio
-- **Voix principale (méditation)**: Iza - Voice ID `xsNzdCmWJpYoa80FaXJi` (voix personnalisée québécoise)
-- **Voix secondaire (réflexion)**: Dann - Voice ID `93nuHbke4dTER9x2pDwE`
-- **Qualité audio**: MP3 44.1kHz 192kbps (qualité maximale)
-- **Modèle TTS**: ElevenLabs Multilingual V2 + `language_code: 'fr'`
-- **Technique combinée pour stabilité d'accent + ton méditatif**:
-  1. **Texte entre guillemets**: Simule un dialogue lu ("texte")
-  2. **next_text COURT**: Comme une didascalie de scénario (`, murmure-t-elle doucement...`)
-  3. **Stabilité maximale**: 0.90 pour l'accent québécois
-  4. **Style à zéro**: Aucune variation stylistique
-- **Settings optimisés (voix Iza - accent stable)**:
-  - Stability: 0.90 (TRÈS HAUT - accent québécois stable)
-  - Similarity Boost: 0.90 (fidélité maximale à la voix originale)
-  - Style: 0.0 (ZÉRO - aucune variation)
-  - Speed: 0.75 (lent et posé pour méditation)
-  - Speaker Boost: enabled
-- **Pauses naturelles**: Ponctuation native (". " pour paragraphes, ", " pour lignes)
+
+### Architecture de Segmentation (NOUVEAU)
+Pour éviter la dérive d'accent/ton sur les longs textes, l'audio est généré par segments:
+1. **Découpage**: Texte divisé en 2-3 paragraphes
+2. **Génération**: Chaque segment généré séparément avec contexte émotionnel
+3. **Silences**: 4 secondes de pause entre segments (fichier `silence.js`)
+4. **Concaténation**: Buffers MP3 concaténés après retrait des ID3 tags
+
+### Fichiers clés
+- `api/audio.js` - Logique de segmentation et génération
+- `api/silence.js` - Buffer MP3 de silence 2s en base64
+
+### Voix
+- **Méditation**: Iza - Voice ID `xsNzdCmWJpYoa80FaXJi` (québécoise)
+- **Réflexion**: Dann - Voice ID `93nuHbke4dTER9x2pDwE`
+
+### Settings ElevenLabs (voix Iza)
+- **Qualité**: MP3 44.1kHz 192kbps
+- **Modèle**: ElevenLabs Multilingual V2 + `language_code: 'fr'`
+- **Stability**: 0.95 (MAXIMUM - accent ultra-stable)
+- **Similarity Boost**: 0.95 (fidélité totale)
+- **Style**: 0.0 (ZÉRO - aucune variation)
+- **Speed**: 0.72 (lent et posé)
+- **Speaker Boost**: enabled
+
+### Technique de stabilisation
+- **Texte entre guillemets**: Simule un dialogue lu ("texte")
+- **previous_text**: "La guide québécoise ferme les yeux..."
+- **next_text**: ", murmure-t-elle tout bas, gardant son calme..."
+- **NOTE**: Ne PAS utiliser `previous_request_ids` avec `previous_text/next_text` (conflit API)
 
 ## Dernière mise à jour
-- **Date**: 2025-12-04
-- **Session**: Stabilisation accent québécois voix Iza
+- **Date**: 2025-12-05
+- **Session**: Architecture de segmentation audio
 - **Changements**:
-  - **Technique guillemets + next_text court**: Texte entouré de guillemets + didascalie courte
-  - **Language code**: Ajout `language_code: 'fr'` pour forcer le français
-  - **Stabilité maximale**: 0.90 pour l'accent, 0.0 pour style
-  - **Recherche ElevenLabs**: Documentation sur previous_text/next_text
-  - **Lunar transit**: Actif avec astronomy-engine (createRequire fix)
+  - **Segmentation audio**: Découpage en 2-3 paragraphes pour éviter dérive accent/ton
+  - **Fichier silence.js**: Buffer MP3 2s en base64 pour pauses entre segments
+  - **Concaténation MP3**: Retrait ID3 tags + Buffer.concat()
+  - **Stabilité augmentée**: 0.95 stability, 0.95 similarity_boost
+  - **Vitesse réduite**: 0.72 pour éviter accélération en fin de texte
+  - **Logs détaillés**: Chaque segment loggé pour diagnostic
+  - **Fix conflit API**: Suppression previous_request_ids (conflit avec previous_text)
