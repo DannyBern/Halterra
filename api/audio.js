@@ -15,11 +15,14 @@ import { handleCORS } from '../lib/corsConfig.js';
 
 // Contexte émotionnel COURT pour méditation (voix Iza)
 // Format: comme si on lisait un livre avec indication de jeu
+// IMPORTANT: Mention explicite "québécoise" pour ancrer l'accent
 const MEDITATION_EMOTIONAL_CONTEXT = {
   // Texte qui "précède" - établit le contexte émotionnel initial (COURT)
-  previous_text: `Elle ferme les yeux et inspire profondément.`,
+  // Mention "québécoise" pour ancrer l'accent dès le départ
+  previous_text: `La guide québécoise ferme les yeux, respirant lentement.`,
   // Texte qui "suit" - indique COMMENT le texte est prononcé (COURT - clé!)
-  next_text: `, murmure-t-elle doucement, sa voix restant calme et apaisante.`
+  // Ton calme et posé, sans énergie excessive
+  next_text: `, murmure-t-elle tout bas, gardant son calme jusqu'à la fin.`
 };
 
 // Contexte émotionnel COURT pour réflexion (voix Dann)
@@ -56,13 +59,23 @@ export default async function handler(req, res) {
   /**
    * Prépare le texte pour la synthèse vocale
    * - Entoure de guillemets (technique dialogue lu)
-   * - Ajoute pauses naturelles via ponctuation
+   * - Ajoute VRAIES pauses SSML entre paragraphes (4s = 2x 2s car max 3s)
+   * - Pauses courtes entre lignes
    */
   function prepareText(text, isMeditation) {
-    // Nettoyage du texte pour pauses naturelles via ponctuation
+    // Nettoyage du texte
     text = text.replace(/\.\.\./g, '... '); // Ellipses naturelles
-    text = text.replace(/\n\n+/g, '. ');    // Paragraphes → pause longue
-    text = text.replace(/\n/g, ', ');       // Lignes → pause courte
+
+    // PAUSES SSML pour méditation (4 secondes entre paragraphes)
+    // ElevenLabs max = 3s, donc on utilise 2x 2s pour 4 secondes
+    if (isMeditation) {
+      text = text.replace(/\n\n+/g, '. <break time="2s"/><break time="2s"/> ');
+      text = text.replace(/\n/g, '. <break time="0.8s"/> ');
+    } else {
+      // Réflexion: pauses plus courtes
+      text = text.replace(/\n\n+/g, '. <break time="1.5s"/> ');
+      text = text.replace(/\n/g, '. <break time="0.5s"/> ');
+    }
 
     // Entourer de guillemets pour simuler un dialogue lu
     // Cela permet au next_text d'agir comme une indication de jeu
@@ -114,13 +127,13 @@ export default async function handler(req, res) {
           use_speaker_boost: true
         }
       : {
-          // IZA - Méditation calme, ACCENT QUÉBÉCOIS STABLE
-          // Stabilité MAXIMALE pour l'accent
+          // IZA - Méditation calme, ACCENT QUÉBÉCOIS ULTRA-STABLE
+          // Stabilité MAXIMALE pour éviter toute dérive d'accent ou de ton
           // Le ton méditatif vient du next_text + guillemets
-          stability: 0.90,           // TRÈS HAUT - accent stable
-          similarity_boost: 0.90,    // TRÈS HAUT - fidélité maximale à la voix originale
+          stability: 0.95,           // MAXIMUM - accent québécois ultra-stable
+          similarity_boost: 0.95,    // MAXIMUM - fidélité totale à la voix originale
           style: 0.0,                // ZÉRO - aucune variation stylistique
-          speed: 0.75,               // Lent et posé pour méditation
+          speed: 0.72,               // Plus lent pour éviter accélération en fin de texte
           use_speaker_boost: true    // Clarté vocale
         };
 
