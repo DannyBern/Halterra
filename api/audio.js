@@ -164,15 +164,33 @@ function prepareSegment(text) {
 
 /**
  * Génère l'audio d'un segment avec ElevenLabs
- * Retourne le buffer audio ET le request-id pour le stitching
+ *
+ * NOTE: On n'utilise PAS previous_request_ids car il entre en conflit
+ * avec previous_text/next_text (quand les deux sont présents, previous_text est ignoré).
+ * On préfère garder le contexte émotionnel pour stabiliser l'accent québécois.
  */
 async function generateSegmentAudio(
   text,
   voiceId,
   voiceSettings,
   emotionalContext,
-  previousRequestIds = []
+  segmentIndex,
+  totalSegments
 ) {
+  console.log(`  📤 Calling ElevenLabs API for segment ${segmentIndex + 1}/${totalSegments}...`);
+  console.log(`  📝 Text length: ${text.length} chars`);
+
+  const requestBody = {
+    text: text,
+    model_id: 'eleven_multilingual_v2',
+    language_code: 'fr',
+    voice_settings: voiceSettings,
+    previous_text: emotionalContext.previous_text,
+    next_text: emotionalContext.next_text,
+    seed: 42,
+    output_format: 'mp3_44100_192'
+  };
+
   const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
     method: 'POST',
     headers: {
@@ -180,36 +198,25 @@ async function generateSegmentAudio(
       'Content-Type': 'application/json',
       'xi-api-key': process.env.ELEVENLABS_API_KEY
     },
-    body: JSON.stringify({
-      text: text,
-      model_id: 'eleven_multilingual_v2',
-      language_code: 'fr',
-      voice_settings: voiceSettings,
-      previous_text: emotionalContext.previous_text,
-      next_text: emotionalContext.next_text,
-      // Request Stitching: passer les IDs des segments précédents (max 3)
-      previous_request_ids: previousRequestIds.slice(-3),
-      seed: 42,
-      output_format: 'mp3_44100_192'
-    })
+    body: JSON.stringify(requestBody)
   });
 
   if (!response.ok) {
     const errorBody = await response.text();
+    console.error(`  ❌ ElevenLabs API error for segment ${segmentIndex + 1}:`, response.status, errorBody);
     throw new Error(`ElevenLabs API error: ${response.status} - ${errorBody}`);
   }
 
-  // Récupérer le request-id pour le stitching
-  const requestId = response.headers.get('request-id');
   const audioBuffer = Buffer.from(await response.arrayBuffer());
+  console.log(`  ✅ Segment ${segmentIndex + 1} generated: ${audioBuffer.length} bytes`);
 
-  return { audioBuffer, requestId };
+  return { audioBuffer };
 }
 
 /**
  * Génère l'audio complet avec segmentation
  * - Découpe en paragraphes
- * - Génère chaque segment avec request stitching
+ * - Génère chaque segment séparément (avec contexte émotionnel)
  * - Concatène avec silences de 4 secondes
  */
 async function generateSegmentedAudio(text, guideType) {
@@ -223,6 +230,9 @@ async function generateSegmentedAudio(text, guideType) {
   // Découper en paragraphes
   const paragraphs = splitIntoParagraphs(text);
   console.log(`📝 Text split into ${paragraphs.length} segment(s)`);
+  paragraphs.forEach((p, i) => {
+    console.log(`   Segment ${i + 1}: ${p.length} chars - "${p.substring(0, 50)}..."`);
+  });
 
   // Si un seul segment court, pas besoin de segmentation
   if (paragraphs.length === 1 && text.length < 600) {
@@ -232,54 +242,61 @@ async function generateSegmentedAudio(text, guideType) {
       preparedText,
       voiceId,
       voiceSettings,
-      emotionalContext
+      emotionalContext,
+      0,
+      1
     );
     return audioBuffer;
   }
 
-  // Générer chaque segment avec request stitching
+  // Générer chaque segment séquentiellement
   const audioBuffers = [];
-  const requestIds = [];
   const silence = silenceBuffer;
+  const cleanSilence = stripID3Tags(silence);
+
+  console.log(`🔊 Starting generation of ${paragraphs.length} segments...`);
 
   for (let i = 0; i < paragraphs.length; i++) {
     const paragraph = paragraphs[i];
-    console.log(`🎙️ Generating segment ${i + 1}/${paragraphs.length} (${paragraph.length} chars)`);
+    console.log(`\n🎙️ === SEGMENT ${i + 1}/${paragraphs.length} ===`);
+    console.log(`   Original length: ${paragraph.length} chars`);
 
-    const preparedText = prepareSegment(paragraph);
+    try {
+      const preparedText = prepareSegment(paragraph);
+      console.log(`   Prepared length: ${preparedText.length} chars`);
 
-    const { audioBuffer, requestId } = await generateSegmentAudio(
-      preparedText,
-      voiceId,
-      voiceSettings,
-      emotionalContext,
-      requestIds
-    );
+      const { audioBuffer } = await generateSegmentAudio(
+        preparedText,
+        voiceId,
+        voiceSettings,
+        emotionalContext,
+        i,
+        paragraphs.length
+      );
 
-    // Stocker le request ID pour le prochain segment
-    if (requestId) {
-      requestIds.push(requestId);
-      console.log(`  → Request ID: ${requestId.substring(0, 8)}...`);
-    }
+      // Retirer les ID3 tags pour la concaténation
+      const cleanBuffer = stripID3Tags(audioBuffer);
+      console.log(`   Clean buffer: ${cleanBuffer.length} bytes`);
+      audioBuffers.push(cleanBuffer);
 
-    // Retirer les ID3 tags pour la concaténation
-    const cleanBuffer = stripID3Tags(audioBuffer);
-    audioBuffers.push(cleanBuffer);
+      // Ajouter le silence entre les segments (sauf après le dernier)
+      if (i < paragraphs.length - 1) {
+        // 4 secondes = 2x le fichier de 2 secondes
+        audioBuffers.push(cleanSilence);
+        audioBuffers.push(cleanSilence);
+        console.log(`   ⏸️ Added ${SILENCE_DURATION_SECONDS}s silence`);
+      }
 
-    // Ajouter le silence entre les segments (sauf après le dernier)
-    if (i < paragraphs.length - 1 && silence) {
-      // 4 secondes = 2x le fichier de 2 secondes
-      const cleanSilence = stripID3Tags(silence);
-      audioBuffers.push(cleanSilence);
-      audioBuffers.push(cleanSilence);
-      console.log(`  → Added ${SILENCE_DURATION_SECONDS}s silence`);
+    } catch (error) {
+      console.error(`   ❌ FAILED to generate segment ${i + 1}:`, error.message);
+      throw error; // Re-throw pour arrêter la génération
     }
   }
 
   // Concaténer tous les buffers
-  console.log(`🔗 Concatenating ${audioBuffers.length} audio chunks...`);
+  console.log(`\n🔗 Concatenating ${audioBuffers.length} audio chunks...`);
   const concatenated = Buffer.concat(audioBuffers);
-  console.log(`✅ Final audio: ${concatenated.length} bytes`);
+  console.log(`✅ Final audio: ${concatenated.length} bytes (${(concatenated.length / 1024).toFixed(1)} KB)`);
 
   return concatenated;
 }
