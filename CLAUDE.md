@@ -111,19 +111,22 @@ Le système de partage permet de partager les méditations sur différentes plat
 - **Voix secondaire (réflexion)**: Dann - Voice ID `93nuHbke4dTER9x2pDwE`
 - **Qualité audio**: MP3 44.1kHz 192kbps (qualité maximale)
 - **Modèle TTS**: ElevenLabs Multilingual V2
-- **Settings optimisés (voix Iza - stabilité accent)**:
-  - Stability: 0.85 (HAUTE - consistance accent québécois)
-  - Similarity Boost: 0.90 (HAUTE - fidélité à la voix originale)
-  - Style: 0.0 (ZÉRO - recommandé ElevenLabs pour stabilité)
-  - Speed: 0.75 (LENT - méditation posée, min ElevenLabs = 0.7)
+- **Technique d'injection émotionnelle**: Utilise `previous_text` et `next_text` pour injecter le ton méditatif
+  - Ces textes ne sont PAS prononcés mais guident le ton de la voix
+  - Comme des didascalies/indications de jeu pour un acteur
+- **Settings optimisés (voix Iza - ton méditatif)**:
+  - Stability: 0.75 (équilibré - le contexte émotionnel compense)
+  - Similarity Boost: 0.85 (fidélité à la voix)
+  - Style: 0.12 (léger - pour douceur)
+  - Speed: 0.78 (lent et posé)
   - Speaker Boost: enabled
-- **PAS de SSML**: Utilise le paramètre `speed` natif d'ElevenLabs (plus stable que prosody)
 - **Pauses naturelles**: Ponctuation native (". " pour paragraphes, ", " pour lignes)
 
 ## Dernière mise à jour
 - **Date**: 2025-12-04
-- **Session**: Optimisation stabilité accent Iza + lunar transit
+- **Session**: Injection émotionnelle pour ton méditatif stable
 - **Changements**:
-  - **Stabilité accent**: Paramètres optimisés selon doc ElevenLabs (stability 0.85, style 0, speed 0.75)
-  - **Suppression SSML**: Remplacé par paramètre `speed` natif (plus stable pour accents)
-  - **Lunar transit**: Activé avec astronomy-engine (calcul position lune + phase)
+  - **Injection émotionnelle**: Ajout de `previous_text`/`next_text` pour guider le ton sans être prononcé
+  - **Contexte méditatif**: "voix douce, calme, apaisante, québécoise, enveloppante, maternelle"
+  - **Voice settings réajustés**: Moins de stability (0.75) car le contexte émotionnel compense
+  - **Lunar transit**: Actif avec astronomy-engine
