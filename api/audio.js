@@ -161,6 +161,7 @@ function insertAudioTags(text, isMeditation = true) {
  * Prépare le texte pour ElevenLabs V3
  * - Insère les audio tags appropriés
  * - Nettoie le formatage
+ * - Ajoute un contexte québécois pour ancrer l'accent
  */
 function prepareTextForV3(text, isMeditation = true) {
   // Insérer les audio tags
@@ -169,9 +170,13 @@ function prepareTextForV3(text, isMeditation = true) {
   // Nettoyer les sauts de ligne multiples
   processed = processed.replace(/\n{3,}/g, '\n\n');
 
-  // Ajouter un tag de début pour le ton général
-  const openingTag = isMeditation ? '[softly, calmly]' : '[warmly]';
-  processed = `${openingTag} ${processed}`;
+  // Ajouter un préambule québécois invisible pour ancrer l'accent
+  // Cette technique utilise previous_text conceptuellement via le texte lui-même
+  const quebecPrimer = isMeditation
+    ? '[softly, with Quebec French accent] '
+    : '[warmly, with Quebec French accent] ';
+
+  processed = `${quebecPrimer}${processed}`;
 
   return processed.trim();
 }
@@ -197,10 +202,12 @@ async function generateAudioV3(text, voiceId, voiceSettings) {
   console.log(`  📤 Calling ElevenLabs V3 API...`);
   console.log(`  📝 Text length: ${text.length} chars`);
 
+  // NOTE: On n'utilise PAS language_code car ça force l'accent français de France
+  // La voix Iza a été entraînée avec l'accent québécois, il faut la laisser s'exprimer naturellement
   const requestBody = {
     text: text,
     model_id: 'eleven_v3',
-    language_code: 'fr',
+    // language_code: 'fr', // RETIRÉ - forçait l'accent français de France
     voice_settings: voiceSettings,
     output_format: 'mp3_44100_192'
   };
