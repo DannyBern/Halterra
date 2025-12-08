@@ -29,19 +29,19 @@ const VOICE_IDS = {
 };
 
 // Voice settings optimisés pour V3
-// Note: V3 utilise les audio tags pour l'expressivité, donc moins besoin de style
+// IMPORTANT: V3 accepte seulement stability: 0.0 (Creative), 0.5 (Natural), 1.0 (Robust)
 const VOICE_SETTINGS = {
   meditation: {
-    stability: 0.85,           // Stable mais permet expressivité des tags
+    stability: 0.5,            // Natural - bon équilibre pour méditation
     similarity_boost: 0.90,    // Haute fidélité à la voix
-    style: 0.15,               // Léger style pour V3
+    style: 0.0,                // Pas de style pour V3
     speed: 0.75,               // Lent pour méditation
     use_speaker_boost: true
   },
   reflection: {
-    stability: 0.75,
+    stability: 0.5,            // Natural
     similarity_boost: 0.85,
-    style: 0.20,
+    style: 0.0,
     speed: 0.85,
     use_speaker_boost: true
   }
