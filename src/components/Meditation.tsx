@@ -442,9 +442,32 @@ export default function Meditation({
     );
   }
 
+  // Handler pour tap anywhere - pause/play audio
+  const handleTapAnywhere = (e: React.MouseEvent | React.TouchEvent) => {
+    // Ne pas réagir si pas d'audio disponible
+    if (!audioUrl || !audioRef.current) return;
+
+    // Ignorer les taps sur les éléments interactifs (géré par stopPropagation)
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a') || target.closest('.speed-control-premium')) {
+      return;
+    }
+
+    handlePlay();
+  };
+
   return (
     <div
       className={`meditation meditation-fullscreen fade-in ${isPlaying ? 'playing' : ''}`}
+      onClick={handleTapAnywhere}
+      onTouchEnd={(e) => {
+        // Éviter double-trigger click + touch
+        if (audioUrl && audioRef.current) {
+          e.preventDefault();
+          handleTapAnywhere(e);
+        }
+      }}
+      style={{ cursor: audioUrl ? 'pointer' : 'default' }}
     >
       {/* Success Notification Premium */}
       {showSuccessNotification && (
@@ -559,7 +582,7 @@ export default function Meditation({
               )}
 
               <p className="audio-instruction">
-                {isPlaying ? 'En lecture...' : 'Appuie pour commencer'}
+                {isPlaying ? 'Touche n\'importe où pour pause' : 'Appuie pour commencer'}
               </p>
             </div>
             <audio
@@ -609,8 +632,6 @@ export default function Meditation({
         {/* Premium text container with card design */}
         <div
           className="meditation-text-card"
-          onClick={audioUrl ? handlePlay : undefined}
-          style={{ cursor: audioUrl ? 'pointer' : 'default' }}
         >
           <div className="card-glow" style={{
             background: `linear-gradient(135deg, ${mood.color}08, transparent)`

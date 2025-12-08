@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import './base.css'
 import './index.css'
 import './mobile-override.css'
 import './components/StickyHeader.css'
