@@ -84,8 +84,8 @@
       "memory": 1024
     },
     "api/audio.js": {
-      "maxDuration": 60,
-      "memory": 1024
+      "maxDuration": 120,
+      "memory": 1536
     },
     "api/quote.js": {
       "maxDuration": 10,

@@ -108,7 +108,13 @@ function stripID3Tags(buffer) {
 
 /**
  * Découpe le texte en paragraphes pour la segmentation
- * Objectif: 2-3 segments de taille équilibrée
+ *
+ * Stratégie: Garder chaque paragraphe comme segment séparé pour:
+ * - Maximiser la stabilité vocale (segments courts)
+ * - Éviter les timeouts ElevenLabs sur segments longs
+ * - Permettre des pauses naturelles entre paragraphes
+ *
+ * Limite: ~500 caractères par segment pour éviter la dérive d'accent
  */
 function splitIntoParagraphs(text) {
   // Séparer par double saut de ligne (paragraphes)
@@ -118,32 +124,54 @@ function splitIntoParagraphs(text) {
     return [text];
   }
 
-  // Si on a déjà 2-3 paragraphes, parfait
-  if (paragraphs.length >= 2 && paragraphs.length <= 3) {
-    return paragraphs;
-  }
-
-  // Si on a plus de 3 paragraphes, regrouper pour avoir 2-3 segments
-  if (paragraphs.length > 3) {
-    const segmentSize = Math.ceil(paragraphs.length / 3);
-    const segments = [];
-    for (let i = 0; i < paragraphs.length; i += segmentSize) {
-      segments.push(paragraphs.slice(i, i + segmentSize).join('\n\n'));
-    }
-    return segments.slice(0, 3); // Maximum 3 segments
-  }
-
   // Si un seul paragraphe mais long, découper par phrases
-  if (paragraphs.length === 1 && text.length > 600) {
+  if (paragraphs.length === 1 && text.length > 500) {
     const sentences = text.split(/(?<=[.!?])\s+/);
-    const midPoint = Math.ceil(sentences.length / 2);
-    return [
-      sentences.slice(0, midPoint).join(' '),
-      sentences.slice(midPoint).join(' ')
-    ];
+    if (sentences.length > 1) {
+      // Regrouper les phrases en segments de ~400-500 caractères
+      const segments = [];
+      let currentSegment = '';
+
+      for (const sentence of sentences) {
+        if (currentSegment.length + sentence.length > 450 && currentSegment.length > 0) {
+          segments.push(currentSegment.trim());
+          currentSegment = sentence;
+        } else {
+          currentSegment += (currentSegment ? ' ' : '') + sentence;
+        }
+      }
+      if (currentSegment.trim()) {
+        segments.push(currentSegment.trim());
+      }
+      return segments;
+    }
   }
 
-  return paragraphs;
+  // Vérifier si des paragraphes sont trop longs et les découper
+  const finalSegments = [];
+  for (const paragraph of paragraphs) {
+    if (paragraph.length > 600) {
+      // Paragraphe trop long - découper par phrases
+      const sentences = paragraph.split(/(?<=[.!?])\s+/);
+      let currentSegment = '';
+
+      for (const sentence of sentences) {
+        if (currentSegment.length + sentence.length > 500 && currentSegment.length > 0) {
+          finalSegments.push(currentSegment.trim());
+          currentSegment = sentence;
+        } else {
+          currentSegment += (currentSegment ? ' ' : '') + sentence;
+        }
+      }
+      if (currentSegment.trim()) {
+        finalSegments.push(currentSegment.trim());
+      }
+    } else {
+      finalSegments.push(paragraph);
+    }
+  }
+
+  return finalSegments;
 }
 
 /**
