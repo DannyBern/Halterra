@@ -1,5 +1,7 @@
 # Halterra - Finalisation de session
 
+Ce script fonctionne sur Desktop ET Laptop (chemin auto-détecté depuis le répertoire courant).
+
 ## Actions à exécuter automatiquement
 
 ### 1. Vérifier les changements non commités

@@ -4,16 +4,16 @@
 - **Type**: MONOREPO (frontend React + API serverless Vercel)
 - **GitHub**: https://github.com/DannyBern/Halterra
 - **Production**: https://halterra.vercel.app
-- **Local**: c:\Users\danny\Documents\Projets\Halterra
 
 ## IMPORTANT
 - Le repo `halterra-backend` est ARCHIVE - ne plus utiliser
 - Toutes les API sont dans `/api/` du monorepo principal
+- Ce script fonctionne sur Desktop ET Laptop (chemin auto-détecté)
 
 ## Actions à exécuter automatiquement
 
 ### 1. Synchronisation Git (AUTOMATIQUE)
-Exécute ces commandes dans l'ordre:
+Exécute ces commandes depuis le répertoire courant du projet:
 ```bash
 git fetch origin
 git pull origin main
@@ -23,7 +23,7 @@ git log --oneline -3
 
 ### 2. Vérification Vercel
 ```bash
-vercel ls | head -5
+vercel ls --limit 5
 ```
 
 ### 3. Pull des variables d'environnement si nécessaire
