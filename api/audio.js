@@ -1,25 +1,21 @@
 import { checkRateLimit, addRateLimitHeaders } from '../lib/rateLimit.js';
 import { handleCORS } from '../lib/corsConfig.js';
-import { SILENCE_2S_BASE64 } from './silence.js';
 
 /**
- * ARCHITECTURE DE SEGMENTATION AUDIO POUR STABILITÉ VOCALE
+ * ELEVENLABS V3 AVEC AUDIO TAGS POUR MÉDITATIONS EXPRESSIVES
  *
- * Problème résolu: Sur les longs textes (>800 caractères), ElevenLabs peut:
- * - Changer d'accent (québécois → français)
- * - Modifier le ton (calme → énergique)
- * - Accélérer vers la fin
+ * Utilise le modèle eleven_v3 (alpha) avec insertion automatique de:
+ * - [breath] - respiration naturelle
+ * - [sigh] - soupir apaisé
+ * - [softly] - ton doux
+ * - [pause] - pause naturelle
  *
- * Solution: Segmentation par paragraphes + Request Stitching + Concaténation
- *
- * 1. Découpe le texte en paragraphes (2-3 segments)
- * 2. Génère l'audio de chaque segment avec previous_request_ids
- * 3. Insère 4 secondes de silence entre chaque segment
- * 4. Concatène tous les buffers MP3
+ * Le modèle V3 interprète ces tags pour produire des vocalisations
+ * naturelles et expressives, idéales pour les méditations guidées.
  *
  * Sources:
- * - https://elevenlabs.io/docs/cookbooks/text-to-speech/request-stitching
- * - https://help.elevenlabs.io/hc/en-us/articles/19631995406481
+ * - https://elevenlabs.io/blog/v3-audiotags
+ * - https://elevenlabs.io/blog/eleven-v3-alpha-now-available-in-the-api
  */
 
 // ============================================================================
@@ -32,240 +28,182 @@ const VOICE_IDS = {
   reflection: '93nuHbke4dTER9x2pDwE'   // Dann - voix masculine
 };
 
-// Contexte émotionnel pour ancrer l'accent et le ton
-// IMPORTANT: Mention explicite "québécoise" pour stabiliser l'accent
-const EMOTIONAL_CONTEXT = {
-  meditation: {
-    previous_text: `La guide québécoise ferme les yeux, respirant lentement.`,
-    next_text: `, murmure-t-elle tout bas, gardant son calme jusqu'à la fin.`
-  },
-  reflection: {
-    previous_text: `Il te regarde avec bienveillance.`,
-    next_text: `, dit-il d'un ton posé et réfléchi.`
-  }
-};
-
-// Voice settings optimisés pour stabilité maximale
+// Voice settings optimisés pour V3
+// Note: V3 utilise les audio tags pour l'expressivité, donc moins besoin de style
 const VOICE_SETTINGS = {
   meditation: {
-    stability: 0.95,           // MAXIMUM - accent québécois ultra-stable
-    similarity_boost: 0.95,    // MAXIMUM - fidélité totale à la voix originale
-    style: 0.0,                // ZÉRO - aucune variation stylistique
-    speed: 0.72,               // Lent pour méditation
+    stability: 0.85,           // Stable mais permet expressivité des tags
+    similarity_boost: 0.90,    // Haute fidélité à la voix
+    style: 0.15,               // Léger style pour V3
+    speed: 0.75,               // Lent pour méditation
     use_speaker_boost: true
   },
   reflection: {
-    stability: 0.70,
+    stability: 0.75,
     similarity_boost: 0.85,
-    style: 0.05,
-    speed: 0.82,
+    style: 0.20,
+    speed: 0.85,
     use_speaker_boost: true
   }
 };
 
-// Durée du silence entre paragraphes (en secondes)
-const SILENCE_DURATION_SECONDS = 4;
-
 // ============================================================================
-// UTILITAIRES
+// AUDIO TAGS POUR V3
 // ============================================================================
 
 /**
- * Buffer de silence MP3 (2 secondes, 44.1kHz)
- * Stocké en base64 pour compatibilité Vercel Serverless
- */
-const silenceBuffer = Buffer.from(SILENCE_2S_BASE64, 'base64');
-
-// ============================================================================
-// CONCATÉNATION MP3 PAR FRAMES
-// ============================================================================
-
-/**
- * Trouve le début des données audio MP3 (après les tags ID3v2)
- * Les frames MP3 commencent par le sync word 0xFF 0xFB/0xFA/0xF3/0xF2
- */
-function findMP3DataStart(buffer) {
-  let offset = 0;
-
-  // Vérifier si ID3v2 tag présent
-  if (buffer[0] === 0x49 && buffer[1] === 0x44 && buffer[2] === 0x33) { // "ID3"
-    // Lire la taille du tag ID3v2 (syncsafe integer sur 4 bytes)
-    const size = (buffer[6] << 21) | (buffer[7] << 14) | (buffer[8] << 7) | buffer[9];
-    offset = 10 + size;
-  }
-
-  // Chercher le premier frame sync (0xFF suivi de 0xFB, 0xFA, 0xF3, 0xF2, ou 0xE*)
-  while (offset < buffer.length - 1) {
-    if (buffer[offset] === 0xFF && (buffer[offset + 1] & 0xE0) === 0xE0) {
-      return offset;
-    }
-    offset++;
-  }
-
-  return 0; // Fallback au début
-}
-
-/**
- * Trouve la fin des données audio MP3 (avant les tags ID3v1)
- */
-function findMP3DataEnd(buffer) {
-  let end = buffer.length;
-
-  // Vérifier si ID3v1 tag présent (128 derniers bytes commençant par "TAG")
-  if (end > 128) {
-    const tagStart = end - 128;
-    if (buffer[tagStart] === 0x54 && buffer[tagStart + 1] === 0x41 && buffer[tagStart + 2] === 0x47) {
-      end = tagStart;
-    }
-  }
-
-  return end;
-}
-
-/**
- * Extrait uniquement les frames audio MP3 (sans headers/tags)
- */
-function extractMP3Frames(buffer) {
-  const start = findMP3DataStart(buffer);
-  const end = findMP3DataEnd(buffer);
-  return buffer.slice(start, end);
-}
-
-/**
- * Concatène plusieurs buffers MP3 de manière propre
+ * Insère automatiquement des audio tags V3 dans le texte de méditation
  *
- * IMPORTANT: Cette méthode fonctionne car ElevenLabs génère des MP3 avec
- * les mêmes paramètres (44.1kHz, 192kbps, stéréo). Les frames sont donc
- * compatibles et peuvent être concaténées directement.
+ * Tags utilisés:
+ * - [breath] - respiration naturelle (après les phrases d'inspiration)
+ * - [sigh] - soupir apaisé (moments de relâchement)
+ * - [softly] - ton doux (passages intimes)
+ * - [calmly] - ton calme (instructions)
+ * - [gently] - ton doux et bienveillant
+ * - [slowly] - ralentissement naturel
  *
- * @param buffers - Array de buffers MP3
- * @returns Buffer MP3 concaténé
+ * Stratégie: Insertion contextuelle basée sur le contenu du texte
  */
-function concatenateMP3Buffers(buffers) {
-  if (buffers.length === 0) return Buffer.alloc(0);
-  if (buffers.length === 1) return buffers[0];
+function insertAudioTags(text, isMeditation = true) {
+  let processed = text;
 
-  console.log(`🔗 Concatenating ${buffers.length} MP3 buffers...`);
+  // Patterns pour méditation - insertion de [breath] après phrases de respiration
+  const breathPatterns = [
+    /(\brespire[zs]?\b[^.]*\.)/gi,
+    /(\binspire[zs]?\b[^.]*\.)/gi,
+    /(\bexpire[zs]?\b[^.]*\.)/gi,
+    /(\bsouffle\b[^.]*\.)/gi,
+    /(\bprofondément\b[^.]*\.)/gi
+  ];
 
-  // Extraire les frames de chaque buffer
-  const frameBuffers = buffers.map((buf, idx) => {
-    const frames = extractMP3Frames(buf);
-    console.log(`   Buffer ${idx + 1}: ${buf.length} bytes → ${frames.length} bytes (frames only)`);
-    return frames;
+  breathPatterns.forEach(pattern => {
+    processed = processed.replace(pattern, '$1 [breath]');
   });
 
-  // Concaténer tous les frames
-  const result = Buffer.concat(frameBuffers);
-  console.log(`   Total: ${result.length} bytes`);
+  // Patterns pour [sigh] - moments de relâchement
+  const sighPatterns = [
+    /(\brelâche[zs]?\b[^.]*\.)/gi,
+    /(\blâche[zs]?\b[^.]*\.)/gi,
+    /(\bdétend[s]?[^.]*\.)/gi,
+    /(\blaisse[zs]? aller\b[^.]*\.)/gi,
+    /(\babandonne[zs]?\b[^.]*\.)/gi
+  ];
 
-  return result;
+  sighPatterns.forEach(pattern => {
+    processed = processed.replace(pattern, '[sigh] $1');
+  });
+
+  // Ajouter [softly] au début des paragraphes intimes
+  const softPatterns = [
+    /(\bDoucement\b)/gi,
+    /(\bTout doucement\b)/gi,
+    /(\bAvec douceur\b)/gi,
+    /(\bTendrement\b)/gi
+  ];
+
+  softPatterns.forEach(pattern => {
+    processed = processed.replace(pattern, '[softly] $1');
+  });
+
+  // Ajouter [calmly] pour les instructions calmes
+  const calmPatterns = [
+    /(\bMaintenant\b)/gi,
+    /(\bÀ présent\b)/gi,
+    /(\bPrenez le temps\b)/gi,
+    /(\bPrends le temps\b)/gi
+  ];
+
+  calmPatterns.forEach(pattern => {
+    processed = processed.replace(pattern, '[calmly] $1');
+  });
+
+  // Ajouter [gently] pour les phrases bienveillantes
+  const gentlePatterns = [
+    /(\bAccueille[zs]?\b)/gi,
+    /(\bPermets-toi\b)/gi,
+    /(\bPermettez-vous\b)/gi,
+    /(\bOffre[zs]?-toi\b)/gi,
+    /(\bSois\b[^.]*bienveillant)/gi
+  ];
+
+  gentlePatterns.forEach(pattern => {
+    processed = processed.replace(pattern, '[gently] $1');
+  });
+
+  // Ajouter [slowly] pour les moments de pause
+  const slowPatterns = [
+    /(\bPause\b)/gi,
+    /(\bSilence\b)/gi,
+    /(\bPrends? un moment\b)/gi,
+    /(\bPrenez un moment\b)/gi
+  ];
+
+  slowPatterns.forEach(pattern => {
+    processed = processed.replace(pattern, '[slowly] $1');
+  });
+
+  // Remplacer les ... par une pause naturelle
+  processed = processed.replace(/\.\.\./g, '... [breath]');
+
+  // Ajouter des respirations entre les paragraphes (doubles sauts de ligne)
+  processed = processed.replace(/\n\n+/g, '\n\n[breath]\n\n');
+
+  // Nettoyer les tags en double
+  processed = processed.replace(/\[breath\]\s*\[breath\]/g, '[breath]');
+  processed = processed.replace(/\[sigh\]\s*\[sigh\]/g, '[sigh]');
+
+  console.log(`🏷️ Audio tags inserted. Original: ${text.length} chars, With tags: ${processed.length} chars`);
+
+  return processed;
 }
 
 /**
- * Découpe le texte en segments pour la génération audio
- *
- * Stratégie: Regrouper les paragraphes en 3-5 segments pour:
- * - Éviter trop d'appels API (coûteux et lents)
- * - Garder des segments assez courts pour la stabilité vocale (~800-1200 chars)
- * - Permettre une concaténation propre
- *
- * MAX_SEGMENTS: 5 segments maximum
- * TARGET_SEGMENT_SIZE: ~1000 caractères par segment
+ * Prépare le texte pour ElevenLabs V3
+ * - Insère les audio tags appropriés
+ * - Nettoie le formatage
  */
-const MAX_SEGMENTS = 5;
-const TARGET_SEGMENT_SIZE = 1000;
+function prepareTextForV3(text, isMeditation = true) {
+  // Insérer les audio tags
+  let processed = insertAudioTags(text, isMeditation);
 
-function splitIntoSegments(text) {
-  // Séparer par double saut de ligne (paragraphes)
-  const paragraphs = text.split(/\n\n+/).filter(p => p.trim());
+  // Nettoyer les sauts de ligne multiples
+  processed = processed.replace(/\n{3,}/g, '\n\n');
 
-  if (paragraphs.length === 0) {
-    return [text];
-  }
+  // Ajouter un tag de début pour le ton général
+  const openingTag = isMeditation ? '[softly, calmly]' : '[warmly]';
+  processed = `${openingTag} ${processed}`;
 
-  // Si le texte est court, pas besoin de segmentation
-  if (text.length < 800) {
-    return [text];
-  }
-
-  // Calculer le nombre idéal de segments
-  const idealSegments = Math.min(MAX_SEGMENTS, Math.ceil(text.length / TARGET_SEGMENT_SIZE));
-
-  // Si on a peu de paragraphes, les garder tels quels
-  if (paragraphs.length <= idealSegments) {
-    return paragraphs;
-  }
-
-  // Regrouper les paragraphes pour avoir ~idealSegments segments
-  const paragraphsPerSegment = Math.ceil(paragraphs.length / idealSegments);
-  const segments = [];
-
-  for (let i = 0; i < paragraphs.length; i += paragraphsPerSegment) {
-    const segmentParagraphs = paragraphs.slice(i, i + paragraphsPerSegment);
-    segments.push(segmentParagraphs.join('\n\n'));
-  }
-
-  return segments;
-}
-
-/**
- * Prépare un segment de texte pour ElevenLabs
- * - Nettoie les ellipses
- * - Entoure de guillemets (technique dialogue lu)
- */
-function prepareSegment(text) {
-  let processed = text.trim();
-  processed = processed.replace(/\.\.\./g, '... ');
-  processed = processed.replace(/\n/g, '. '); // Lignes simples → pause courte
-  return `"${processed}"`;
+  return processed.trim();
 }
 
 // ============================================================================
-// GÉNÉRATION AUDIO SEGMENTÉE
+// GÉNÉRATION AUDIO V3
 // ============================================================================
 
 /**
- * Génère l'audio d'un segment avec ElevenLabs
+ * Génère l'audio avec ElevenLabs V3
  *
- * Utilise previous_request_ids pour le Request Stitching quand disponible.
- * Cela permet à ElevenLabs de maintenir la continuité vocale entre segments.
+ * Le modèle V3 est conçu pour:
+ * - Interpréter les audio tags [breath], [sigh], [softly], etc.
+ * - Maintenir une meilleure cohérence sur les longs textes
+ * - Produire des vocalisations naturelles et expressives
  *
- * @param previousRequestIds - Array des IDs de requêtes précédentes (max 3)
- * @returns {audioBuffer, requestId} - Buffer audio et ID de la requête
+ * @param text - Texte avec audio tags insérés
+ * @param voiceId - ID de la voix ElevenLabs
+ * @param voiceSettings - Paramètres de la voix
+ * @returns Buffer audio MP3
  */
-async function generateSegmentAudio(
-  text,
-  voiceId,
-  voiceSettings,
-  emotionalContext,
-  segmentIndex,
-  totalSegments,
-  previousRequestIds = []
-) {
-  console.log(`  📤 Calling ElevenLabs API for segment ${segmentIndex + 1}/${totalSegments}...`);
+async function generateAudioV3(text, voiceId, voiceSettings) {
+  console.log(`  📤 Calling ElevenLabs V3 API...`);
   console.log(`  📝 Text length: ${text.length} chars`);
-  if (previousRequestIds.length > 0) {
-    console.log(`  🔗 Using ${previousRequestIds.length} previous request ID(s) for stitching`);
-  }
 
   const requestBody = {
     text: text,
-    model_id: 'eleven_multilingual_v2',
+    model_id: 'eleven_v3',
     language_code: 'fr',
     voice_settings: voiceSettings,
-    seed: 42,
     output_format: 'mp3_44100_192'
   };
-
-  // Pour le premier segment, utiliser le contexte émotionnel
-  // Pour les suivants, utiliser previous_request_ids pour le stitching
-  if (segmentIndex === 0) {
-    requestBody.previous_text = emotionalContext.previous_text;
-    requestBody.next_text = emotionalContext.next_text;
-  } else if (previousRequestIds.length > 0) {
-    // Utiliser les 3 derniers IDs maximum
-    requestBody.previous_request_ids = previousRequestIds.slice(-3);
-  }
 
   const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
     method: 'POST',
@@ -279,123 +217,54 @@ async function generateSegmentAudio(
 
   if (!response.ok) {
     const errorBody = await response.text();
-    console.error(`  ❌ ElevenLabs API error for segment ${segmentIndex + 1}:`, response.status, errorBody);
-    throw new Error(`ElevenLabs API error: ${response.status} - ${errorBody}`);
+    console.error(`  ❌ ElevenLabs V3 API error:`, response.status, errorBody);
+    throw new Error(`ElevenLabs V3 API error: ${response.status} - ${errorBody}`);
   }
 
-  // Récupérer le request_id pour le stitching des segments suivants
-  const requestId = response.headers.get('request-id');
-  console.log(`  🆔 Request ID: ${requestId}`);
-
   const audioBuffer = Buffer.from(await response.arrayBuffer());
-  console.log(`  ✅ Segment ${segmentIndex + 1} generated: ${audioBuffer.length} bytes`);
+  console.log(`  ✅ Audio generated: ${audioBuffer.length} bytes (${(audioBuffer.length / 1024).toFixed(1)} KB)`);
 
-  return { audioBuffer, requestId };
+  return audioBuffer;
 }
 
 /**
- * Génère l'audio complet avec segmentation et concaténation MP3
+ * Génère l'audio complet avec ElevenLabs V3 et audio tags
  *
- * ARCHITECTURE:
- * 1. Découpe le texte en 3-5 segments (~800-1200 chars chacun)
- * 2. Génère chaque segment avec ElevenLabs (stabilité vocale)
- * 3. Utilise Request Stitching pour continuité entre segments
- * 4. Concatène les frames MP3 (sans les headers/tags)
- * 5. Ajoute des silences de 4s entre segments
+ * ARCHITECTURE V3:
+ * 1. Insère automatiquement les audio tags dans le texte
+ * 2. Envoie le texte complet en un seul appel API
+ * 3. V3 interprète les tags pour expressivité naturelle
  *
  * Cette approche garantit:
- * - Stabilité de l'accent québécois sur les longs textes
- * - Audio complet jouable sans coupure
- * - Pauses naturelles entre les sections
+ * - Respirations naturelles aux bons moments
+ * - Soupirs apaisés pour le relâchement
+ * - Ton doux et calme pour la méditation
+ * - Cohérence vocale sur toute la durée
  */
-async function generateSegmentedAudio(text, guideType) {
+async function generateMeditationAudio(text, guideType) {
   const isMeditation = guideType !== 'reflection';
   const type = isMeditation ? 'meditation' : 'reflection';
 
   const voiceId = VOICE_IDS[type];
   const voiceSettings = VOICE_SETTINGS[type];
-  const emotionalContext = EMOTIONAL_CONTEXT[type];
 
-  console.log(`📝 Total text length: ${text.length} chars`);
+  console.log(`📝 Original text length: ${text.length} chars`);
   console.log(`🎭 Voice type: ${type}`);
+  console.log(`🤖 Model: eleven_v3`);
 
-  // Découper en segments (3-5 max pour stabilité vocale)
-  const segments = splitIntoSegments(text);
-  console.log(`📦 Split into ${segments.length} segment(s)`);
-  segments.forEach((s, i) => {
-    console.log(`   Segment ${i + 1}: ${s.length} chars`);
-  });
+  // Préparer le texte avec audio tags
+  const preparedText = prepareTextForV3(text, isMeditation);
+  console.log(`🏷️ Prepared text with audio tags: ${preparedText.length} chars`);
 
-  // Si un seul segment court, génération directe
-  if (segments.length === 1 && text.length < 1500) {
-    console.log(`🎙️ Single segment mode - direct generation`);
-    const preparedText = prepareSegment(segments[0]);
-    const { audioBuffer } = await generateSegmentAudio(
-      preparedText,
-      voiceId,
-      voiceSettings,
-      emotionalContext,
-      0,
-      1,
-      []
-    );
-    console.log(`✅ Audio generated: ${audioBuffer.length} bytes`);
-    return audioBuffer;
-  }
+  // Log un aperçu du texte préparé (premiers 500 chars)
+  console.log(`📄 Preview: ${preparedText.substring(0, 500)}...`);
 
-  // Génération multi-segments avec Request Stitching
-  console.log(`🔊 Multi-segment generation with Request Stitching...`);
+  // Générer l'audio avec V3
+  const audioBuffer = await generateAudioV3(preparedText, voiceId, voiceSettings);
 
-  const audioBuffers = [];
-  const requestIds = [];
-  const silenceFrames = extractMP3Frames(silenceBuffer);
+  console.log(`✅ Final audio: ${audioBuffer.length} bytes (${(audioBuffer.length / 1024).toFixed(1)} KB)`);
 
-  for (let i = 0; i < segments.length; i++) {
-    console.log(`\n🎙️ === SEGMENT ${i + 1}/${segments.length} ===`);
-
-    const preparedText = prepareSegment(segments[i]);
-    console.log(`   Text: ${preparedText.length} chars`);
-
-    try {
-      const { audioBuffer, requestId } = await generateSegmentAudio(
-        preparedText,
-        voiceId,
-        voiceSettings,
-        emotionalContext,
-        i,
-        segments.length,
-        requestIds
-      );
-
-      // Sauvegarder le requestId pour le stitching
-      if (requestId) {
-        requestIds.push(requestId);
-      }
-
-      // Ajouter les frames audio
-      audioBuffers.push(audioBuffer);
-      console.log(`   ✅ Generated: ${audioBuffer.length} bytes`);
-
-      // Ajouter silence entre segments (sauf après le dernier)
-      if (i < segments.length - 1) {
-        // 4 secondes = 2x silence de 2s
-        audioBuffers.push(silenceBuffer);
-        audioBuffers.push(silenceBuffer);
-        console.log(`   ⏸️ Added ${SILENCE_DURATION_SECONDS}s silence`);
-      }
-
-    } catch (error) {
-      console.error(`   ❌ Failed: ${error.message}`);
-      throw error;
-    }
-  }
-
-  // Concaténer tous les buffers MP3 proprement
-  console.log(`\n🔗 Final concatenation...`);
-  const finalAudio = concatenateMP3Buffers(audioBuffers);
-  console.log(`✅ Final audio: ${finalAudio.length} bytes (${(finalAudio.length / 1024).toFixed(1)} KB)`);
-
-  return finalAudio;
+  return audioBuffer;
 }
 
 // ============================================================================
@@ -432,12 +301,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing text field' });
     }
 
-    console.log('=== SEGMENTED AUDIO GENERATION ===');
+    console.log('=== ELEVENLABS V3 AUDIO GENERATION ===');
     console.log('Guide Type:', guideType);
     console.log('Text length:', text.length, 'characters');
 
-    // Générer l'audio avec segmentation
-    const audioBuffer = await generateSegmentedAudio(text, guideType);
+    // Générer l'audio avec V3 et audio tags
+    const audioBuffer = await generateMeditationAudio(text, guideType);
 
     // Convertir en base64
     const base64Audio = audioBuffer.toString('base64');
