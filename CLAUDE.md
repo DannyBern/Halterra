@@ -109,44 +109,46 @@ Le système de partage permet de partager les méditations sur différentes plat
 
 ## Configuration Narration Audio
 
-### Architecture de Segmentation (NOUVEAU)
-Pour éviter la dérive d'accent/ton sur les longs textes, l'audio est généré par segments:
-1. **Découpage**: Texte divisé en 2-3 paragraphes
-2. **Génération**: Chaque segment généré séparément avec contexte émotionnel
-3. **Silences**: 4 secondes de pause entre segments (fichier `silence.js`)
-4. **Concaténation**: Buffers MP3 concaténés après retrait des ID3 tags
+### Architecture ElevenLabs V3 avec Audio Tags
+Le système utilise ElevenLabs V3 (alpha) avec insertion automatique d'audio tags pour des méditations expressives:
 
-### Fichiers clés
-- `api/audio.js` - Logique de segmentation et génération
-- `api/silence.js` - Buffer MP3 de silence 2s en base64
+**Audio Tags supportés:**
+- `[breath]` - Respiration naturelle (après phrases d'inspiration/expiration)
+- `[sigh]` - Soupir apaisé (moments de relâchement)
+- `[softly]` - Ton doux (passages intimes)
+- `[calmly]` - Ton calme (instructions)
+- `[gently]` - Ton bienveillant
+- `[slowly]` - Ralentissement naturel
+
+**Insertion automatique:** Le fichier `api/audio.js` détecte les mots-clés (respire, relâche, doucement...) et insère les tags appropriés.
 
 ### Voix
-- **Méditation**: Iza - Voice ID `xsNzdCmWJpYoa80FaXJi` (québécoise)
-- **Réflexion**: Dann - Voice ID `93nuHbke4dTER9x2pDwE`
+- **Méditation (Iza)**: Voice ID `xsNzdCmWJpYoa80FaXJi` - voix féminine québécoise
+- **Réflexion (Dann)**: Voice ID `93nuHbke4dTER9x2pDwE` - voix masculine
 
-### Settings ElevenLabs (voix Iza)
+### Settings ElevenLabs V3
+- **Modèle**: `eleven_v3` (alpha)
 - **Qualité**: MP3 44.1kHz 192kbps
-- **Modèle**: ElevenLabs Multilingual V2 + `language_code: 'fr'`
-- **Stability**: 0.95 (MAXIMUM - accent ultra-stable)
-- **Similarity Boost**: 0.95 (fidélité totale)
-- **Style**: 0.0 (ZÉRO - aucune variation)
-- **Speed**: 0.72 (lent et posé)
+- **Stability**: 0.5 (Natural - V3 accepte seulement 0.0, 0.5, 1.0)
+- **Similarity Boost**: 0.90
+- **Speed**: 0.75 (méditation) / 0.85 (réflexion)
 - **Speaker Boost**: enabled
+- **IMPORTANT**: Ne PAS utiliser `language_code` - cela force l'accent français de France
 
-### Technique de stabilisation
-- **Texte entre guillemets**: Simule un dialogue lu ("texte")
-- **previous_text**: "La guide québécoise ferme les yeux..."
-- **next_text**: ", murmure-t-elle tout bas, gardant son calme..."
-- **NOTE**: Ne PAS utiliser `previous_request_ids` avec `previous_text/next_text` (conflit API)
+## UX Features
+
+### Tap-Anywhere-to-Pause
+Sur l'écran de méditation, toucher n'importe où (sauf les boutons) met en pause/reprend l'audio.
+- Implémenté via `onClick` et `onTouchEnd` sur le container principal
+- Ignore les clics sur `button`, `a`, `.speed-control-premium`
+- Message contextuel: "Touche n'importe où pour pause" / "Appuie pour commencer"
 
 ## Dernière mise à jour
-- **Date**: 2025-12-05
-- **Session**: Architecture de segmentation audio
+- **Date**: 2025-12-08
+- **Session**: ElevenLabs V3 + Tap-to-pause
 - **Changements**:
-  - **Segmentation audio**: Découpage en 2-3 paragraphes pour éviter dérive accent/ton
-  - **Fichier silence.js**: Buffer MP3 2s en base64 pour pauses entre segments
-  - **Concaténation MP3**: Retrait ID3 tags + Buffer.concat()
-  - **Stabilité augmentée**: 0.95 stability, 0.95 similarity_boost
-  - **Vitesse réduite**: 0.72 pour éviter accélération en fin de texte
-  - **Logs détaillés**: Chaque segment loggé pour diagnostic
-  - **Fix conflit API**: Suppression previous_request_ids (conflit avec previous_text)
+  - **ElevenLabs V3**: Migration vers eleven_v3 avec audio tags automatiques
+  - **Audio Tags**: Insertion contextuelle de [breath], [sigh], [softly], etc.
+  - **Tap-anywhere-to-pause**: Toucher l'écran pour pause/play audio
+  - **Fix Vite build**: CSS extrait de index.html vers src/base.css
+  - **Daily insights**: Utilise Claude Haiku 4.5 avec calculs astronomiques
