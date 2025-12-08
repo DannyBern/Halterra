@@ -73,37 +73,92 @@ const SILENCE_DURATION_SECONDS = 4;
 /**
  * Buffer de silence MP3 (2 secondes, 44.1kHz)
  * Stocké en base64 pour compatibilité Vercel Serverless
- * On utilise 2x ce buffer pour créer 4 secondes de pause
  */
 const silenceBuffer = Buffer.from(SILENCE_2S_BASE64, 'base64');
 
-/**
- * Retire les ID3 tags d'un buffer MP3 pour permettre la concaténation
- * ID3v2 est au début (commence par "ID3")
- * ID3v1 est à la fin (128 derniers bytes commençant par "TAG")
- */
-function stripID3Tags(buffer) {
-  let start = 0;
-  let end = buffer.length;
+// ============================================================================
+// CONCATÉNATION MP3 PAR FRAMES
+// ============================================================================
 
-  // Retirer ID3v2 au début (si présent)
+/**
+ * Trouve le début des données audio MP3 (après les tags ID3v2)
+ * Les frames MP3 commencent par le sync word 0xFF 0xFB/0xFA/0xF3/0xF2
+ */
+function findMP3DataStart(buffer) {
+  let offset = 0;
+
+  // Vérifier si ID3v2 tag présent
   if (buffer[0] === 0x49 && buffer[1] === 0x44 && buffer[2] === 0x33) { // "ID3"
     // Lire la taille du tag ID3v2 (syncsafe integer sur 4 bytes)
     const size = (buffer[6] << 21) | (buffer[7] << 14) | (buffer[8] << 7) | buffer[9];
-    start = 10 + size;
-    console.log(`  → ID3v2 tag removed (${start} bytes)`);
+    offset = 10 + size;
   }
 
-  // Retirer ID3v1 à la fin (si présent) - 128 bytes commençant par "TAG"
+  // Chercher le premier frame sync (0xFF suivi de 0xFB, 0xFA, 0xF3, 0xF2, ou 0xE*)
+  while (offset < buffer.length - 1) {
+    if (buffer[offset] === 0xFF && (buffer[offset + 1] & 0xE0) === 0xE0) {
+      return offset;
+    }
+    offset++;
+  }
+
+  return 0; // Fallback au début
+}
+
+/**
+ * Trouve la fin des données audio MP3 (avant les tags ID3v1)
+ */
+function findMP3DataEnd(buffer) {
+  let end = buffer.length;
+
+  // Vérifier si ID3v1 tag présent (128 derniers bytes commençant par "TAG")
   if (end > 128) {
     const tagStart = end - 128;
-    if (buffer[tagStart] === 0x54 && buffer[tagStart + 1] === 0x41 && buffer[tagStart + 2] === 0x47) { // "TAG"
+    if (buffer[tagStart] === 0x54 && buffer[tagStart + 1] === 0x41 && buffer[tagStart + 2] === 0x47) {
       end = tagStart;
-      console.log(`  → ID3v1 tag removed (128 bytes)`);
     }
   }
 
+  return end;
+}
+
+/**
+ * Extrait uniquement les frames audio MP3 (sans headers/tags)
+ */
+function extractMP3Frames(buffer) {
+  const start = findMP3DataStart(buffer);
+  const end = findMP3DataEnd(buffer);
   return buffer.slice(start, end);
+}
+
+/**
+ * Concatène plusieurs buffers MP3 de manière propre
+ *
+ * IMPORTANT: Cette méthode fonctionne car ElevenLabs génère des MP3 avec
+ * les mêmes paramètres (44.1kHz, 192kbps, stéréo). Les frames sont donc
+ * compatibles et peuvent être concaténées directement.
+ *
+ * @param buffers - Array de buffers MP3
+ * @returns Buffer MP3 concaténé
+ */
+function concatenateMP3Buffers(buffers) {
+  if (buffers.length === 0) return Buffer.alloc(0);
+  if (buffers.length === 1) return buffers[0];
+
+  console.log(`🔗 Concatenating ${buffers.length} MP3 buffers...`);
+
+  // Extraire les frames de chaque buffer
+  const frameBuffers = buffers.map((buf, idx) => {
+    const frames = extractMP3Frames(buf);
+    console.log(`   Buffer ${idx + 1}: ${buf.length} bytes → ${frames.length} bytes (frames only)`);
+    return frames;
+  });
+
+  // Concaténer tous les frames
+  const result = Buffer.concat(frameBuffers);
+  console.log(`   Total: ${result.length} bytes`);
+
+  return result;
 }
 
 /**
@@ -239,15 +294,19 @@ async function generateSegmentAudio(
 }
 
 /**
- * Génère l'audio complet - Mode simplifié
+ * Génère l'audio complet avec segmentation et concaténation MP3
  *
- * STRATÉGIE ACTUELLE: Un seul appel ElevenLabs avec tout le texte
- * - Plus fiable que la concaténation MP3
- * - ElevenLabs gère bien les textes jusqu'à ~5000 caractères
- * - Les settings de stabilité haute (0.95) évitent la dérive d'accent
+ * ARCHITECTURE:
+ * 1. Découpe le texte en 3-5 segments (~800-1200 chars chacun)
+ * 2. Génère chaque segment avec ElevenLabs (stabilité vocale)
+ * 3. Utilise Request Stitching pour continuité entre segments
+ * 4. Concatène les frames MP3 (sans les headers/tags)
+ * 5. Ajoute des silences de 4s entre segments
  *
- * Si des problèmes d'accent surviennent sur très longs textes,
- * on pourra réimplémenter la segmentation avec une vraie lib de concat MP3.
+ * Cette approche garantit:
+ * - Stabilité de l'accent québécois sur les longs textes
+ * - Audio complet jouable sans coupure
+ * - Pauses naturelles entre les sections
  */
 async function generateSegmentedAudio(text, guideType) {
   const isMeditation = guideType !== 'reflection';
@@ -257,29 +316,86 @@ async function generateSegmentedAudio(text, guideType) {
   const voiceSettings = VOICE_SETTINGS[type];
   const emotionalContext = EMOTIONAL_CONTEXT[type];
 
-  console.log(`📝 Text length: ${text.length} chars`);
+  console.log(`📝 Total text length: ${text.length} chars`);
   console.log(`🎭 Voice type: ${type}`);
 
-  // Préparer le texte (ajouter guillemets pour technique dialogue lu)
-  const preparedText = prepareSegment(text);
-  console.log(`📄 Prepared text length: ${preparedText.length} chars`);
+  // Découper en segments (3-5 max pour stabilité vocale)
+  const segments = splitIntoSegments(text);
+  console.log(`📦 Split into ${segments.length} segment(s)`);
+  segments.forEach((s, i) => {
+    console.log(`   Segment ${i + 1}: ${s.length} chars`);
+  });
 
-  // Un seul appel ElevenLabs
-  console.log(`🎙️ Generating audio in single request...`);
+  // Si un seul segment court, génération directe
+  if (segments.length === 1 && text.length < 1500) {
+    console.log(`🎙️ Single segment mode - direct generation`);
+    const preparedText = prepareSegment(segments[0]);
+    const { audioBuffer } = await generateSegmentAudio(
+      preparedText,
+      voiceId,
+      voiceSettings,
+      emotionalContext,
+      0,
+      1,
+      []
+    );
+    console.log(`✅ Audio generated: ${audioBuffer.length} bytes`);
+    return audioBuffer;
+  }
 
-  const { audioBuffer } = await generateSegmentAudio(
-    preparedText,
-    voiceId,
-    voiceSettings,
-    emotionalContext,
-    0,
-    1,
-    []
-  );
+  // Génération multi-segments avec Request Stitching
+  console.log(`🔊 Multi-segment generation with Request Stitching...`);
 
-  console.log(`✅ Audio generated: ${audioBuffer.length} bytes (${(audioBuffer.length / 1024).toFixed(1)} KB)`);
+  const audioBuffers = [];
+  const requestIds = [];
+  const silenceFrames = extractMP3Frames(silenceBuffer);
 
-  return audioBuffer;
+  for (let i = 0; i < segments.length; i++) {
+    console.log(`\n🎙️ === SEGMENT ${i + 1}/${segments.length} ===`);
+
+    const preparedText = prepareSegment(segments[i]);
+    console.log(`   Text: ${preparedText.length} chars`);
+
+    try {
+      const { audioBuffer, requestId } = await generateSegmentAudio(
+        preparedText,
+        voiceId,
+        voiceSettings,
+        emotionalContext,
+        i,
+        segments.length,
+        requestIds
+      );
+
+      // Sauvegarder le requestId pour le stitching
+      if (requestId) {
+        requestIds.push(requestId);
+      }
+
+      // Ajouter les frames audio
+      audioBuffers.push(audioBuffer);
+      console.log(`   ✅ Generated: ${audioBuffer.length} bytes`);
+
+      // Ajouter silence entre segments (sauf après le dernier)
+      if (i < segments.length - 1) {
+        // 4 secondes = 2x silence de 2s
+        audioBuffers.push(silenceBuffer);
+        audioBuffers.push(silenceBuffer);
+        console.log(`   ⏸️ Added ${SILENCE_DURATION_SECONDS}s silence`);
+      }
+
+    } catch (error) {
+      console.error(`   ❌ Failed: ${error.message}`);
+      throw error;
+    }
+  }
+
+  // Concaténer tous les buffers MP3 proprement
+  console.log(`\n🔗 Final concatenation...`);
+  const finalAudio = concatenateMP3Buffers(audioBuffers);
+  console.log(`✅ Final audio: ${finalAudio.length} bytes (${(finalAudio.length / 1024).toFixed(1)} KB)`);
+
+  return finalAudio;
 }
 
 // ============================================================================
