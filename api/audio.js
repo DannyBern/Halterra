@@ -107,16 +107,20 @@ function stripID3Tags(buffer) {
 }
 
 /**
- * Découpe le texte en paragraphes pour la segmentation
+ * Découpe le texte en segments pour la génération audio
  *
- * Stratégie: Garder chaque paragraphe comme segment séparé pour:
- * - Maximiser la stabilité vocale (segments courts)
- * - Éviter les timeouts ElevenLabs sur segments longs
- * - Permettre des pauses naturelles entre paragraphes
+ * Stratégie: Regrouper les paragraphes en 3-5 segments pour:
+ * - Éviter trop d'appels API (coûteux et lents)
+ * - Garder des segments assez courts pour la stabilité vocale (~800-1200 chars)
+ * - Permettre une concaténation propre
  *
- * Limite: ~500 caractères par segment pour éviter la dérive d'accent
+ * MAX_SEGMENTS: 5 segments maximum
+ * TARGET_SEGMENT_SIZE: ~1000 caractères par segment
  */
-function splitIntoParagraphs(text) {
+const MAX_SEGMENTS = 5;
+const TARGET_SEGMENT_SIZE = 1000;
+
+function splitIntoSegments(text) {
   // Séparer par double saut de ligne (paragraphes)
   const paragraphs = text.split(/\n\n+/).filter(p => p.trim());
 
@@ -124,54 +128,29 @@ function splitIntoParagraphs(text) {
     return [text];
   }
 
-  // Si un seul paragraphe mais long, découper par phrases
-  if (paragraphs.length === 1 && text.length > 500) {
-    const sentences = text.split(/(?<=[.!?])\s+/);
-    if (sentences.length > 1) {
-      // Regrouper les phrases en segments de ~400-500 caractères
-      const segments = [];
-      let currentSegment = '';
-
-      for (const sentence of sentences) {
-        if (currentSegment.length + sentence.length > 450 && currentSegment.length > 0) {
-          segments.push(currentSegment.trim());
-          currentSegment = sentence;
-        } else {
-          currentSegment += (currentSegment ? ' ' : '') + sentence;
-        }
-      }
-      if (currentSegment.trim()) {
-        segments.push(currentSegment.trim());
-      }
-      return segments;
-    }
+  // Si le texte est court, pas besoin de segmentation
+  if (text.length < 800) {
+    return [text];
   }
 
-  // Vérifier si des paragraphes sont trop longs et les découper
-  const finalSegments = [];
-  for (const paragraph of paragraphs) {
-    if (paragraph.length > 600) {
-      // Paragraphe trop long - découper par phrases
-      const sentences = paragraph.split(/(?<=[.!?])\s+/);
-      let currentSegment = '';
+  // Calculer le nombre idéal de segments
+  const idealSegments = Math.min(MAX_SEGMENTS, Math.ceil(text.length / TARGET_SEGMENT_SIZE));
 
-      for (const sentence of sentences) {
-        if (currentSegment.length + sentence.length > 500 && currentSegment.length > 0) {
-          finalSegments.push(currentSegment.trim());
-          currentSegment = sentence;
-        } else {
-          currentSegment += (currentSegment ? ' ' : '') + sentence;
-        }
-      }
-      if (currentSegment.trim()) {
-        finalSegments.push(currentSegment.trim());
-      }
-    } else {
-      finalSegments.push(paragraph);
-    }
+  // Si on a peu de paragraphes, les garder tels quels
+  if (paragraphs.length <= idealSegments) {
+    return paragraphs;
   }
 
-  return finalSegments;
+  // Regrouper les paragraphes pour avoir ~idealSegments segments
+  const paragraphsPerSegment = Math.ceil(paragraphs.length / idealSegments);
+  const segments = [];
+
+  for (let i = 0; i < paragraphs.length; i += paragraphsPerSegment) {
+    const segmentParagraphs = paragraphs.slice(i, i + paragraphsPerSegment);
+    segments.push(segmentParagraphs.join('\n\n'));
+  }
+
+  return segments;
 }
 
 /**
@@ -193,9 +172,11 @@ function prepareSegment(text) {
 /**
  * Génère l'audio d'un segment avec ElevenLabs
  *
- * NOTE: On n'utilise PAS previous_request_ids car il entre en conflit
- * avec previous_text/next_text (quand les deux sont présents, previous_text est ignoré).
- * On préfère garder le contexte émotionnel pour stabiliser l'accent québécois.
+ * Utilise previous_request_ids pour le Request Stitching quand disponible.
+ * Cela permet à ElevenLabs de maintenir la continuité vocale entre segments.
+ *
+ * @param previousRequestIds - Array des IDs de requêtes précédentes (max 3)
+ * @returns {audioBuffer, requestId} - Buffer audio et ID de la requête
  */
 async function generateSegmentAudio(
   text,
@@ -203,21 +184,33 @@ async function generateSegmentAudio(
   voiceSettings,
   emotionalContext,
   segmentIndex,
-  totalSegments
+  totalSegments,
+  previousRequestIds = []
 ) {
   console.log(`  📤 Calling ElevenLabs API for segment ${segmentIndex + 1}/${totalSegments}...`);
   console.log(`  📝 Text length: ${text.length} chars`);
+  if (previousRequestIds.length > 0) {
+    console.log(`  🔗 Using ${previousRequestIds.length} previous request ID(s) for stitching`);
+  }
 
   const requestBody = {
     text: text,
     model_id: 'eleven_multilingual_v2',
     language_code: 'fr',
     voice_settings: voiceSettings,
-    previous_text: emotionalContext.previous_text,
-    next_text: emotionalContext.next_text,
     seed: 42,
     output_format: 'mp3_44100_192'
   };
+
+  // Pour le premier segment, utiliser le contexte émotionnel
+  // Pour les suivants, utiliser previous_request_ids pour le stitching
+  if (segmentIndex === 0) {
+    requestBody.previous_text = emotionalContext.previous_text;
+    requestBody.next_text = emotionalContext.next_text;
+  } else if (previousRequestIds.length > 0) {
+    // Utiliser les 3 derniers IDs maximum
+    requestBody.previous_request_ids = previousRequestIds.slice(-3);
+  }
 
   const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
     method: 'POST',
@@ -235,17 +228,25 @@ async function generateSegmentAudio(
     throw new Error(`ElevenLabs API error: ${response.status} - ${errorBody}`);
   }
 
+  // Récupérer le request_id pour le stitching des segments suivants
+  const requestId = response.headers.get('request-id');
+  console.log(`  🆔 Request ID: ${requestId}`);
+
   const audioBuffer = Buffer.from(await response.arrayBuffer());
   console.log(`  ✅ Segment ${segmentIndex + 1} generated: ${audioBuffer.length} bytes`);
 
-  return { audioBuffer };
+  return { audioBuffer, requestId };
 }
 
 /**
- * Génère l'audio complet avec segmentation
- * - Découpe en paragraphes
- * - Génère chaque segment séparément (avec contexte émotionnel)
- * - Concatène avec silences de 4 secondes
+ * Génère l'audio complet avec segmentation et Request Stitching
+ *
+ * Architecture:
+ * 1. Découpe le texte en 3-5 segments maximum
+ * 2. Génère chaque segment avec ElevenLabs
+ * 3. Utilise previous_request_ids pour maintenir la continuité vocale
+ * 4. Concatène les buffers MP3 en retirant les headers ID3
+ * 5. Ajoute des silences de 4s entre segments
  */
 async function generateSegmentedAudio(text, guideType) {
   const isMeditation = guideType !== 'reflection';
@@ -255,52 +256,60 @@ async function generateSegmentedAudio(text, guideType) {
   const voiceSettings = VOICE_SETTINGS[type];
   const emotionalContext = EMOTIONAL_CONTEXT[type];
 
-  // Découper en paragraphes
-  const paragraphs = splitIntoParagraphs(text);
-  console.log(`📝 Text split into ${paragraphs.length} segment(s)`);
-  paragraphs.forEach((p, i) => {
-    console.log(`   Segment ${i + 1}: ${p.length} chars - "${p.substring(0, 50)}..."`);
+  // Découper en segments (3-5 max)
+  const segments = splitIntoSegments(text);
+  console.log(`📝 Text split into ${segments.length} segment(s)`);
+  segments.forEach((s, i) => {
+    console.log(`   Segment ${i + 1}: ${s.length} chars - "${s.substring(0, 50)}..."`);
   });
 
-  // Si un seul segment court, pas besoin de segmentation
-  if (paragraphs.length === 1 && text.length < 600) {
-    console.log('📄 Single short segment - no segmentation needed');
-    const preparedText = prepareSegment(paragraphs[0]);
+  // Si un seul segment, génération simple
+  if (segments.length === 1) {
+    console.log('📄 Single segment - direct generation');
+    const preparedText = prepareSegment(segments[0]);
     const { audioBuffer } = await generateSegmentAudio(
       preparedText,
       voiceId,
       voiceSettings,
       emotionalContext,
       0,
-      1
+      1,
+      []
     );
     return audioBuffer;
   }
 
-  // Générer chaque segment séquentiellement
+  // Générer chaque segment séquentiellement avec Request Stitching
   const audioBuffers = [];
+  const requestIds = []; // Pour le stitching
   const silence = silenceBuffer;
   const cleanSilence = stripID3Tags(silence);
 
-  console.log(`🔊 Starting generation of ${paragraphs.length} segments...`);
+  console.log(`🔊 Starting generation of ${segments.length} segments with Request Stitching...`);
 
-  for (let i = 0; i < paragraphs.length; i++) {
-    const paragraph = paragraphs[i];
-    console.log(`\n🎙️ === SEGMENT ${i + 1}/${paragraphs.length} ===`);
-    console.log(`   Original length: ${paragraph.length} chars`);
+  for (let i = 0; i < segments.length; i++) {
+    const segment = segments[i];
+    console.log(`\n🎙️ === SEGMENT ${i + 1}/${segments.length} ===`);
+    console.log(`   Original length: ${segment.length} chars`);
 
     try {
-      const preparedText = prepareSegment(paragraph);
+      const preparedText = prepareSegment(segment);
       console.log(`   Prepared length: ${preparedText.length} chars`);
 
-      const { audioBuffer } = await generateSegmentAudio(
+      const { audioBuffer, requestId } = await generateSegmentAudio(
         preparedText,
         voiceId,
         voiceSettings,
         emotionalContext,
         i,
-        paragraphs.length
+        segments.length,
+        requestIds
       );
+
+      // Sauvegarder le requestId pour le stitching des segments suivants
+      if (requestId) {
+        requestIds.push(requestId);
+      }
 
       // Retirer les ID3 tags pour la concaténation
       const cleanBuffer = stripID3Tags(audioBuffer);
@@ -308,7 +317,7 @@ async function generateSegmentedAudio(text, guideType) {
       audioBuffers.push(cleanBuffer);
 
       // Ajouter le silence entre les segments (sauf après le dernier)
-      if (i < paragraphs.length - 1) {
+      if (i < segments.length - 1) {
         // 4 secondes = 2x le fichier de 2 secondes
         audioBuffers.push(cleanSilence);
         audioBuffers.push(cleanSilence);
@@ -317,11 +326,11 @@ async function generateSegmentedAudio(text, guideType) {
 
     } catch (error) {
       console.error(`   ❌ FAILED to generate segment ${i + 1}:`, error.message);
-      throw error; // Re-throw pour arrêter la génération
+      throw error;
     }
   }
 
-  // Concaténer tous les buffers
+  // Concaténer tous les buffers MP3
   console.log(`\n🔗 Concatenating ${audioBuffers.length} audio chunks...`);
   const concatenated = Buffer.concat(audioBuffers);
   console.log(`✅ Final audio: ${concatenated.length} bytes (${(concatenated.length / 1024).toFixed(1)} KB)`);
