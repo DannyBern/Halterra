@@ -110,6 +110,126 @@ function getInsightLabel(moonPhase, planet) {
   return labels[moonPhase % labels.length];
 }
 
+// ============================================
+// DAILY THEME SYSTEM (90 unique themes)
+// ============================================
+
+const dailyThemes = [
+  // Introspection (15)
+  { theme: 'Gratitude', focus: 'Reconnaître les petites bénédictions de votre quotidien' },
+  { theme: 'Lâcher-prise', focus: 'Libérer ce qui ne vous sert plus' },
+  { theme: 'Acceptation', focus: 'Accueillir ce qui est, sans résistance' },
+  { theme: 'Pardon', focus: 'Alléger votre cœur en libérant les rancœurs' },
+  { theme: 'Authenticité', focus: 'Honorer qui vous êtes vraiment' },
+  { theme: 'Introspection', focus: 'Explorer votre monde intérieur' },
+  { theme: 'Valeurs', focus: 'Reconnecter avec ce qui compte vraiment pour vous' },
+  { theme: 'Bilan', focus: 'Observer votre chemin parcouru' },
+  { theme: 'Intention', focus: 'Clarifier ce que vous souhaitez manifester' },
+  { theme: 'Sagesse intérieure', focus: 'Écouter la voix de votre intuition profonde' },
+  { theme: 'Vulnérabilité', focus: 'Trouver la force dans l\'ouverture' },
+  { theme: 'Ombre', focus: 'Accueillir les parts de vous que vous cachez' },
+  { theme: 'Héritage', focus: 'Réfléchir à ce que vous transmettez' },
+  { theme: 'Silence', focus: 'Trouver la paix dans le calme intérieur' },
+  { theme: 'Vérité', focus: 'Être honnête avec vous-même' },
+
+  // Action & Motivation (15)
+  { theme: 'Oser', focus: 'Faire un pas vers quelque chose qui vous fait peur' },
+  { theme: 'Initiative', focus: 'Prendre les devants dans un domaine de votre vie' },
+  { theme: 'Persévérance', focus: 'Continuer malgré les obstacles' },
+  { theme: 'Discipline', focus: 'Cultiver la constance dans vos efforts' },
+  { theme: 'Focus', focus: 'Concentrer votre énergie sur l\'essentiel' },
+  { theme: 'Accomplissement', focus: 'Célébrer vos réussites, même petites' },
+  { theme: 'Décision', focus: 'Trancher avec clarté et confiance' },
+  { theme: 'Engagement', focus: 'Honorer vos promesses envers vous-même' },
+  { theme: 'Transformation', focus: 'Embrasser le changement comme allié' },
+  { theme: 'Momentum', focus: 'Utiliser l\'élan actuel pour avancer' },
+  { theme: 'Risque calculé', focus: 'Sortir de votre zone de confort intelligemment' },
+  { theme: 'Efficacité', focus: 'Faire plus avec moins d\'effort' },
+  { theme: 'Priorités', focus: 'Distinguer l\'urgent de l\'important' },
+  { theme: 'Proactivité', focus: 'Anticiper plutôt que réagir' },
+  { theme: 'Détermination', focus: 'Renforcer votre volonté intérieure' },
+
+  // Relations (15)
+  { theme: 'Connexion', focus: 'Approfondir vos liens avec les autres' },
+  { theme: 'Écoute', focus: 'Être pleinement présent pour quelqu\'un' },
+  { theme: 'Générosité', focus: 'Donner sans attendre en retour' },
+  { theme: 'Limites saines', focus: 'Protéger votre énergie avec bienveillance' },
+  { theme: 'Empathie', focus: 'Se mettre à la place de l\'autre' },
+  { theme: 'Communication', focus: 'Exprimer clairement vos besoins' },
+  { theme: 'Réconciliation', focus: 'Réparer ce qui peut l\'être' },
+  { theme: 'Solitude choisie', focus: 'Apprécier le temps avec vous-même' },
+  { theme: 'Tribu', focus: 'Nourrir votre cercle de soutien' },
+  { theme: 'Collaboration', focus: 'Créer ensemble plutôt que seul' },
+  { theme: 'Reconnaissance', focus: 'Exprimer votre appréciation aux autres' },
+  { theme: 'Présence', focus: 'Être vraiment là pour ceux qui comptent' },
+  { theme: 'Harmonie', focus: 'Cultiver la paix dans vos relations' },
+  { theme: 'Compassion', focus: 'Offrir de la douceur à ceux qui souffrent' },
+  { theme: 'Authenticité relationnelle', focus: 'Être vrai dans vos interactions' },
+
+  // Bien-être physique (15)
+  { theme: 'Repos', focus: 'Honorer votre besoin de récupération' },
+  { theme: 'Mouvement', focus: 'Célébrer votre corps en action' },
+  { theme: 'Respiration', focus: 'Revenir à l\'ancre de votre souffle' },
+  { theme: 'Alimentation consciente', focus: 'Nourrir votre corps avec attention' },
+  { theme: 'Nature', focus: 'Vous ressourcer au contact du vivant' },
+  { theme: 'Énergie vitale', focus: 'Préserver et cultiver votre vitalité' },
+  { theme: 'Sommeil', focus: 'Préparer une nuit réparatrice' },
+  { theme: 'Ancrage', focus: 'Vous enraciner dans le moment présent' },
+  { theme: 'Détente', focus: 'Relâcher les tensions accumulées' },
+  { theme: 'Hydratation', focus: 'Prendre soin de votre corps avec simplicité' },
+  { theme: 'Posture', focus: 'Habiter votre corps avec conscience' },
+  { theme: 'Rythme', focus: 'Respecter vos cycles naturels' },
+  { theme: 'Sensorialité', focus: 'Éveiller vos sens au monde' },
+  { theme: 'Légèreté corporelle', focus: 'Alléger votre corps et votre esprit' },
+  { theme: 'Régénération', focus: 'Permettre à votre corps de se réparer' },
+
+  // Mental & Créativité (15)
+  { theme: 'Patience', focus: 'Cultiver l\'art d\'attendre avec sérénité' },
+  { theme: 'Curiosité', focus: 'Explorer avec un regard neuf' },
+  { theme: 'Créativité', focus: 'Laisser émerger votre expression unique' },
+  { theme: 'Clarté mentale', focus: 'Dissiper le brouillard de l\'esprit' },
+  { theme: 'Intuition', focus: 'Faire confiance à votre guidance intérieure' },
+  { theme: 'Apprentissage', focus: 'Rester ouvert aux leçons de la vie' },
+  { theme: 'Perspective', focus: 'Voir la situation sous un autre angle' },
+  { theme: 'Imagination', focus: 'Visualiser vos possibilités' },
+  { theme: 'Concentration', focus: 'Diriger votre attention avec intention' },
+  { theme: 'Flexibilité mentale', focus: 'Adapter votre pensée aux circonstances' },
+  { theme: 'Innovation', focus: 'Trouver de nouvelles solutions' },
+  { theme: 'Discernement', focus: 'Distinguer le vrai du faux' },
+  { theme: 'Mémoire', focus: 'Honorer les leçons du passé' },
+  { theme: 'Détachement', focus: 'Observer sans vous identifier' },
+  { theme: 'Vision', focus: 'Clarifier votre direction de vie' },
+
+  // Émotions (15)
+  { theme: 'Joie', focus: 'Cultiver les moments de bonheur simple' },
+  { theme: 'Calme', focus: 'Trouver la paix au milieu du chaos' },
+  { theme: 'Confiance', focus: 'Renforcer votre foi en vous-même' },
+  { theme: 'Courage', focus: 'Affronter ce qui vous intimide' },
+  { theme: 'Espoir', focus: 'Garder la lumière allumée dans l\'obscurité' },
+  { theme: 'Sérénité', focus: 'Accéder à un espace de tranquillité' },
+  { theme: 'Enthousiasme', focus: 'Raviver votre flamme intérieure' },
+  { theme: 'Équilibre émotionnel', focus: 'Naviguer vos émotions avec grâce' },
+  { theme: 'Libération', focus: 'Laisser partir ce qui vous alourdit' },
+  { theme: 'Douceur', focus: 'Vous traiter avec tendresse' },
+  { theme: 'Résilience', focus: 'Rebondir après les difficultés' },
+  { theme: 'Contentement', focus: 'Apprécier ce que vous avez déjà' },
+  { theme: 'Apaisement', focus: 'Calmer les tempêtes intérieures' },
+  { theme: 'Émerveillement', focus: 'Retrouver votre regard d\'enfant' },
+  { theme: 'Fierté saine', focus: 'Reconnaître votre propre valeur' }
+];
+
+function getDailyTheme(date) {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  // Create a hash from the date that cycles through all 90 themes
+  // Using a prime multiplier for better distribution
+  const dateHash = (year * 367 + month * 31 + day) % dailyThemes.length;
+
+  return dailyThemes[dateHash];
+}
+
 export default async function handler(req, res) {
   // 🔐 CORS SÉCURISÉ
   if (!handleCORS(req, res)) {
@@ -148,6 +268,7 @@ export default async function handler(req, res) {
     const moonPhaseName = getMoonPhaseName(moonPhase);
     const planet = getTodayPlanet();
     const interaction = getElementInteraction(profile.dominantElement, currentElement);
+    const dailyTheme = getDailyTheme(today);
 
     // Initialize Anthropic client
     if (!process.env.ANTHROPIC_API_KEY) {
@@ -161,7 +282,11 @@ export default async function handler(req, res) {
     // Build rich prompt with all cosmic data
     const prompt = `Tu es un guide de méditation perspicace. Génère un court message inspirant et personnalisé pour aujourd'hui.
 
-DONNÉES COSMIQUES ACTUELLES:
+THÈME DU JOUR (OBLIGATOIRE - base ton message sur ce thème):
+- Thème: ${dailyTheme.theme}
+- Focus: ${dailyTheme.focus}
+
+DONNÉES COSMIQUES ACTUELLES (pour nuancer le ton):
 - Soleil en: ${currentSunSign} (élément ${currentElement})
 - Phase lunaire: ${moonPhaseName}
 - Planète du jour: ${planet.name} (thème: ${planet.theme})
@@ -177,10 +302,12 @@ PROFIL NATAL DE LA PERSONNE:
 
 INSTRUCTIONS CRITIQUES:
 - Maximum 2 phrases courtes (20-30 mots total)
+- Le message DOIT être en lien direct avec le THÈME DU JOUR
 - Concret et actionnable (pas vague ou poétique)
 - NE MENTIONNE PAS les termes astrologiques (pas de "Soleil en Sagittaire", "phase lunaire", etc.)
+- NE MENTIONNE PAS le nom du thème directement (pas "aujourd'hui est un jour de gratitude")
 - Parle directement à la personne de manière pratique
-- Utilise les données cosmiques pour informer le ton et le conseil, mais sans les nommer
+- Utilise les données cosmiques pour informer le ton, mais sans les nommer
 - Ton calme et encourageant
 - En français
 - N'UTILISE JAMAIS de tirets (-) ou de puces dans ta réponse
