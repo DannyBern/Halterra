@@ -443,7 +443,7 @@ export default function Meditation({
   }
 
   // État pour détecter les swipes vs taps
-  const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
   // Handler pour tap anywhere - pause/play audio
   // Ne réagit qu'aux taps rapides et fixes (pas aux swipes/scrolls)
