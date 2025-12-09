@@ -442,31 +442,69 @@ export default function Meditation({
     );
   }
 
+  // État pour détecter les swipes vs taps
+  const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
+
   // Handler pour tap anywhere - pause/play audio
+  // Ne réagit qu'aux taps rapides et fixes (pas aux swipes/scrolls)
   const handleTapAnywhere = (e: React.MouseEvent | React.TouchEvent) => {
     // Ne pas réagir si pas d'audio disponible
     if (!audioUrl || !audioRef.current) return;
 
-    // Ignorer les taps sur les éléments interactifs (géré par stopPropagation)
+    // Ignorer les taps sur les éléments interactifs
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('a') || target.closest('.speed-control-premium')) {
+    if (
+      target.closest('button') ||
+      target.closest('a') ||
+      target.closest('.speed-control-premium') ||
+      target.closest('.action-btn') ||
+      target.closest('.save-btn') ||
+      target.closest('.share-btn') ||
+      target.closest('.sticky-header') ||
+      target.closest('.meditation-actions') ||
+      target.closest('input') ||
+      target.closest('select')
+    ) {
       return;
     }
 
     handlePlay();
   };
 
+  // Gestion du touch pour distinguer tap vs swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now()
+    };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current || !audioUrl || !audioRef.current) return;
+
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const deltaTime = Date.now() - touchStartRef.current.time;
+
+    // Tap valide: mouvement < 10px et durée < 300ms
+    const isQuickTap = deltaX < 10 && deltaY < 10 && deltaTime < 300;
+
+    if (isQuickTap) {
+      handleTapAnywhere(e);
+    }
+
+    touchStartRef.current = null;
+  };
+
   return (
     <div
       className={`meditation meditation-fullscreen fade-in ${isPlaying ? 'playing' : ''}`}
       onClick={handleTapAnywhere}
-      onTouchEnd={(e) => {
-        // Éviter double-trigger click + touch
-        if (audioUrl && audioRef.current) {
-          e.preventDefault();
-          handleTapAnywhere(e);
-        }
-      }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       style={{ cursor: audioUrl ? 'pointer' : 'default' }}
     >
       {/* Success Notification Premium */}
