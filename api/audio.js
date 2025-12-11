@@ -207,7 +207,7 @@ async function generateAudioV3(text, voiceId, voiceSettings) {
   const requestBody = {
     text: text,
     model_id: 'eleven_v3',
-    language_code: 'fr-CA', // Français québécois
+    // language_code retiré - eleven_v3 ne le supporte pas, la voix Iza a déjà l'accent québécois
     // language_code: 'fr', // RETIRÉ - forçait l'accent français de France
     voice_settings: voiceSettings,
     output_format: 'mp3_44100_192'
