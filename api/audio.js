@@ -173,8 +173,8 @@ function prepareTextForV3(text, isMeditation = true) {
   // Ajouter un préambule québécois invisible pour ancrer l'accent
   // Cette technique utilise previous_text conceptuellement via le texte lui-même
   const quebecPrimer = isMeditation
-    ? '[softly, with Quebec French accent] '
-    : '[warmly, with Quebec French accent] ';
+    ? '[softly] '
+    : '[warmly] ';
 
   processed = `${quebecPrimer}${processed}`;
 
@@ -202,11 +202,12 @@ async function generateAudioV3(text, voiceId, voiceSettings) {
   console.log(`  📤 Calling ElevenLabs V3 API...`);
   console.log(`  📝 Text length: ${text.length} chars`);
 
-  // NOTE: On n'utilise PAS language_code car ça force l'accent français de France
-  // La voix Iza a été entraînée avec l'accent québécois, il faut la laisser s'exprimer naturellement
+  // Utilise fr-CA pour forcer l'accent québécois
+  // fr-CA = français canadien (québécois) vs fr-FR = français de France
   const requestBody = {
     text: text,
     model_id: 'eleven_v3',
+    language_code: 'fr-CA', // Français québécois
     // language_code: 'fr', // RETIRÉ - forçait l'accent français de France
     voice_settings: voiceSettings,
     output_format: 'mp3_44100_192'
