@@ -71,7 +71,8 @@ export default function Meditation({
   const [showShareModal, setShowShareModal] = useState(false);
   const [savedSessionId, setSavedSessionId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const audioTextRef = useRef<string>(''); // Store audioText for later audio generation
+  const audioTextRef = useRef<string>('');
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null); // Store audioText for later audio generation
 
   useEffect(() => {
     generateContent();
@@ -442,8 +443,6 @@ export default function Meditation({
     );
   }
 
-  // État pour détecter les swipes vs taps
-  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
   // Handler pour tap anywhere - pause/play audio
   // Ne réagit qu'aux taps rapides et fixes (pas aux swipes/scrolls)
