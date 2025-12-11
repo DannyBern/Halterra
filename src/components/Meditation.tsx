@@ -57,7 +57,7 @@ export default function Meditation({
 }: MeditationProps) {
   const [status, setStatus] = useState<'generating-text' | 'generating-audio' | 'ready' | 'error'>('generating-text');
   const [meditationText, setMeditationText] = useState('');
-  const [audioBase64, setAudioBase64] = useState<string>();
+  const audioBase64Ref = useRef<string | undefined>(undefined);
   const [audioUrl, setAudioUrl] = useState<string>();
   const [error, setError] = useState<string>();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -146,7 +146,7 @@ export default function Meditation({
 
       try {
         const audioDataUrl = await generateAudioAPI(audioText, guideType);
-        setAudioBase64(audioDataUrl);
+        audioBase64Ref.current = audioDataUrl;
         setAudioUrl(audioDataUrl);
         setStatus('ready');
       } catch (audioError) {
@@ -198,15 +198,15 @@ export default function Meditation({
     console.log('🔍 handleComplete appelé:', {
       hasText: !!meditationText,
       textLength: meditationText.length,
-      hasAudio: !!audioBase64,
-      audioLength: audioBase64?.length,
-      audioBase64Preview: audioBase64?.substring(0, 50)
+      hasAudio: !!audioBase64Ref.current,
+      audioLength: audioBase64Ref.current?.length,
+      audioBase64Preview: audioBase64Ref.current?.substring(0, 50)
     });
 
     setIsSaving(true);
 
     try {
-      await onComplete(meditationText, audioBase64);
+      await onComplete(meditationText, audioBase64Ref.current);
       console.log('✅ Méditation sauvegardée avec succès');
 
       // Générer un ID de session temporaire pour le partage

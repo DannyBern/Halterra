@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense, useCallback } from 'react';
+import ErrorBoundary from './components/ErrorBoundary';
 import VideoIntro from './components/VideoIntro';
 import DateDisplay from './components/DateDisplay';
 import GuideSelector from './components/GuideSelector';
@@ -230,6 +231,7 @@ function App() {
   const disablePullToRefresh = screen === 'meditation' || screen === 'session-view' || screen === 'video-intro';
 
   return (
+    <ErrorBoundary>
     <PullToRefresh disabled={disablePullToRefresh}>
         <div className="app">
       {/* Musique de fond - fade out pendant la méditation */}
@@ -385,6 +387,7 @@ function App() {
       )}
     </div>
     </PullToRefresh>
+    </ErrorBoundary>
   );
 }
 
